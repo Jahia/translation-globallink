@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+	http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi-1.2.xsd">
+	
+    <bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
+        <property name="actionItem">
+            <bean class="org.jahia.ajax.gwt.client.widget.toolbar.action.NewContentActionItem">
+		        <property name="nodeTypes" value="jnt:globalLinkProject"/>
+		        <property name="parentTypes" value="jnt:page"/>
+	      	</bean>
+        </property>
+        <property name="title" value="GlobalLink Translation" />
+        <property name="icon" value="/files/icon/globalLink.png"/>
+        <property name="parent" value="editmode.tabs[0].treeContextMenu"/>
+        <property name="positionBefore" value="Toolbar.Item.Publish"/>
+    </bean>
+
+	<bean id="globalLinkQueryService" class="org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl" />
+    
+    <bean id="submissionService" class="org.jahia.translation.globallink.service.impl.GlobalLinkSubmissionServiceImpl">
+    	<property name="gblQueryService" ref="globalLinkQueryService"/>
+    	<property name="documentService" ref="documentService"/>
+    	<property name="contentService" ref="contentService"/>
+    </bean>
+    
+    <bean id="retrieveDocumentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkRetrieveDocumentServiceImpl">
+    	<property name="contentService" ref="contentService"/>
+        <property name="queryService" ref="globalLinkQueryService"/>
+    </bean>
+    
+    <bean id="translatedContentProcessService" class="org.jahia.translation.globallink.service.impl.GlobalLinkTranslatedContentProcessServiceImpl">
+    	<property name="gblQueryService" ref="globalLinkQueryService"/>
+    	<property name="documentService" ref="documentService"/>
+    	<property name="contentService" ref="contentService"/>
+    </bean>
+    
+    <bean id="documentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkDocumentServiceImpl">
+        <property name="contentService" ref="contentService"/>
+    </bean>
+
+    <bean id="contentService" class="org.jahia.translation.globallink.service.impl.SiteContentServiceImpl">
+        <property name="queryService" ref="globalLinkQueryService"/>
+    </bean>
+
+    <bean class="org.jahia.translation.globallink.action.GlobalLinkConfigAction">
+    </bean>
+
+    <bean parent="jobSchedulingBean">
+        <property name="jobDetail">
+            <bean class="org.springframework.scheduling.quartz.JobDetailBean">
+                <property name="name" value="translationJob" />
+                <property name="jobClass" value="org.jahia.translation.globallink.job.GlobalLinkTranslationJob" />
+            </bean>
+        </property>
+        <property name="trigger">
+            <bean class="org.quartz.CronTrigger">
+                <property name="name" value="TranslationJobTrigger"/>
+                <property name="cronExpression" value="0/70 * * * * ?"/>
+            </bean>
+        </property>
+    </bean>
+    
+</beans>

@@ -1,0 +1,44 @@
+<jmix = 'http://www.jahia.org/jahia/mix/1.0'>
+<jnt = 'http://www.jahia.org/jahia/nt/1.0'>
+<mix = 'http://www.jcp.org/jcr/mix/1.0'>
+
+[jnt:globalLinkSettings] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
+
+[jmix:globalLinkBaseSettings] mixin
+ - j:globalLinkActivated (boolean) = 'false' autocreated indexed=no
+ - j:globalLinkUsername (string) mandatory indexed=no
+ - j:globalLinkPassword (string) mandatory indexed=no
+ - j:globalLinkUrl (string) mandatory indexed=no
+ - j:globalLinkUserAgent (string) mandatory indexed=no
+ - j:globalLinkProject (string) mandatory indexed=no
+ - j:globalLinkSubmissionPrefix (string) mandatory indexed=no
+ - j:globalLinkfileFormat (string) mandatory indexed=no
+ - j:componentsList (string) multiple
+ - j:globalLinkfileLocation (string)
+ - j:globalLinkInterval (long)
+ - j:globalLinkLastExec (date)
+ - j:targetDirections (string) multiple
+ - j:sourceDirections (string) multiple
+ + * (jnt:globalLinkTargetLanguage) = jnt:globalLinkTargetLanguage
+ + * (jnt:globalLinkSourceLanguage) = jnt:globalLinkSourceLanguage
+
+[jnt:globalLinkProject] > jnt:content, jmix:structuredContent
+ - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage'])
+ - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage']) multiple
+ - includeChildPages (boolean)
+ - skipTranslated (boolean)
+ - gblStatus (string) hidden
+ - uploadTicket (string) hidden
+ - submissionTicket (string) hidden
+ - targetTicket (string) hidden
+ - gblSubmitState (string) hidden
+ - gblReason (string) hidden
+ - gblRequestId (string) hidden
+ - gblContentCount (long) hidden
+ - gblError (String) hidden
+
+
+[jnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
+
+[jnt:globalLinkTargetLanguage] > jnt:content, jmix:structuredContent, mix:title
+[jnt:globalLinkSourceLanguage] > jnt:content, jmix:structuredContent, mix:title
