@@ -150,6 +150,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                 if (propertyDefinition != null && propertyDefinition.isInternationalized()) {
                                     String propertyName = ((Property) property).getName();
                                     if (propertyName.contains(":")) {
+                                        // change by cedric
                                         propertyName = propertyName.replace(":", "_");
                                     }
                                     Element propertyElement = document.createElement(propertyName);

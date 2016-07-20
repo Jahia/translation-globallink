@@ -91,6 +91,7 @@ public class GlobalLinkConfigAction extends Action {
             siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
+        //Change by cedric to save even in case of errors
         sessionWrapper.save();
         this.getLanguageDirections(siteNode);
         sessionWrapper.save();
