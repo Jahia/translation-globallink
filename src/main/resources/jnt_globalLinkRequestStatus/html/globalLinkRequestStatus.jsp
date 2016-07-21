@@ -47,11 +47,11 @@
                         <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${gblRequest.properties['jcr:created'].time}"/></td>
                         <td>
 
-                        <c:set var="sourceLang" value="${gbl:getNodeByUuid(gblRequest.properties['sourceLanguage'].string)}" />
-                            ${sourceLang.properties['jcr:title'].string} ->
+                        <jcr:node var="sourceLang" uuid="${gblRequest.properties['sourceLanguage'].string}" />
+                            ${sourceLang.displayableName} ->
                             <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
-                                <c:set var="targetLang" value="${gbl:getNodeByUuid(lan.string)}" />
-                                ${targetLang.properties['jcr:title'].string} ${" "}
+                                <jcr:node var="targetLang" uuid="${lan.string}" />
+                                ${targetLang.displayableName} ${" "}
                             </c:forEach>
                         </td>
                         <td>

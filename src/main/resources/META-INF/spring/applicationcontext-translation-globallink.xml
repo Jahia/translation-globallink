@@ -61,5 +61,7 @@
             </bean>
         </property>
     </bean>
+
+    <bean class="org.jahia.translation.globallink.choicelist.DisplayLocaleNameChoicelistInitializer"/>
     
 </beans>

@@ -134,8 +134,8 @@ public class GlobalLinkConfigAction extends Action {
             Project project = glExchange.getProject(configs.get(0).getProjectName());
             LanguageDirection[] directions = project.getLanguageDirections();
             for (LanguageDirection direction : directions) {
-                String sourceLang = GlobalLinkUtil.getShortLocale(direction.sourceLanguage);
-                String targetLang = GlobalLinkUtil.getShortLocale(direction.targetLanguage);
+                String sourceLang = direction.sourceLanguage.replace("-","_");
+                String targetLang = direction.targetLanguage.replace("-","_");
                 LOGGER.info("Checking for lang: "+ GlobalLinkUtil.getShortLocale(targetLang));
                 if (languages.contains(targetLang)) {
                     if (!siteNode.hasNode(targetLang + "-target")) {
