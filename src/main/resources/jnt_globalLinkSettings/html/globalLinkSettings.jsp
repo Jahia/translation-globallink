@@ -135,7 +135,7 @@
                                     <label for="gblUsername"><fmt:message key="gbl.settings.username"/></label>
                                 </div>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" placeholder="connect-jahia" required
+                                    <input type="text" class="form-control" placeholder="John Doe" required
                                            id="gblUsername" name="j:globalLinkUsername"
                                            value="${site.properties['j:globalLinkUsername'].string}">
                                 </div>
@@ -146,7 +146,7 @@
                                     <label for="gblPassword"><fmt:message key="gbl.settings.password"/></label>
                                 </div>
                                 <div class="col-md-9">
-                                    <input type="password" class="form-control" placeholder="Gl0bal!nk" required
+                                    <input type="password" class="form-control" placeholder="**********" required
                                            id="gblPassword" name="j:globalLinkPassword"
                                            value="${site.properties['j:globalLinkPassword'].string}">
                                 </div>
@@ -158,7 +158,7 @@
                                 </div>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control"
-                                           placeholder="http://gl-connect2.translations.com/PD" required id="gblUrl"
+                                           placeholder="http://example.com" required id="gblUrl"
                                            name="j:globalLinkUrl" value="${site.properties['j:globalLinkUrl'].string}">
                                 </div>
                             </fieldset>
@@ -179,7 +179,7 @@
                                     <label for="gblProject"><fmt:message key="gbl.settings.project"/></label>
                                 </div>
                                 <div class="col-md-9">
-                                    <input type="text" class="form-control" placeholder="JAH000105" required
+                                    <input type="text" class="form-control" placeholder="JAH000000" required
                                            id="gblProject" name="j:globalLinkProject"
                                            value="${site.properties['j:globalLinkProject'].string}">
                                 </div>
