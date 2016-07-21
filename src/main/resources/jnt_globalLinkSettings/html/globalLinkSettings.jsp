@@ -215,7 +215,7 @@
                                 </div>
                                 <div class="col-md-9">
                                     <input type="text" class="form-control"
-                                           placeholder="Don't type anything in this field." required
+                                           placeholder="Don't type anything in this field."
                                            id="globalLinkfileLocation" name="j:globalLinkfileLocation"
                                            value="${site.properties['j:globalLinkfileLocation'].string}">
                                     <p><fmt:message key="gbl.settings.documentlocation.detail"/></p>
