@@ -7,6 +7,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TR
 import java.io.File;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -80,8 +81,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
 		try {
 			JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
 			for (int index = 0; index < values.length ; index++) {
-				String language = this.sessionWrapper.getNodeByUUID(values[index].getString())
-						.getNode("j:translation_en").getPropertyAsString("jcr:title");
+				String language = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(values[index].getString()).getDisplayableName(),"-target");
 				String fileName = "";
 				if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
 					fileName = config.getDocumentPath() + File.separator + requestId + File.separator +TRANSLATED_PATH
@@ -112,8 +112,8 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
 			this.contentService.lockNode(pageNode, this.sessionWrapper);
 			String locale = GlobalLinkUtil.getTargetLocale(file.getName());
 			NodeList contentNodes = this.documentService.getTranslatedContentList(file);
-			String sourceLocale = this.sessionWrapper.getNodeByUUID(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG)
-					.getString()).getNode("j:translation_en").getPropertyAsString("jcr:title");
+			String sourceLocale = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG)
+					.getString()).getDisplayableName(),"-source");
 			try {
 				this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLocale);
 				this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_TRANSLATED);

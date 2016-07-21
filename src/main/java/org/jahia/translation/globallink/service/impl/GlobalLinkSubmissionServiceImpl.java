@@ -182,16 +182,17 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     + "Site - " + config.getSiteNode().getTitle());
             submission.setDueDate(new Date((new Date()).getTime() + (60 * 60 * 24 * 5L)));
             glExchange.initSubmission(submission);
+            String parentIdentifier = requestDTO.getNodeWrapper().getParent().getIdentifier();
             requestDTO.getDocuments().forEach((document) -> {
                 document.setFileformat(config.getFileFormat());
                 document.setSourceLanguage(sourceLanguage);
                 document.setTargetLanguages(targetLanguages);
                 try {
                     String uploadTicket = glExchange.uploadTranslatable(document);
-                    if (!StringUtils.substringBetween(document.getName(), "_", ".")
-                            .equals(requestDTO.getNodeWrapper().getParent().getIdentifier())) {
-                        JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(StringUtils
-                                .substringBetween(document.getName(), "_", ".")).getNode(NODE_NAME_GLOBAL_LINK);
+                    String id = StringUtils.substringBefore(StringUtils
+                            .substringAfterLast(document.getName(), "_"),".");
+                    if (!id.equals(parentIdentifier)) {
+                        JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
                         this.contentService.addUploadTicketForRequest(requestNode, this.sessionWrapper, uploadTicket);
                     } else {
                         requestDTO.setUploadTicket(uploadTicket);

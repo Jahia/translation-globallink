@@ -123,7 +123,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
 						+ File.separator + TRANSLATED_PATH;
 			}
 			IOUtil.createDirectories(FileSystems.getDefault().getPath(docPath));
-			String fileName = target.getTargetLocale() + "_" + StringUtils.substringAfter(target.getDocumentName(), "_");
+			String fileName = target.getTargetLocale() + "_" + StringUtils.substringAfterLast(target.getDocumentName(), "_");
 			String filePath = docPath + File.separator + fileName;
 			if (IOUtil.createFile(target.getData(glExchange), filePath)) {
 				glExchange.sendDownloadConfirmation(target.getTicket());
