@@ -42,9 +42,6 @@ public class GlobalLinkUtil {
      */
     public static String getTargetLocale(String fileName) {
         String locale = StringUtils.substringBefore(fileName, "_");
-        if (StringUtils.substringAfter(locale, "-").equals(StringUtils.substringBefore(locale, "-").toUpperCase())) {
-            locale = StringUtils.substringBefore(locale, "-");
-        }
         return locale;
     }
 

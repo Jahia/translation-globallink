@@ -110,7 +110,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
 		try {
 			JCRNodeWrapper pageNode = requestNode.getParent();
 			this.contentService.lockNode(pageNode, this.sessionWrapper);
-			String locale = GlobalLinkUtil.getTargetLocale(file.getName());
+			String locale = StringUtils.substringBefore(file.getName(),"_").replace("-","_");
 			NodeList contentNodes = this.documentService.getTranslatedContentList(file);
 			String sourceLocale = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG)
 					.getString()).getDisplayableName(),"-source");

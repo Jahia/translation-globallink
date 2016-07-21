@@ -293,7 +293,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             translationNode = jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale);
         } else {
             translationNode = jcrContentNode.addNode(NODE_TRANSLATE_PREFIX + locale, NODE_TRANLSATE_TYPE);
-            translationNode.addMixin(NODE_MIXIN_TITLE);
             translationNode.setProperty(NODE_PROP_LANGUAGE, locale);
         }
         NodeList nodeList = element.getChildNodes();
