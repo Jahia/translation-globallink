@@ -301,7 +301,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                 Node currentNode = nodeList.item(index);
                 String xmlNodename = currentNode.getNodeName();
                 if (xmlNodename.contains("_")) {
-                    xmlNodename.replace("_", ":");
+                    xmlNodename = xmlNodename.replace("_", ":");
                 }
                 if (currentNode.getChildNodes().getLength() > 1) {
                     NodeList contentNodeList = currentNode.getChildNodes();
