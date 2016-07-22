@@ -152,16 +152,33 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         for (int i = 0; i < targetLanguages.length; i++) {
             targetLanguages[i] = GlobalLinkUtil.getGLLocale(targetLanguages[i]);
         }
+        JCRNodeWrapper projectRootNode = requestDTO.getNodeWrapper();
         try {
             Project project = glExchange.getProject(config.getProjectName());
             Submission submission = new Submission();
-            submission.setName(config.getSubmissionPrefix() + "-" + requestDTO.getNodeWrapper().getIdentifier());
+            String jahiaSourceLanguage = sourceLanguage.replace("-","_");
+            JCRSiteNode siteNode = config.getSiteNode();
+            if(!siteNode.getLanguages().contains(jahiaSourceLanguage)){
+                jahiaSourceLanguage = StringUtils.substringBefore(jahiaSourceLanguage,"_");
+                if(!siteNode.getLanguages().contains(jahiaSourceLanguage)){
+                    throw new GlobalLinkServiceException("no source lang matching in site");
+                }
+            }
+            JCRNodeWrapper parent = projectRootNode.getParent();
+            String pageTitle;
+            if(parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
+                pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getProperty("jcr:title").getString();
+            } else {
+                pageTitle = parent.getName();
+            }
+            submission.setName(config.getSubmissionPrefix() + " - from page " + pageTitle +(requestDTO.isChildIncluded()?" with ":" without ")+" sub pages");
             submission.setProject(project);
-            submission.setPmNotes("Translation for - " + requestDTO.getNodeWrapper().getParent().getName()
-                    + "Site - " + config.getSiteNode().getTitle());
+
+            submission.setPmNotes("Translation for - " + pageTitle
+                    + "Site - " + siteNode.getServerName()+"( "+siteNode.getTitle()+" )");
             submission.setDueDate(new Date((new Date()).getTime() + (60 * 60 * 24 * 5L)));
             glExchange.initSubmission(submission);
-            String parentIdentifier = requestDTO.getNodeWrapper().getParent().getIdentifier();
+            String parentIdentifier = parent.getIdentifier();
             requestDTO.getDocuments().forEach((document) -> {
                 document.setFileformat(config.getFileFormat());
                 document.setSourceLanguage(sourceLanguage);
@@ -178,7 +195,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     }
                 } catch (Exception ex) {
                     LOGGER.error("Error while uploading document -> ", ex);
-                    this.contentService.addTranslationRequestError(requestDTO.getNodeWrapper(), this.sessionWrapper,
+                    this.contentService.addTranslationRequestError(projectRootNode, this.sessionWrapper,
                             ex.getMessage());
                 }
             });
@@ -189,7 +206,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             return true;
         } catch (Exception ex) {
             LOGGER.error("Error while submitting Global link request -> ", ex);
-            this.contentService.addTranslationRequestError(requestDTO.getNodeWrapper(), this.sessionWrapper,
+            this.contentService.addTranslationRequestError(projectRootNode, this.sessionWrapper,
                     ex.getMessage());
         }
         return false;
