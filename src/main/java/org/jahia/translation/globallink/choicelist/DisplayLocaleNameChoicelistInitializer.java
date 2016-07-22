@@ -22,8 +22,10 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
     }
 
     @Override
-    public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s, List<ChoiceListValue> list, Locale locale, Map<String, Object> map) {
-        ArrayList<String> names = new Array
+    public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s, List<ChoiceListValue> list, Locale userLocale, Map<String, Object> map) {
+        //Todo: iterate in list
+        //Todo: get the associated locale in ChoiceListValue.displayName
+        //Todo: Replace ChoiceListValue.displayName by target/sourcelocale.getDisplayName(userlocale)
         return list;
     }
 }
