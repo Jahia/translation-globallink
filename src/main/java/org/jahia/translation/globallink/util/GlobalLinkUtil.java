@@ -109,9 +109,10 @@ public class GlobalLinkUtil {
         components.forEach((key, value) -> {
             try {
                 ExtendedNodeType extendedNodeType = NodeTypeRegistry.getInstance().getNodeType(key);
-                ExtendedPropertyDefinition[] definitions = extendedNodeType.getDeclaredPropertyDefinitions();
-                for (ExtendedPropertyDefinition definition : definitions) {
-                    if (definition.isInternationalized()) {
+                Map<String, ExtendedPropertyDefinition> definitions = extendedNodeType.getPropertyDefinitionsAsMap();
+                for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
+                    ExtendedPropertyDefinition value1 = definitionEntry.getValue();
+                    if (!value1.isProtected() && value1.isInternationalized()) {
                         filteredMap.put(key, value);
                         break;
                     }

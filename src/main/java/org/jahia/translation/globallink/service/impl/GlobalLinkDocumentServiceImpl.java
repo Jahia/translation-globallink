@@ -89,6 +89,8 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                 }
             }
             String finalSourceLanguage = sourceLanguage;
+            this.processContentNodeForDocument(pageNode, componentList, document, rootElement,
+                    finalSourceLanguage, sessionWrapper, project.isSkipTranslated());
             contentListNodes.forEach(childNode -> {
 
                 this.processContentNodeForDocument(childNode, componentList, document, rootElement,
