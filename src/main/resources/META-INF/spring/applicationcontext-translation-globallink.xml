@@ -65,13 +65,3 @@
     <bean class="org.jahia.translation.globallink.choicelist.DisplayLocaleNameChoicelistInitializer"/>
     
 </beans>
-
-
-<bean id="rbInitializer" class="org.jahia.services.content.nodetypes.initializers.ResourceBundleChoiceListInitializerImpl"/>
-<bean id="choiceListInitializers" class="org.jahia.services.content.nodetypes.initializers.ChoiceListInitializerService" factory-method="getInstance">
-<property name="initializers">
-    <map>
-        <entry key="resourceBundle" value-ref="rbInitializer"/>
-    </map>
-</property>
-</bean>
