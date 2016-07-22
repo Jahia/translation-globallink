@@ -1,22 +1,5 @@
 package org.jahia.translation.globallink.util;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_AGENT;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_COMPONENTS;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_DOC_LOCATION;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_ENABLE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_FORMAT;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_PASSWORD;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_PREFIX;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_PROJECT;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_URL;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_USERNAME;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.jcr.RepositoryException;
-
 import org.apache.commons.lang.StringUtils;
 import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRSessionFactory;
@@ -27,6 +10,13 @@ import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.RepositoryException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 
 /**
  * Utility methods for JCR Repository

@@ -1,16 +1,5 @@
 package org.jahia.translation.globallink.service.impl;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_BIGTEXT;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_RETRIEVED;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.jcr.query.Query;
-import javax.jcr.query.QueryManager;
-
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -19,6 +8,16 @@ import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryManager;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_BIGTEXT;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_RETRIEVED;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 
 /**
  * Implementation for JCR Query service for Global Link Translation

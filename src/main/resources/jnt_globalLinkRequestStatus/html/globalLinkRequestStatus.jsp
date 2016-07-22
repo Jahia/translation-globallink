@@ -1,110 +1,135 @@
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-<%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr"%>
-<%@ taglib prefix="s" uri="http://www.jahia.org/tags/search"%>
-<%@ taglib prefix="functions" uri="http://www.jahia.org/tags/functions"%>
-<%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib"%>
-<%@ taglib prefix="gbl" uri="http://jahia.com/translation/globallink/1.0"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr" %>
+<%@ taglib prefix="s" uri="http://www.jahia.org/tags/search" %>
+<%@ taglib prefix="functions" uri="http://www.jahia.org/tags/functions" %>
+<%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
+<%@ taglib prefix="gbl" uri="http://jahia.com/translation/globallink/1.0" %>
+<%--@elvariable id="renderContext" type="org.jahia.services.render.RenderContext"--%>
+<%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
-<c:set var="site" value="${renderContext.mainResource.node.resolveSite}" />
-<jcr:sql var="gblRequests" sql="select * from [jnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc" />
+<c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
+<jcr:sql var="gblRequests"
+         sql="select * from [jnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
 
-<template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js" />
-<template:addResources type="css" resources="bootstrap.min.css" />
-<template:addResources type="css" resources="datatables.min.css" />
-<template:addResources type="javascript" resources="bootstrap.min.js" />
-<template:addResources type="javascript" resources="datatables.min.js" />
+<template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js"/>
+<template:addResources type="css" resources="bootstrap.min.css"/>
+<template:addResources type="css" resources="datatables.min.css"/>
+<template:addResources type="javascript" resources="bootstrap.min.js"/>
+<template:addResources type="javascript" resources="datatables.min.js"/>
 
 <table class="table table-striped" id="request-list">
-	<thead>
-		<tr>
-			<th>#</th>
-			<th><fmt:message key="request.page" /></th>
-			<th><fmt:message key="request.date" /></th>
-			<th><fmt:message key="request.language" /></th>
-			<th><fmt:message key="request.tickets" /></th>
-			<th><fmt:message key="request.target" /></th>
-			<th><fmt:message key="request.status" /></th>
-		</tr>
-	</thead>
-	<tbody>
-		<c:forEach items="${gblRequests.nodes}" var="gblRequest" varStatus="index">
-		    <c:choose>
-		        <c:when test="${gblRequest.properties['skipTranslated'].boolean && gblRequest.properties['gblContentCount'].long == 0}">
-		        </c:when>
-		        <c:otherwise>
-		            <tr>
-                        <td>${index.index+1}</td>
-                        <td>
-                            <a href="${url.base}${gblRequest.parent.path}.html">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th><fmt:message key="request.page"/></th>
+        <th><fmt:message key="request.date"/></th>
+        <th><fmt:message key="request.language"/></th>
+        <th><fmt:message key="request.tickets"/></th>
+        <th><fmt:message key="request.target"/></th>
+        <th><fmt:message key="request.status"/></th>
+    </tr>
+    </thead>
+    <tbody>
+    <c:forEach items="${gblRequests.nodes}" var="gblRequest" varStatus="index">
+        <c:choose>
+            <c:when test="${gblRequest.properties['skipTranslated'].boolean && gblRequest.properties['gblContentCount'].long == 0}">
+            </c:when>
+            <c:otherwise>
+                <tr>
+                    <td>${index.index+1}</td>
+                    <td>
+                        <a href="${url.base}${gblRequest.parent.path}.html">
                                 ${not empty gblRequest.parent.properties['jcr:title'].string ? gblRequest.parent.properties['jcr:title'].string : gblRequest.parent.name }
-                            </a>
-                            <br/>
-                            <span><fmt:message key="request.page.requestid" /></span>
-                            ${gblRequest.properties['gblRequestId'].string}
-                        </td>
-                        <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss" value="${gblRequest.properties['jcr:created'].time}"/></td>
-                        <td>
+                        </a>
+                        <br/>
+                        <dl>
+                            <dt><fmt:message key="request.page.requestid"/></dt>
+                            <dh>${gblRequest.properties['gblRequestId'].string}</dh>
+                        </dl>
+                    </td>
+                    <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss"
+                                        value="${gblRequest.properties['jcr:created'].time}"/></td>
+                    <td>
 
-                        <jcr:node var="sourceLang" uuid="${gblRequest.properties['sourceLanguage'].string}" />
-                            ${sourceLang.displayableName} ->
+                        <jcr:node var="sourceLang" uuid="${gblRequest.properties['sourceLanguage'].string}"/>
+                            ${gbl:displayLocale(sourceLang.displayableName, renderContext.UILocale)} ->
+                        <ul class="list-unstyled">
                             <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
-                                <jcr:node var="targetLang" uuid="${lan.string}" />
-                                ${targetLang.displayableName} ${" "}
+                                <jcr:node var="targetLang" uuid="${lan.string}"/>
+                                <li>${gbl:displayLocale(targetLang.displayableName, renderContext.UILocale)}</li>
                             </c:forEach>
-                        </td>
-                        <td>
-                           <c:if test="${not empty gblRequest.properties['uploadTicket'].string}">
-                            <p>
-                            <strong><fmt:message key="request.tickets.upload" /></strong> ${gblRequest.properties['uploadTicket'].string}
-                            </p>
-                           </c:if>
+                        </ul>
+                    </td>
+                    <td>
+                        <dl>
+                            <c:if test="${not empty gblRequest.properties['uploadTicket'].string}">
+                                <dt><fmt:message
+                                        key="request.tickets.upload"/></dt>
+                                <dd>${gblRequest.properties['uploadTicket'].string}</dd>
 
-                           <c:if test="${not empty gblRequest.properties['submissionTicket'].string}">
-                            <p><strong><fmt:message key="request.tickets.submit" /></strong> ${gblRequest.properties['submissionTicket'].string}</p>
-                           </c:if>
-                        </td>
-
-                        <td>
-                            <c:forTokens items="${gblRequest.properties['targetTicket'].string}" delims=","
-                            var="targetData" varStatus="counter">
-                                <c:set var="targetLocale" value="${fn:substringBefore(targetData, '_')}" />
-                                <c:set var="remaining" value="${fn:substringAfter(targetData, '_')}" />
-                                <c:set var="wordCount" value="${fn:substringAfter(remaining, '_')}" />
-                                <c:set var="ticket" value="${fn:substringBefore(remaining, '_')}" />
-
-                                <p><strong><fmt:message key="request.target.language" /> </strong> ${targetLocale}</p>
-                                <p><strong><fmt:message key="request.target.wordcount" /> </strong> ${wordCount}</p>
-                                <p><strong><fmt:message key="request.target.id" /> </strong> ${ticket}</p></br>
-                            </c:forTokens>
-                            <c:if test="${not empty gblRequest.properties['gblContentCount'].long}">
-                                <p><strong><fmt:message key="request.target.contentcount" /> </strong> ${gblRequest.properties['gblContentCount'].long}</p>
                             </c:if>
-                        </td>
 
-                        <td>
-                            <c:choose>
-                                <c:when test="${not empty gblRequest.properties['gblError']}">
-                                    <div style="color: #FA5858;">${gblRequest.properties['gblError'].string}</div>
-                                </c:when>
-                                <c:when test="${empty gblRequest.properties['gblError'] && not empty gblRequest.properties['gblSubmitState']}">
-                                    <fmt:message key="${ gblRequest.properties['gblSubmitState'].string }" />
-                                </c:when>
-                                <c:otherwise>
-                                    <fmt:message key="request.created" />
-                                </c:otherwise>
-                            </c:choose>
-                        </td>
-                    </tr>
-		        </c:otherwise>
-		    </c:choose>
-		</c:forEach>
-	</tbody>
+                            <c:if test="${not empty gblRequest.properties['submissionTicket'].string}">
+                                <dt><fmt:message
+                                        key="request.tickets.submit"/></dt>
+                                <dd>${gblRequest.properties['submissionTicket'].string}</dd>
+
+                            </c:if>
+                        </dl>
+
+                    </td>
+
+                    <td>
+
+                        <c:forTokens items="${gblRequest.properties['targetTicket'].string}" delims=","
+                                     var="targetData" varStatus="counter">
+                            <c:set var="targetLocale" value="${fn:substringBefore(targetData, '_')}"/>
+                            <c:set var="remaining" value="${fn:substringAfter(targetData, '_')}"/>
+                            <c:set var="wordCount" value="${fn:substringAfter(remaining, '_')}"/>
+                            <c:set var="ticket" value="${fn:substringBefore(remaining, '_')}"/>
+                            <dl class="dl-horizontal">
+                                <dt><fmt:message key="request.target.language"/></dt>
+                                <dd>${gbl:displayLocale(fn:replace(targetLocale,"-","_"),renderContext.UILocale)}</dd>
+
+                                <dt><fmt:message key="request.target.wordcount"/></dt>
+                                <dd>${wordCount}</dd>
+                                <dt><fmt:message key="request.target.id"/></dt>
+                                <dd>${ticket}</dd>
+                            </dl>
+                        </c:forTokens>
+                        <c:if test="${not empty gblRequest.properties['gblContentCount'].long}">
+                            <dl class="dl-horizontal">
+                                <dt><fmt:message key="request.target.contentcount"/></dt>
+                                <dd>${gblRequest.properties['gblContentCount'].long}</dd>
+                            </dl>
+                        </c:if>
+
+                    </td>
+
+                    <td>
+                        <c:choose>
+                            <c:when test="${not empty gblRequest.properties['gblError']}">
+                                <div style="color: #FA5858;">${gblRequest.properties['gblError'].string}</div>
+                            </c:when>
+                            <c:when test="${empty gblRequest.properties['gblError'] && not empty gblRequest.properties['gblSubmitState']}">
+                                <fmt:message key="${ gblRequest.properties['gblSubmitState'].string }"/>
+                            </c:when>
+                            <c:otherwise>
+                                <fmt:message key="request.created"/>
+                            </c:otherwise>
+                        </c:choose>
+                    </td>
+                </tr>
+            </c:otherwise>
+        </c:choose>
+    </c:forEach>
+    </tbody>
 </table>
-	
+
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
         $('#request-list').DataTable();
     });
 </script>

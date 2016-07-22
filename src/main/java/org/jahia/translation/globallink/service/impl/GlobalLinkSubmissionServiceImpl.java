@@ -1,36 +1,12 @@
 package org.jahia.translation.globallink.service.impl;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_INCLUDE_CHILD;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_REQUEST_ID;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SOURCE_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_INTERVAL;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_LAST_EXEC;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SKIP_TRANSLATED;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SUBMISSION_STATE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_NAME_GLOBAL_LINK;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PAGE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_ERROR;
-
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-
-import javax.jcr.RepositoryException;
-
+import com.globallink.api.GLExchange;
+import com.globallink.api.model.Document;
+import com.globallink.api.model.Project;
+import com.globallink.api.model.Submission;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jahia.services.content.JCRContentUtils;
-import org.jahia.services.content.JCRNodeIteratorWrapper;
-import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRValueWrapper;
+import org.jahia.services.content.*;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
@@ -44,10 +20,13 @@ import org.jahia.translation.globallink.util.JCRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.model.Document;
-import com.globallink.api.model.Project;
-import com.globallink.api.model.Submission;
+import javax.jcr.RepositoryException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 
 /**
  * Implementation for Global link translation project submission service
@@ -120,11 +99,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                         projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
                         String sourceLanguage = this.sessionWrapper.getNodeByUUID(project.getProperty
                                 (GBL_PROJECT_SOURCE_LANG).getString()).getDisplayableName();
-                        projectRequestDTO.setSourceLanguage(StringUtils.substringBefore(sourceLanguage,"-source"));
+                        projectRequestDTO.setSourceLanguage(StringUtils.substringBefore(sourceLanguage, "-source"));
                         JCRValueWrapper[] values = project.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
                         String[] targetLanguages = new String[values.length];
                         for (int i = 0; i < values.length; i++) {
-                            targetLanguages[i] = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(values[i].getString()).getDisplayableName(),"-target");
+                            targetLanguages[i] = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(values[i].getString()).getDisplayableName(), "-target");
                         }
                         projectRequestDTO.setDesLanguages(targetLanguages);
                         projectRequestDTO.setNodeWrapper(project);
@@ -168,10 +147,10 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      */
     private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config,
                                      GLExchange glExchange) {
-        String sourceLanguage = GlobalLinkUtil.getFullLocale(requestDTO.getSourceLanguage());
+        String sourceLanguage = GlobalLinkUtil.getGLLocale(requestDTO.getSourceLanguage());
         String[] targetLanguages = requestDTO.getDesLanguages();
         for (int i = 0; i < targetLanguages.length; i++) {
-            targetLanguages[i] = GlobalLinkUtil.getFullLocale(targetLanguages[i]);
+            targetLanguages[i] = GlobalLinkUtil.getGLLocale(targetLanguages[i]);
         }
         try {
             Project project = glExchange.getProject(config.getProjectName());
@@ -190,7 +169,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 try {
                     String uploadTicket = glExchange.uploadTranslatable(document);
                     String id = StringUtils.substringBefore(StringUtils
-                            .substringAfterLast(document.getName(), "_"),".");
+                            .substringAfterLast(document.getName(), "_"), ".");
                     if (!id.equals(parentIdentifier)) {
                         JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
                         this.contentService.addUploadTicketForRequest(requestNode, this.sessionWrapper, uploadTicket);
@@ -204,7 +183,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 }
             });
             String[] submitTokens = glExchange.startSubmission();
-            LOGGER.info("Submission Tickets: "+ submitTokens.length);
+            LOGGER.info("Submission Tickets: " + submitTokens.length);
             requestDTO.setSubmitTicket(submitTokens[0]);
 
             return true;
@@ -235,8 +214,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 processChildPages(requestDTO, requestDTO.getNodeWrapper().getParent(), config);
             }
             if (this.submitGBLRequest(requestDTO, config, glExchange)) {
-				this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
-			}
+                this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
+            }
         } catch (RepositoryException e) {
             LOGGER.error("Error while processing project request DTO -> ", e);
         }

@@ -1,26 +1,9 @@
 package org.jahia.translation.globallink.service.impl;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.jcr.Property;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-
-import org.jahia.services.content.*;
+import org.apache.commons.lang.StringUtils;
+import org.jahia.services.content.JCRContentUtils;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -35,6 +18,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.jcr.Property;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 
 /**
  * Implementation for document service
@@ -79,12 +81,21 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             Document document = docBuilder.newDocument();
             Element rootElement = document.createElement(DOCUMENT_ROOT_NODE);
             List<JCRNodeWrapper> contentListNodes = JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_CONTENTLIST);
+            String sourceLanguage = project.getSourceLanguage();
+            if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
+                sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
+                if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
+                    throw new GlobalLinkServiceException("There is no language matching this source on this site");
+                }
+            }
+            String finalSourceLanguage = sourceLanguage;
             contentListNodes.forEach(childNode -> {
+
                 this.processContentNodeForDocument(childNode, componentList, document, rootElement,
-                        project.getSourceLanguage(), sessionWrapper, project.isSkipTranslated());
+                        finalSourceLanguage, sessionWrapper, project.isSkipTranslated());
             });
             this.contentService.addContentCount(requestNode, sessionWrapper, count);
-            if (this.count > 0 ) {
+            if (this.count > 0) {
                 document.appendChild(rootElement);
                 File srcFile = new File(GlobalLinkUtil.getSourceDocumentPath(project, pageNode));
                 TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -97,7 +108,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                 return true;
             }
             return false;
-        } catch (ParserConfigurationException | TransformerException | DOMException ex) {
+        } catch (ParserConfigurationException | TransformerException | DOMException | RepositoryException ex) {
             LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
@@ -132,7 +143,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      * @param skipTranslated
      */
     @SuppressWarnings("unchecked")
-	private void processContentNodeForDocument(JCRNodeWrapper nodeWrapper, List<String> componentList, Document document,
+    private void processContentNodeForDocument(JCRNodeWrapper nodeWrapper, List<String> componentList, Document document,
                                                Element rootElement, String locale, JCRSessionWrapper sessionWrapper, boolean skipTranslated) {
         try {
             if (componentList.contains(nodeWrapper.getPrimaryNodeTypeName())) {

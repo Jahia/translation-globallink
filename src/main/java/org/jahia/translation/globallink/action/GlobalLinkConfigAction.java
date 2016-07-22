@@ -1,15 +1,11 @@
 package org.jahia.translation.globallink.action;
 
-import static javax.servlet.http.HttpServletResponse.SC_OK;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
-
 import com.globallink.api.GLExchange;
 import com.globallink.api.model.LanguageDirection;
 import com.globallink.api.model.Project;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
-import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
@@ -25,6 +21,9 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
+
+import static javax.servlet.http.HttpServletResponse.SC_OK;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 
 /**
  * Jahia Action to process and save Global Link Site configurations.
@@ -70,15 +69,15 @@ public class GlobalLinkConfigAction extends Action {
             sessionWrapper.save();
         }
         switch (getRequestParameter(request, GBL_PROPERTY_ENABLE)) {
-		case "true":
-			siteNode.setProperty(GBL_PROPERTY_ENABLE, true);
-			break;
-        case "false":
-            siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
-            break;
-		default:
-			break;
-		}
+            case "true":
+                siteNode.setProperty(GBL_PROPERTY_ENABLE, true);
+                break;
+            case "false":
+                siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
+                break;
+            default:
+                break;
+        }
         siteNode.setProperty(GBL_PROPERTY_USERNAME, getRequestParameter(request, GBL_PROPERTY_USERNAME));
         siteNode.setProperty(GBL_PROPERTY_PASSWORD, getRequestParameter(request, GBL_PROPERTY_PASSWORD));
         siteNode.setProperty(GBL_PROPERTY_URL, getRequestParameter(request, GBL_PROPERTY_URL));
@@ -127,26 +126,50 @@ public class GlobalLinkConfigAction extends Action {
         List<GlobalLinkConfigurationDTO> configs = JCRUtil.getConfigurationList(siteNodes);
         Set<String> languages = siteNode.getLanguages();
         languages.forEach(lang -> {
-            LOGGER.info("Site Lang: "+ GlobalLinkUtil.getFullLocale(lang));
+            LOGGER.info("Site Lang: " + GlobalLinkUtil.getGLLocale(lang));
         });
         if (configs.size() > 0) {
             GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(configs.get(0));
-            Project project = glExchange.getProject(configs.get(0).getProjectName());
-            LanguageDirection[] directions = project.getLanguageDirections();
-            for (LanguageDirection direction : directions) {
-                String sourceLang = direction.sourceLanguage.replace("-","_");
-                String targetLang = direction.targetLanguage.replace("-","_");
-                LOGGER.info("Checking for lang: "+ GlobalLinkUtil.getShortLocale(targetLang));
-                if (languages.contains(targetLang)) {
-                    if (!siteNode.hasNode(targetLang + "-target")) {
-                        JCRNodeWrapper targetNode = siteNode.addNode(targetLang + "-target",
-                                GBL_PROPERTY_TARGET_DIRECTIONS);
+            Project project = null;
+            if (glExchange != null) {
+                project = glExchange.getProject(configs.get(0).getProjectName());
+                LanguageDirection[] directions = project.getLanguageDirections();
+                for (LanguageDirection direction : directions) {
+                    String sourceLang = direction.sourceLanguage.replace("-", "_");
+                    String targetLang = direction.targetLanguage.replace("-", "_");
+                    LOGGER.info("Checking for lang: " + GlobalLinkUtil.getJavaLocale(targetLang));
+                    if (languages.contains(targetLang) && !siteNode.hasNode(targetLang + "-target")) {
+                        siteNode.addNode(targetLang + "-target", GBL_PROPERTY_TARGET_DIRECTIONS);
+                    } else {
+                        String genericTargetLang = StringUtils.substringBefore(targetLang, "_");
+                        if (hasFoundGenericLanguage(languages, genericTargetLang) && !siteNode.hasNode(targetLang + "-target")) {
+                            siteNode.addNode(targetLang + "-target", GBL_PROPERTY_TARGET_DIRECTIONS);
+                        }
+                    }
+                    if (languages.contains(sourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
+                        siteNode.addNode(sourceLang + "-source", GBL_PROPERTY_SOURCE_DIRECTIONS);
+                    } else {
+                        String genericSourceLang = StringUtils.substringBefore(sourceLang, "_");
+                        if (hasFoundGenericLanguage(languages, genericSourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
+                            siteNode.addNode(sourceLang + "-source", GBL_PROPERTY_SOURCE_DIRECTIONS);
+                        }
                     }
                 }
-                if (languages.contains(sourceLang)) {
-                    if (!siteNode.hasNode(sourceLang + "-source")) {
-                        JCRNodeWrapper sourceNode = siteNode.addNode(sourceLang + "-source",
             }
         }
+    }
+
+    private boolean hasFoundGenericLanguage(Set<String> languages, String genericLang) {
+        boolean foundGenericLanguage = false;
+        for (String language : languages) {
+            if (language.equals(genericLang)) {
+                foundGenericLanguage = true;
+            }
+            if (language.contains("_") && language.startsWith(genericLang)) {
+                foundGenericLanguage = false;
+                break;
+            }
+        }
+        return foundGenericLanguage;
     }
 }

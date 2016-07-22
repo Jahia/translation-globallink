@@ -11,14 +11,14 @@ import java.util.Map;
 /**
  * Created by rincevent on 2016-07-21.
  */
-public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListInitializer{
-    @Override
-    public void setKey(String s) {
-    }
-
+public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListInitializer {
     @Override
     public String getKey() {
         return "displayLocaleName";
+    }
+
+    @Override
+    public void setKey(String s) {
     }
 
     @Override

@@ -1,16 +1,8 @@
 package org.jahia.translation.globallink.util;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_PATH;
-
-import java.io.File;
-import java.nio.file.FileSystems;
-import java.util.*;
-
-import javax.jcr.RepositoryException;
-import javax.jcr.nodetype.NoSuchNodeTypeException;
-
+import com.globallink.api.GLExchange;
+import com.globallink.api.config.ProjectDirectorConfig;
 import org.apache.commons.lang.StringUtils;
-import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.nodetypes.ExtendedNodeType;
@@ -21,8 +13,13 @@ import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.config.ProjectDirectorConfig;
+import javax.jcr.RepositoryException;
+import javax.jcr.nodetype.NoSuchNodeTypeException;
+import java.io.File;
+import java.nio.file.FileSystems;
+import java.util.*;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_PATH;
 
 /**
  * Utility class for common methods.
@@ -35,43 +32,17 @@ public class GlobalLinkUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkUtil.class);
 
     /**
-     * Get locale to use in jahia.
-     *
-     * @param fileName
-     * @return
-     */
-    public static String getTargetLocale(String fileName) {
-        String locale = StringUtils.substringBefore(fileName, "_");
-        return locale;
-    }
-
-    /**
      * Get Full locale code with region code.
      *
      * @param locale
      * @return
      */
-    public static String getFullLocale(String locale) {
-        if (locale.equals("en")) {
-            return "en-US";
-        } else if (!locale.contains("_")) {
-            return locale + "-" + locale.toUpperCase();
-        } else {
-            return locale.replace("_", "-");
-        }
+    public static String getGLLocale(String locale) {
+        return locale.replace("_", "-");
     }
 
-    public static String getShortLocale(String locale) {
-        if (locale.equals("en-US")) {
-            return "en";
-        } else if (locale.contains("-")) {
-            if (StringUtils.substringAfter(locale, "-").equals(StringUtils.substringBefore(locale, "-").toUpperCase())) {
-                return StringUtils.substringBefore(locale, "-");
-            } else {
-                return locale.replace("-", "_");
-            }
-        }
-        return locale;
+    public static String getJavaLocale(String locale) {
+        return locale.replace("-", "_");
     }
 
     /**

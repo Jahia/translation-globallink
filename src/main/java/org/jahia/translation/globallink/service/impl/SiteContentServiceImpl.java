@@ -1,28 +1,5 @@
 package org.jahia.translation.globallink.service.impl;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_CONTENT_PROP_UUID;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_INCLUDE_CHILD;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_CONTENT_COUNT;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_ERROR;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_REQUEST_ID;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SOURCE_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_UPLOAD_TICKET;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SKIP_TRANSLATED;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SUBMISSION_STATE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_MIXIN_TITLE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_NAME_GLOBAL_LINK;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_NAME_TRANS_PROP;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_PROP_LANGUAGE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TRANLSATE_TYPE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TRANSLATE_PREFIX;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
-
-import javax.jcr.RepositoryException;
-
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -35,6 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.jcr.RepositoryException;
+
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 
 /**
  * Implementation for content service
@@ -306,7 +288,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                 if (currentNode.getChildNodes().getLength() > 1) {
                     NodeList contentNodeList = currentNode.getChildNodes();
                     int length = contentNodeList.getLength();
-					String[] transContentList = new String[length];
+                    String[] transContentList = new String[length];
                     for (int i = 0; i < length; i++) {
                         transContentList[i] = contentNodeList.item(i).getTextContent();
                     }

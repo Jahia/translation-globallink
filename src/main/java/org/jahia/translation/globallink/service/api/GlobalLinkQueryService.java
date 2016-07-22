@@ -1,13 +1,12 @@
 package org.jahia.translation.globallink.service.api;
 
-import java.util.List;
-
-import javax.jcr.query.QueryManager;
-
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
+
+import javax.jcr.query.QueryManager;
+import java.util.List;
 
 /**
  * JCR Query Service for Global Link Translation module.

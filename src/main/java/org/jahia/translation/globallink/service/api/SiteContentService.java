@@ -88,7 +88,7 @@ public interface SiteContentService {
      * @throws GlobalLinkServiceException
      */
     JCRNodeWrapper addGlobalLinkRequestNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper,
-                                  GlobalLinkProjectRequestDTO requestDTO) throws GlobalLinkServiceException;
+                                            GlobalLinkProjectRequestDTO requestDTO) throws GlobalLinkServiceException;
 
     /**
      * Add upload ticket for a request node in jcr.

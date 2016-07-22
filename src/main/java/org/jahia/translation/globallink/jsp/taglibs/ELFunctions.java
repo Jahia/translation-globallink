@@ -3,24 +3,27 @@ package org.jahia.translation.globallink.jsp.taglibs;
 import com.globallink.api.GLExchange;
 import com.globallink.api.model.LanguageDirection;
 import com.globallink.api.model.Project;
-
+import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionFactory;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
-import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.scripting.Script;
 import org.jahia.services.templates.ComponentRegistry;
 import org.jahia.translation.globallink.common.GlobalLinkConstants;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
+import org.jahia.utils.LanguageCodeConverters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -97,5 +100,9 @@ public class ELFunctions {
         JCRSessionWrapper jcrSessionWrapper = JCRSessionFactory.getInstance()
                 .getCurrentUserSession(GlobalLinkConstants.JCR_DEFAULT_WS);
         return jcrSessionWrapper.getNodeByUUID(nodeId).getNode("j:translation_en");
+    }
+
+    public static String displayLocale(String locale, Locale toDisplayNameWith) {
+        return LanguageCodeConverters.getLocaleFromCode(StringUtils.substringBefore(locale,"-")).getDisplayName(toDisplayNameWith);
     }
 }

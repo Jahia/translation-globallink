@@ -1,8 +1,8 @@
 package org.jahia.translation.globallink.service.api;
 
-import java.util.List;
-
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
+
+import java.util.List;
 
 /**
  * Submission service for Global link translation project
