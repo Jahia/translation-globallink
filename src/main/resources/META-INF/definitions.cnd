@@ -2,7 +2,7 @@
 <jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <mix = 'http://www.jcp.org/jcr/mix/1.0'>
 
-[jnt:globalLinkSettings] > jnt:content, jmix:studioOnly, jmix:siteComponent
+[jnt:globalLinkSettings] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
 
 [jmix:globalLinkBaseSettings] mixin
  - j:globalLinkActivated (boolean) = 'false' autocreated indexed=no
@@ -37,7 +37,8 @@
  - gblContentCount (long) hidden
  - gblError (String) hidden
 
-[jnt:globalLinkRequestStatus] > jnt:content, jmix:studioOnly, jmix:siteComponent
+
+[jnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
 
 [jnt:globalLinkTargetLanguage] > jnt:content, jmix:structuredContent
 [jnt:globalLinkSourceLanguage] > jnt:content, jmix:structuredContent

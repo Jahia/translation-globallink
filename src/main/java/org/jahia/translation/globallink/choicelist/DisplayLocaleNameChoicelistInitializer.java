@@ -23,6 +23,7 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
 
     @Override
     public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s, List<ChoiceListValue> list, Locale locale, Map<String, Object> map) {
+        ArrayList<String> names = new Array
         return list;
     }
 }

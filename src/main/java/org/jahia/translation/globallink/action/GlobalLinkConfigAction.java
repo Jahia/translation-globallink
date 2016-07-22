@@ -146,10 +146,6 @@ public class GlobalLinkConfigAction extends Action {
                 if (languages.contains(sourceLang)) {
                     if (!siteNode.hasNode(sourceLang + "-source")) {
                         JCRNodeWrapper sourceNode = siteNode.addNode(sourceLang + "-source",
-                                GBL_PROPERTY_SOURCE_DIRECTIONS);
-                        sourceNode.setProperty("jcr:title", sourceLang);
-                    }
-                }
             }
         }
     }
