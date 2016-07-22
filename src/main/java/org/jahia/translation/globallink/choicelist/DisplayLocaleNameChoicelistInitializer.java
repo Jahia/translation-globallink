@@ -1,8 +1,10 @@
 package org.jahia.translation.globallink.choicelist;
 
+import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
+import org.jahia.utils.LanguageCodeConverters;
 
 import java.util.List;
 import java.util.Locale;
@@ -23,9 +25,14 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
 
     @Override
     public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s, List<ChoiceListValue> list, Locale userLocale, Map<String, Object> map) {
-        //Todo: iterate in list
-        //Todo: get the associated locale in ChoiceListValue.displayName
-        //Todo: Replace ChoiceListValue.displayName by target/sourcelocale.getDisplayName(userlocale)
+        for (ChoiceListValue choiceListValue : list) {
+            //Get the language code by removing -source or -target
+            String languageCode = StringUtils.substringBefore(choiceListValue.getDisplayName(), "-");
+            // get the locale object form the code
+            Locale localeFromCode = LanguageCodeConverters.getLocaleFromCode(languageCode);
+            // Render the locale object in the current user language
+            choiceListValue.setDisplayName(localeFromCode.getDisplayName(userLocale));
+        }
         return list;
     }
 }

@@ -23,8 +23,8 @@
  + * (jnt:globalLinkSourceLanguage) = jnt:globalLinkSourceLanguage
 
 [jnt:globalLinkProject] > jnt:content, jmix:structuredContent
- - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage',displayLocaleName])
- - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage',displayLocaleName]) multiple
+ - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage',displayLocaleName,sort])
+ - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage',displayLocaleName,sort]) multiple
  - includeChildPages (boolean)
  - skipTranslated (boolean)
  - gblStatus (string) hidden
