@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.jcr.Property;
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import javax.xml.parsers.DocumentBuilder;
@@ -151,7 +152,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             if (componentList.contains(nodeWrapper.getPrimaryNodeTypeName())) {
                 Element contentElement = document.createElement(DOCUMENT_CONTENT_NODE);
                 contentElement.setAttribute(DOCUMENT_CONTENT_PROP_UUID, nodeWrapper.getIdentifier());
-                if (nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale) != null) {
+                if (nodeWrapper.hasNode(NODE_TRANSLATE_PREFIX + locale)) {
                     JCRNodeWrapper translationNode = nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale);
                     if ((skipTranslated && !translationNode.hasProperty(NODE_NAME_TRANS_PROP)) ||
                             (skipTranslated && !translationNode.getProperty(NODE_NAME_TRANS_PROP).getBoolean()) || !skipTranslated) {
@@ -159,8 +160,8 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                         nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale).getProperties().forEachRemaining(property -> {
                             try {
                                 ExtendedPropertyDefinition propertyDefinition =
-                                        translationNode.getApplicablePropertyDefinition(((Property) property).getName());
-                                if (propertyDefinition != null && propertyDefinition.isInternationalized()) {
+                                        nodeWrapper.getApplicablePropertyDefinition(((Property) property).getName());
+                                if (propertyDefinition != null && propertyDefinition.isInternationalized() && !propertyDefinition.isProtected() && propertyDefinition.getRequiredType() == PropertyType.STRING) {
                                     String propertyName = ((Property) property).getName();
                                     if (propertyName.contains(":")) {
                                         // change by cedric

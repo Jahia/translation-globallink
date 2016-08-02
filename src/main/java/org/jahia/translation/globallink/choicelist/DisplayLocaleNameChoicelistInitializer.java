@@ -32,6 +32,7 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
             Locale localeFromCode = LanguageCodeConverters.getLocaleFromCode(languageCode);
             // Render the locale object in the current user language
             choiceListValue.setDisplayName(localeFromCode.getDisplayName(userLocale));
+            choiceListValue.setStringValue(languageCode);
         }
         return list;
     }

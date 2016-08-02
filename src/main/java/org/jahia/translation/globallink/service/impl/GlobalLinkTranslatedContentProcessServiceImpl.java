@@ -81,7 +81,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
         try {
             JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
             for (int index = 0; index < values.length; index++) {
-                String language = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(values[index].getString()).getDisplayableName(), "-target");
+                String language = values[index].getString();
                 String fileName = "";
                 if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
                     fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
@@ -112,8 +112,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
             this.contentService.lockNode(pageNode, this.sessionWrapper);
             String locale = StringUtils.substringBefore(file.getName(), "_").replace("-", "_");
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
-            String sourceLanguage = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG)
-                    .getString()).getDisplayableName(), "-source");
+            String sourceLanguage = requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
             if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
                 sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
                 if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {

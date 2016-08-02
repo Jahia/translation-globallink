@@ -97,13 +97,12 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                         LOGGER.info("processing project node: {}" + project.getPath());
                         GlobalLinkProjectRequestDTO projectRequestDTO = new GlobalLinkProjectRequestDTO();
                         projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
-                        String sourceLanguage = this.sessionWrapper.getNodeByUUID(project.getProperty
-                                (GBL_PROJECT_SOURCE_LANG).getString()).getDisplayableName();
-                        projectRequestDTO.setSourceLanguage(StringUtils.substringBefore(sourceLanguage, "-source"));
+                        String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
+                        projectRequestDTO.setSourceLanguage(sourceLanguage);
                         JCRValueWrapper[] values = project.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
                         String[] targetLanguages = new String[values.length];
                         for (int i = 0; i < values.length; i++) {
-                            targetLanguages[i] = StringUtils.substringBefore(this.sessionWrapper.getNodeByUUID(values[i].getString()).getDisplayableName(), "-target");
+                            targetLanguages[i] = values[i].getString();
                         }
                         projectRequestDTO.setDesLanguages(targetLanguages);
                         projectRequestDTO.setNodeWrapper(project);

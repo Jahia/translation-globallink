@@ -40,8 +40,8 @@
                 <tr>
                     <td>${index.index+1}</td>
                     <td>
-                        <a href="${url.base}${gblRequest.parent.path}.html">
-                                ${not empty gblRequest.parent.properties['jcr:title'].string ? gblRequest.parent.properties['jcr:title'].string : gblRequest.parent.name }
+                        <a href="<c:url value="${url.baseEdit}${gblRequest.parent.path}.html"/>" target="_blank">
+                                ${gblRequest.parent.displayableName}
                         </a>
                         <br/>
                         <dl>
@@ -51,14 +51,10 @@
                     </td>
                     <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm:ss"
                                         value="${gblRequest.properties['jcr:created'].time}"/></td>
-                    <td>
-
-                        <jcr:node var="sourceLang" uuid="${gblRequest.properties['sourceLanguage'].string}"/>
-                            ${gbl:displayLocale(sourceLang.displayableName, renderContext.UILocale)} ->
+                    <td>${gbl:displayLocale(gblRequest.properties['sourceLanguage'].string, renderContext.UILocale)}&nbsp;->
                         <ul class="list-unstyled">
                             <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
-                                <jcr:node var="targetLang" uuid="${lan.string}"/>
-                                <li>${gbl:displayLocale(targetLang.displayableName, renderContext.UILocale)}</li>
+                                <li>${gbl:displayLocale(lan.string, renderContext.UILocale)}</li>
                             </c:forEach>
                         </ul>
                     </td>
