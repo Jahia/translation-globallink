@@ -23,25 +23,25 @@
             $('#success').hide();
             $('#error').hide();
             var $componentSelection = $('#componentSelection');
-            var options  = $.makeArray($componentSelection.children('option'));
-            options.sort(function (a, b){
+            var options             = $.makeArray($componentSelection.children('option'));
+            options.sort(function (a, b) {
                 return $(a).html().localeCompare($(b).html());
             });
             $componentSelection.empty();
-            $.each(options, function(){
+            $.each(options, function () {
                 $componentSelection.append(this);
             });
             $componentSelection.multiSelect({
                 selectableHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
-                selectionHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
+                selectionHeader : "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
                 selectableFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selectable" /></div>",
-                selectionFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selected" /></div>",
-                afterInit: function (ms) {
-                    var that = this,
-                            $selectableSearch = that.$selectableUl.prev(),
-                            $selectionSearch = that.$selectionUl.prev(),
-                            selectableSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selectable:not(.ms-selected)',
-                            selectionSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selection.ms-selected';
+                selectionFooter : "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selected" /></div>",
+                afterInit       : function (ms) {
+                    var that                   = this,
+                        $selectableSearch      = that.$selectableUl.prev(),
+                        $selectionSearch       = that.$selectionUl.prev(),
+                        selectableSearchString = '#' + that.$container.attr('id') + ' .ms-elem-selectable:not(.ms-selected)',
+                        selectionSearchString  = '#' + that.$container.attr('id') + ' .ms-elem-selection.ms-selected';
 
                     that.qs1 = $selectableSearch.quicksearch(selectableSearchString)
                             .on('keydown', function (e) {
@@ -59,11 +59,11 @@
                                 }
                             });
                 },
-                afterSelect: function () {
+                afterSelect     : function () {
                     this.qs1.cache();
                     this.qs2.cache();
                 },
-                afterDeselect: function () {
+                afterDeselect   : function () {
                     this.qs1.cache();
                     this.qs2.cache();
                 }
@@ -76,6 +76,37 @@
                     $('#globalLinkActivatedSubmit').val("false");
                 }
             });
+
+            $("input[name=componentsType]").on("click", function () {
+                var componentType = $("input[name=componentsType]:checked").val();
+                $.get("<c:url value="${url.basePreview}${currentResource.node.path}.json"/>", {
+                    "componentType": componentType,
+                    "identifier"   : "${renderContext.mainResource.node.identifier}"
+                }, function (result) {
+                    var $componentSelection = $('#componentSelection');
+                    var options             = $.makeArray($componentSelection.children('option:selected'));
+                    console.log(options);
+                    $componentSelection.empty();
+                    $.each(options, function () {
+                        $componentSelection.append(this);
+                    });
+                    $.each(result, function () {
+                        var option = $("<option value='"+this.value+"-"+this.key+"'>"+this.value+"</option>");
+                        console.log(option);
+                        $componentSelection.append(option);
+                    });
+                    options             = $.makeArray($componentSelection.children('option'));
+                    options.sort(function (a, b) {
+                        return $(a).html().localeCompare($(b).html());
+                    });
+                    $componentSelection.empty();
+                    $.each(options, function () {
+                        $componentSelection.append(this);
+                    });
+                    $componentSelection.multiSelect('refresh');
+                }, "json");
+            });
+
         });
     </script>
 
@@ -248,18 +279,29 @@
 
                 <div class="col-md-5">
                     <h1><fmt:message key="gbl.settings.componentlist"/></h1>
-                    <select name="j:componentsList" id="componentSelection" multiple size="30">
-                        <c:forEach items="${site.properties['j:componentsList']}" var="component">
-                            <option value="${component.string}" selected>${fn:substringBefore(component.string, '-')}
-                            </option>
-                        </c:forEach>
-                        <c:forEach
-                                items="${gbl:componentList(renderContext.mainResource.node, renderContext.request.locale, script, site.properties['j:componentsList'])}"
-                                var="component">
-                            <option value="${component.value}-${component.key}">${component.value}
-                            </option>
-                        </c:forEach>
-                    </select>
+                    <label class="radio-inline">
+                        <input type="radio" name="componentsType" value="all"><fmt:message
+                            key="gbl.settings.components.all"/>
+                    </label>
+                    <label class="radio-inline">
+                        <input type="radio" name="componentsType" value="editorial" checked><fmt:message
+                            key="gbl.settings.components.editorial"/>
+                    </label>
+                    <fieldset class="form-group">
+                        <select name="j:componentsList" id="componentSelection" multiple size="30">
+                            <c:forEach items="${site.properties['j:componentsList']}" var="component">
+                                <option value="${component.string}"
+                                        selected>${fn:substringBefore(component.string, '-')}
+                                </option>
+                            </c:forEach>
+                            <c:forEach
+                                    items="${gbl:componentList(renderContext.mainResource.node, renderContext.request.locale, script, site.properties['j:componentsList'])}"
+                                    var="component">
+                                <option value="${component.value}-${component.key}">${component.value}
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </fieldset>
                 </div>
                 <div class="col-md-3">
                     <c:set var="directions" value="${gbl:projectInfo(renderContext.mainResource.node)}"/>
