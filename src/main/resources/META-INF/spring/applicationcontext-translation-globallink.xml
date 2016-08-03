@@ -12,7 +12,7 @@
 	      	</bean>
         </property>
         <property name="title" value="GlobalLink Translation" />
-        <property name="icon" value="/files/icon/globalLink.png"/>
+        <property name="icon" value="/modules/jahia-translation-globallink/img/jnt_globalLinkProject.png"/>
         <property name="parent" value="editmode.tabs[0].treeContextMenu"/>
         <property name="positionBefore" value="Toolbar.Item.Publish"/>
     </bean>

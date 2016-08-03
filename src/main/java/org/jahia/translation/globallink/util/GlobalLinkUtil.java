@@ -13,6 +13,7 @@ import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
 import java.io.File;
@@ -109,12 +110,14 @@ public class GlobalLinkUtil {
         components.forEach((key, value) -> {
             try {
                 ExtendedNodeType extendedNodeType = NodeTypeRegistry.getInstance().getNodeType(key);
-                Map<String, ExtendedPropertyDefinition> definitions = extendedNodeType.getPropertyDefinitionsAsMap();
-                for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
-                    ExtendedPropertyDefinition value1 = definitionEntry.getValue();
-                    if (!value1.isProtected() && value1.isInternationalized()) {
-                        filteredMap.put(key, value);
-                        break;
+                if(extendedNodeType.isNodeType("jmix:editorialContent")) {
+                    Map<String, ExtendedPropertyDefinition> definitions = extendedNodeType.getPropertyDefinitionsAsMap();
+                    for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
+                        ExtendedPropertyDefinition value1 = definitionEntry.getValue();
+                        if (!value1.isProtected() && value1.isInternationalized() && value1.getRequiredType() == PropertyType.STRING) {
+                            filteredMap.put(key, value);
+                            break;
+                        }
                     }
                 }
             } catch (NoSuchNodeTypeException e) {

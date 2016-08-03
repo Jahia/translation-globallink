@@ -22,9 +22,16 @@
         $(document).ready(function () {
             $('#success').hide();
             $('#error').hide();
-
-
-            $('#componentSelection').multiSelect({
+            var $componentSelection = $('#componentSelection');
+            var options  = $.makeArray($componentSelection.children('option'));
+            options.sort(function (a, b){
+                return $(a).html().localeCompare($(b).html());
+            });
+            $componentSelection.empty();
+            $.each(options, function(){
+                $componentSelection.append(this);
+            });
+            $componentSelection.multiSelect({
                 selectableHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
                 selectionHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
                 selectableFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selectable" /></div>",
@@ -241,15 +248,15 @@
 
                 <div class="col-md-5">
                     <h1><fmt:message key="gbl.settings.componentlist"/></h1>
-                    <select name="j:componentsList" id="componentSelection" multiple>
+                    <select name="j:componentsList" id="componentSelection" multiple size="30">
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
-                            <option value="${component.string}" selected>${fn:replace(component.string, '-', ' (')})
+                            <option value="${component.string}" selected>${fn:substringBefore(component.string, '-')}
                             </option>
                         </c:forEach>
                         <c:forEach
                                 items="${gbl:componentList(renderContext.mainResource.node, renderContext.request.locale, script, site.properties['j:componentsList'])}"
                                 var="component">
-                            <option value="${component.value}-${component.key}">${component.value} (${component.key})
+                            <option value="${component.value}-${component.key}">${component.value}
                             </option>
                         </c:forEach>
                     </select>
