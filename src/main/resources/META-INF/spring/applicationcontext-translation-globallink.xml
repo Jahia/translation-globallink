@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:osgi="http://www.springframework.org/schema/osgi"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
-	http://www.springframework.org/schema/osgi http://www.springframework.org/schema/osgi/spring-osgi-1.2.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
 	
     <bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
         <property name="actionItem">
@@ -48,6 +47,7 @@
     </bean>
 
     <bean parent="jobSchedulingBean">
+        <property name="ramJob" value="true"/>
         <property name="jobDetail">
             <bean class="org.springframework.scheduling.quartz.JobDetailBean">
                 <property name="name" value="translationJob" />
@@ -63,5 +63,30 @@
     </bean>
 
     <bean class="org.jahia.translation.globallink.choicelist.DisplayLocaleNameChoicelistInitializer"/>
-    
+
+    <bean class="org.jahia.services.uicomponents.bean.editmode.EngineConfiguration">
+        <property name="key" value="jnt:globalLinkProject"/>
+        <property name="engineTabs">
+            <list>
+                <ref bean="Engine.Tab.Content"/>
+            </list>
+        </property>
+        <property name="creationButtons">
+            <list>
+                <ref bean="Engine.Button.Create"/>
+            </list>
+        </property>
+        <property name="editionButtons">
+            <list>
+                <ref bean="Engine.Button.Update"/>
+            </list>
+        </property>
+        <property name="commonButtons">
+            <list>
+                <ref bean="Engine.Button.Cancel"/>
+            </list>
+        </property>
+        <property name="parent" ref="editmode"/>
+    </bean>
+
 </beans>

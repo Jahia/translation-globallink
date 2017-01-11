@@ -170,12 +170,24 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             } else {
                 pageTitle = parent.getName();
             }
-            submission.setName(config.getSubmissionPrefix() + " - from page " + pageTitle +(requestDTO.isChildIncluded()?" with ":" without ")+" sub pages");
+            if (projectRootNode.hasProperty("name")) {
+                submission.setName(projectRootNode.getProperty("name").getString() + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages");
+            } else {
+                submission.setName(config.getSubmissionPrefix() + " - from page " + pageTitle + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages");
+            }
+            projectRootNode.setProperty("name", submission.getName());
+            projectRootNode.getSession().save();
             submission.setProject(project);
 
             submission.setPmNotes("Translation for - " + pageTitle
                     + "Site - " + siteNode.getServerName()+"( "+siteNode.getTitle()+" )");
-            submission.setDueDate(new Date((new Date()).getTime() + (60 * 60 * 24 * 5L)));
+            if(projectRootNode.hasProperty("dueDate")) {
+                submission.setDueDate(projectRootNode.getProperty("dueDate").getDate().getTime());
+            } else {
+                Calendar calendar = Calendar.getInstance();
+                calendar.add(Calendar.DAY_OF_YEAR,5);
+                submission.setDueDate(calendar.getTime());
+            }
             glExchange.initSubmission(submission);
             String parentIdentifier = parent.getIdentifier();
             requestDTO.getDocuments().forEach((document) -> {
@@ -185,9 +197,13 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 try {
                     String uploadTicket = glExchange.uploadTranslatable(document);
                     String id = StringUtils.substringBefore(StringUtils
-                            .substringAfterLast(document.getName(), "_"), ".");
+                            .substringAfterLast(document.getName(), "___"), ".");
                     if (!id.equals(parentIdentifier)) {
                         JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.setTime(submission.getDueDate());
+                        requestNode.setProperty("dueDate", calendar);
+                        requestNode.setProperty("name", submission.getName());
                         this.contentService.addUploadTicketForRequest(requestNode, this.sessionWrapper, uploadTicket);
                     } else {
                         requestDTO.setUploadTicket(uploadTicket);
@@ -250,11 +266,19 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         pages.forEach(child -> {
             try {
                 JCRNodeWrapper requestNode = this.contentService.addGlobalLinkRequestNode(child, this.sessionWrapper, requestDTO);
-                if (this.documentService.createDocumentForProject(requestDTO, child, requestNode,
-                        config.getComponentList(), sessionWrapper)) {
+                boolean documentForProject = this.documentService.createDocumentForProject(requestDTO, child, requestNode,
+                        config.getComponentList(), sessionWrapper);
+                if (documentForProject) {
                     Document document = prepareGlobalLinkDocument(GlobalLinkUtil.getSourceDocumentPath(requestDTO, child));
                     if (document != null) {
                         requestDTO.getDocuments().add(document);
+                    }
+                } else {
+                    try {
+                        requestNode.remove();
+                        this.sessionWrapper.save();
+                    } catch (RepositoryException e) {
+                        e.printStackTrace();
                     }
                 }
                 if (JCRContentUtils.getChildrenOfType(child, NODE_TYPE_PAGE).size() > 0) {

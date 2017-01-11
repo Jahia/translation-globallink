@@ -75,8 +75,7 @@ public class GlobalLinkUtil {
                 docPath = requestDTO.getDocumentpath();
             }
             IOUtil.createDirectories(FileSystems.getDefault().getPath(docPath) + File.separator + requestDTO.getRequestId());
-            return docPath + File.separator + requestDTO.getRequestId() + File.separator
-                    + requestDTO.getSourceLanguage() + "_" + pageNode.getIdentifier() + "." + requestDTO.getFileFormat();
+            return docPath + File.separator + requestDTO.getRequestId() + File.separator + pageNode.getDisplayableName() + "___" + pageNode.getIdentifier() + "." + requestDTO.getFileFormat();
         } catch (Exception ex) {
             LOGGER.error("Exception while preparing source file path -> ", ex);
         }

@@ -28,7 +28,7 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkQueryServiceImpl.class);
 
-    private final String sitesQuery = "select * from [jnt:virtualsite] as site where ISDESCENDANTNODE(site, [/sites])";
+    private final String sitesQuery = "select * from [jmix:globalLinkBaseSettings] as site where ISDESCENDANTNODE(site, [/sites])";
 
     /**
      * {@inheritDoc}
@@ -78,24 +78,6 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
             throws GlobalLinkServiceException {
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where ISDESCENDANTNODE(gblProject, [" + siteNode.getPath() + "])";
-            Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
-            QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
-            return queryResult.getNodes();
-        } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
-            throw new GlobalLinkServiceException(ex.getMessage(), ex);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public JCRNodeIteratorWrapper getAllBigText(JCRNodeWrapper node, QueryManager queryManager)
-            throws GlobalLinkServiceException {
-        try {
-            String query = "select * from [" + NODE_TYPE_BIGTEXT + "] as bigText where ISDESCENDANTNODE(bigText, ["
-                    + node.getPath() + "])";
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
             return queryResult.getNodes();

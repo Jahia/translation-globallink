@@ -46,15 +46,6 @@ public interface GlobalLinkQueryService {
     JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager) throws GlobalLinkServiceException;
 
     /**
-     * Get {@link JCRNodeIteratorWrapper} for all big text nodes under a given page node.
-     *
-     * @param node
-     * @return
-     * @throws GlobalLinkServiceException
-     */
-    JCRNodeIteratorWrapper getAllBigText(JCRNodeWrapper node, QueryManager queryManager) throws GlobalLinkServiceException;
-
-    /**
      * Find request submission node by given document ticket.
      *
      * @param documentTicket

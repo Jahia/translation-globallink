@@ -23,8 +23,9 @@
  + * (jnt:globalLinkSourceLanguage) = jnt:globalLinkSourceLanguage
 
 [jnt:globalLinkProject] > jnt:content, jmix:structuredContent
- - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage',displayLocaleName,sort])
- - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage',displayLocaleName,sort]) multiple
+ - name (string) indexed=no noqueryorder nofulltext
+ - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage',displayLocaleName,sort]) mandatory
+ - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage',displayLocaleName,sort]) mandatory multiple
  - includeChildPages (boolean)
  - skipTranslated (boolean)
  - gblStatus (string) hidden
@@ -35,10 +36,12 @@
  - gblReason (string) hidden
  - gblRequestId (string) hidden
  - gblContentCount (long) hidden
- - gblError (String) hidden
-
+ - gblError (string) hidden
+ - dueDate (date) = now('1000*60*60*24*5') autocreated indexed=no noqueryorder nofulltext
 
 [jnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
 
 [jnt:globalLinkTargetLanguage] > jnt:content, jmix:structuredContent
+
 [jnt:globalLinkSourceLanguage] > jnt:content, jmix:structuredContent
+
