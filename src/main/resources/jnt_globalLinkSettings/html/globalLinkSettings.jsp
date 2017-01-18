@@ -130,7 +130,11 @@
 <c:if test="${not empty site.properties['j:globalLinkActivated']}">
     <c:set var="isActive" value="${site.properties['j:globalLinkActivated'].boolean}"/>
 </c:if>
-
+<div class="row" style="margin: 0">
+    <div class="col-md-12" style="margin: 0">
+        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px" style="margin: 0">
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
         <form id="updateSiteForm" action="<c:url value='${url.base}${site.path}.globalLinkConfig.do'/>"

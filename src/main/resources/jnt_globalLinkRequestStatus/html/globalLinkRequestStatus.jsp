@@ -20,10 +20,13 @@
 <template:addResources type="javascript" resources="moment.min.js"/>
 <template:addResources type="javascript" resources="datatables.min.js"/>
 <template:addResources type="javascript" resources="datetime-moment.js"/>
+<div class="row" style="margin: 0">
+    <div class="col-md-12" style="margin: 0">
+        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px" style="margin: 0">
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-12">
-
-
         <table class="table table-striped nowrap" id="request-list">
             <thead>
             <tr>
@@ -61,7 +64,7 @@
                                 </ul>
                             </td>
                             <td>
-                                ${gblRequest.properties['name'].string}
+                                    ${gblRequest.properties['name'].string}
                             </td>
 
                             <td>
