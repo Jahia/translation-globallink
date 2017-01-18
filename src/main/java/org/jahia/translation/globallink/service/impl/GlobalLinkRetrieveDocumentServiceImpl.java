@@ -76,13 +76,13 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
      * Process a request for retrieval of all the completed targets and
      * translated documents.
      *
-     * @param requsetNode
+     * @param requestNode   Noe containing the request data
      * @param glExchange
      * @param config
      */
-    private void processRequestForRetrieval(JCRNodeWrapper requsetNode, GLExchange glExchange,
+    private void processRequestForRetrieval(JCRNodeWrapper requestNode, GLExchange glExchange,
                                             GlobalLinkConfigurationDTO config) {
-        Target[] targets = glExchange.getCompletedTargets(requsetNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET), 100);
+        Target[] targets = glExchange.getCompletedTargets(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET), 100);
         List<Target> completedTargets = new ArrayList<>();
         if (targets.length > 0) {
             Arrays.asList(targets).forEach(target -> {
@@ -91,6 +91,22 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                     completedTargets.add(target);
                 }
             });
+        } else {
+            targets = glExchange.getCancelledTargets(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET), 100);
+            if (targets.length > 0) {
+                Arrays.asList(targets).forEach(target -> {
+                    this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
+                });
+            } else {
+                try {
+                    String submissionStatus = glExchange.getSubmissionStatus(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET));
+                    if(submissionStatus.equals(STATUS_READY)) {
+                        this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
+                    }
+                } catch (Exception e) {
+                    LOGGER.error("Error retrieving translated document - ", e);
+                }
+            }
         }
     }
 
@@ -131,7 +147,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             }
             return true;
         } catch (Exception ex) {
-            LOGGER.error("Error retreiving translated document - ", ex);
+            LOGGER.error("Error retrieving translated document - ", ex);
             return false;
         }
     }

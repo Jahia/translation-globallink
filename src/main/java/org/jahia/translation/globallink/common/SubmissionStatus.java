@@ -13,9 +13,13 @@ public class SubmissionStatus {
 
     public static final String STATUS_TRANSLATED = "request.translated";
 
+    public static final String STATUS_CANCELLED = "request.cancelled";
+
     public static final String STATUS_CONTENT_ERROR = "request.content.error";
 
     public static final String STATUS_DELIVERED = "DELIVERED";
 
     public static final String STATUS_PROCESSED = "PROCESSED";
+
+    public static final String STATUS_READY = "READY";
 }

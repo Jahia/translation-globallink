@@ -16,6 +16,7 @@ import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_BIGTEXT;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_RETRIEVED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 
@@ -129,7 +130,8 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
     public JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager) throws GlobalLinkServiceException {
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.gblSubmitState = '"
-                    + STATUS_SUBMITTED + "' AND ISDESCENDANTNODE(gblProject, [" + path + "])";
+                    + STATUS_SUBMITTED + "' OR gblProject.gblSubmitState = '"
+                    + STATUS_CANCELLED + "' AND ISDESCENDANTNODE(gblProject, [" + path + "])";
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
             return queryResult.getNodes();
