@@ -5,10 +5,9 @@
         version="2.0">
     <description>TagLibs for Jahia-GlobalLink Translation Connector</description>
     <display-name>GlobalLink Tag Library Descriptor</display-name>
-    <tlib-version>1.0</tlib-version>
     <short-name>gbl</short-name>
     <uri>http://jahia.com/translation/globallink/1.0</uri>
-    
+    <tlib-version>1.0</tlib-version>
     <function>
         <description>Get List of components for a site</description>
         <name>componentList</name>
