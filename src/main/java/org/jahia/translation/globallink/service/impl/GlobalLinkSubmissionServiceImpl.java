@@ -58,7 +58,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             configList.forEach((config) -> {
                 LOGGER.info("Site found with GBL Translation config - {} Sitename - {}", config.getUsername(),
                         config.getSiteNode().getName());
-                this.processAllGBLTransationProjects(config);
+                this.processAllGBLTranslationProjects(config);
             });
             return configList;
         } catch (Exception ex) {
@@ -85,7 +85,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param config
      * @return
      */
-    private void processAllGBLTransationProjects(GlobalLinkConfigurationDTO config) {
+    private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
         GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
                 this.sessionWrapper.getWorkspace().getQueryManager());

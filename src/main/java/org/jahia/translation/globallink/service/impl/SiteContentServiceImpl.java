@@ -149,8 +149,10 @@ public class SiteContentServiceImpl implements SiteContentService {
     public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status)
             throws GlobalLinkServiceException {
         try {
-            nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
-            sessionWrapper.save();
+            if(!nodeWrapper.isLocked()) {
+                nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
+                sessionWrapper.save();
+            }
         } catch (RepositoryException ex) {
             LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);

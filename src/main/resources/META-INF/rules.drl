@@ -1,0 +1,26 @@
+package org.jahia.translation.globallink.rules
+
+#list any import classes here.
+import org.jahia.services.content.rules.*
+import org.jahia.services.content.JCRContentUtils
+import org.slf4j.Logger
+import org.jahia.translation.globallink.rules.GlobalLinkSubmissionService
+import org.jahia.services.content.JCRNodeWrapper
+
+expander rules.dsl
+
+#declare any global variables here
+global User user
+global Service service
+global Logger logger
+global JCRContentUtils jcrUtils
+global GlobalLinkSubmissionService gblSubmissionService
+
+
+rule "Delete empty submission"
+    salience 50
+    when
+        The type jmix:markedForDeletionRoot has been assigned to a node
+    then
+>       gblSubmissionService.removeEmptySubmission(node, drools);
+end
