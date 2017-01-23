@@ -57,7 +57,7 @@
         <property name="trigger">
             <bean class="org.quartz.CronTrigger">
                 <property name="name" value="TranslationJobTrigger"/>
-                <property name="cronExpression" value="0/70 * * * * ?"/>
+                <property name="cronExpression" value="25 0/5 * * * ?"/>
             </bean>
         </property>
     </bean>

@@ -272,7 +272,7 @@
                                         key="gbl.settings.submissioninterval"/></label>
                             </div>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" placeholder="10" required
+                                <input type="text" class="form-control" placeholder="5" required
                                        id="globalLinkInterval" name="j:globalLinkInterval"
                                        value="${site.properties['j:globalLinkInterval'].long}">
                                 <p><fmt:message key="gbl.settings.submissioninterval.detail"/></p>

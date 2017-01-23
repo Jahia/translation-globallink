@@ -6,6 +6,7 @@ import com.globallink.api.model.Project;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
+import org.jahia.registries.ServicesRegistry;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
@@ -15,11 +16,16 @@ import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.json.JSONObject;
+import org.quartz.CronExpression;
+import org.quartz.CronTrigger;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
 import java.util.*;
 
 import static javax.servlet.http.HttpServletResponse.SC_OK;
@@ -88,6 +94,30 @@ public class GlobalLinkConfigAction extends Action {
         siteNode.setProperty(GBL_PROPERTY_DOC_LOCATION, getRequestParameter(request, GBL_PROPERTY_DOC_LOCATION));
         if (!getRequestParameter(request, GBL_PROPERTY_INTERVAL).equals(StringUtils.EMPTY)) {
             siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
+            try {
+                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler().getTriggersOfJob("translationJob", "DEFAULT");
+                for (int i = 0; i < triggersOfJob.length; i++) {
+                    Trigger trigger = triggersOfJob[i];
+                    if(trigger instanceof CronTrigger) {
+                        CronTrigger cronTrigger = (CronTrigger) trigger;
+                        CronTrigger cronTrigger1 = new CronTrigger(cronTrigger.getName(), cronTrigger.getGroup());
+                        cronTrigger1.setJobName("translationJob");
+                        cronTrigger1.setJobGroup("DEFAULT");
+                        Long aLong = Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL));
+                        if (aLong > 59l) {
+                            aLong = 59l;
+                        } else if (aLong < 1l) {
+                            aLong = 1l;
+                        }
+                        cronTrigger1.setCronExpression("25 0/"+ aLong +" * * * ?");
+                        Date date = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler().rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
+                    }
+                }
+            } catch (SchedulerException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
         //Change by cedric to save even in case of errors
