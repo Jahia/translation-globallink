@@ -85,15 +85,18 @@
                 }, function (result) {
                     var $componentSelection = $('#componentSelection');
                     var options             = $.makeArray($componentSelection.children('option:selected'));
-                    console.log(options);
+                    var selected = [];
                     $componentSelection.empty();
                     $.each(options, function () {
                         $componentSelection.append(this);
+                        selected.push($(this).val());
                     });
                     $.each(result, function () {
-                        var option = $("<option value='" + this.value + "-" + this.key + "'>" + this.value + "</option>");
-                        console.log(option);
-                        $componentSelection.append(option);
+                        var optionValue = this.value + "-" + this.key;
+                        if(selected.indexOf(optionValue) == -1) {
+                            var option = $("<option value='" + optionValue + "'>" + this.value + "</option>");
+                            $componentSelection.append(option);
+                        }
                     });
                     options = $.makeArray($componentSelection.children('option'));
                     options.sort(function (a, b) {
