@@ -281,7 +281,7 @@
             </div>
 
             <div class="col-md-5">
-                <h1><fmt:message key="gbl.settings.componentlist"/></h1>
+                <h2><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span></h2>
                 <label class="radio-inline">
                     <input type="radio" name="componentsType" value="all"><fmt:message
                         key="gbl.settings.components.all"/>
@@ -291,7 +291,7 @@
                         key="gbl.settings.components.editorial"/>
                 </label>
                 <fieldset class="form-group">
-                    <select name="j:componentsList" id="componentSelection" multiple size="30">
+                    <select name="j:componentsList" id="componentSelection" multiple size="30" required>
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
                             <option value="${component.string}"
                                     selected>${fn:substringBefore(component.string, '-')}
