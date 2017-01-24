@@ -19,11 +19,12 @@
 
 <template:addResources>
     <script type="text/javascript">
-        function showHideError($componentSelection) {
+        function showHideError($componentSelection,init) {
             var options = $.makeArray($componentSelection.children('option:selected'));
             if (options.length == 0) {
-                console.log("no selection");
-                $(".ms-selection").addClass("ms-error");
+                if(!init) {
+                    $(".ms-selection").addClass("ms-error");
+                }
                 $("#updateSiteButton").prop("disabled", true);
             } else {
                 $(".ms-selection").removeClass("ms-error");
@@ -69,6 +70,7 @@
                                 return false;
                             }
                         });
+                    showHideError($componentSelection, false)
                 },
                 afterSelect     : function () {
                     this.qs1.cache();
