@@ -126,11 +126,11 @@
             scrollCollapse: true,
             paging        : true,
             scrollX       : true,
-            scroller      : true,
+            scroller      : false,
             autoWidth     : false,
             dom           : "<'row'<'col-sm-6'l><'col-sm-3'i><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-6'><'col-sm-3'i>>",
             order         : [[2, 'desc']],
-            scrollY       : "800px"
+            scrollY       : <c:choose><c:when test="${index.count lt 5}">true</c:when><c:otherwise>"500px"</c:otherwise></c:choose>
         });
     });
 </script>

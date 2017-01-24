@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 
 /**
  * Implementation for Global link translation project submission service
@@ -179,8 +180,9 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             projectRootNode.getSession().save();
             submission.setProject(project);
 
-            submission.setPmNotes("Translation for - " + pageTitle
-                    + "Site - " + siteNode.getServerName()+"( "+siteNode.getTitle()+" )");
+            String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages\n"
+                    + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
+            submission.setPmNotes(pmNotes);
             if(projectRootNode.hasProperty("dueDate")) {
                 submission.setDueDate(projectRootNode.getProperty("dueDate").getDate().getTime());
             } else {
@@ -245,8 +247,10 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 requestDTO.setChildIncluded(true);
                 processChildPages(requestDTO, requestDTO.getNodeWrapper().getParent(), config);
             }
-            if (this.submitGBLRequest(requestDTO, config, glExchange)) {
+            if (!requestDTO.getDocuments().isEmpty() && this.submitGBLRequest(requestDTO, config, glExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
+            } else {
+                this.contentService.updateRequestStatus(requestDTO.getNodeWrapper(), this.sessionWrapper, STATUS_CANCELLED);
             }
         } catch (RepositoryException e) {
             LOGGER.error("Error while processing project request DTO -> ", e);

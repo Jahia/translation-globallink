@@ -82,29 +82,32 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
      */
     private void processRequestForRetrieval(JCRNodeWrapper requestNode, GLExchange glExchange,
                                             GlobalLinkConfigurationDTO config) {
-        Target[] targets = glExchange.getCompletedTargets(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET), 100);
-        List<Target> completedTargets = new ArrayList<>();
-        if (targets.length > 0) {
-            Arrays.asList(targets).forEach(target -> {
-                boolean status = processTarget(target, glExchange, config);
-                if (status) {
-                    completedTargets.add(target);
-                }
-            });
-        } else {
-            targets = glExchange.getCancelledTargets(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET), 100);
+        String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
+        if(!StringUtils.isEmpty(submissionTicket)) {
+            Target[] targets = glExchange.getCompletedTargets(submissionTicket, 100);
+            List<Target> completedTargets = new ArrayList<>();
             if (targets.length > 0) {
                 Arrays.asList(targets).forEach(target -> {
-                    this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
+                    boolean status = processTarget(target, glExchange, config);
+                    if (status) {
+                        completedTargets.add(target);
+                    }
                 });
             } else {
-                try {
-                    String submissionStatus = glExchange.getSubmissionStatus(requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET));
-                    if(submissionStatus.equals(STATUS_READY)) {
-                        this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
+                targets = glExchange.getCancelledTargets(submissionTicket, 100);
+                if (targets.length > 0) {
+                    Arrays.asList(targets).forEach(target -> {
+                        this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
+                    });
+                } else {
+                    try {
+                        String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
+                        if (submissionStatus.equals(STATUS_READY)) {
+                            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
+                        }
+                    } catch (Exception e) {
+                        LOGGER.error("Error retrieving translated document - ", e);
                     }
-                } catch (Exception e) {
-                    LOGGER.error("Error retrieving translated document - ", e);
                 }
             }
         }
