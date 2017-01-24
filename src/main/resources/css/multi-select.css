@@ -103,3 +103,7 @@
   color: #aaa;
   cursor: text;
 }
+
+.ms-error {
+  border: red solid 1px;
+}

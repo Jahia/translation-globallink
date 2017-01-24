@@ -19,6 +19,17 @@
 
 <template:addResources>
     <script type="text/javascript">
+        function showHideError($componentSelection) {
+            var options = $.makeArray($componentSelection.children('option:selected'));
+            if (options.length == 0) {
+                console.log("no selection");
+                $(".ms-selection").addClass("ms-error");
+                $("#updateSiteButton").prop("disabled", true);
+            } else {
+                $(".ms-selection").removeClass("ms-error");
+                $("#updateSiteButton").prop("disabled", false);
+            }
+        }
         $(document).ready(function () {
             $('#success').hide();
             $('#error').hide();
@@ -62,10 +73,12 @@
                 afterSelect     : function () {
                     this.qs1.cache();
                     this.qs2.cache();
+                    showHideError($componentSelection);
                 },
                 afterDeselect   : function () {
                     this.qs1.cache();
                     this.qs2.cache();
+                    showHideError($componentSelection)
                 }
             });
 
@@ -294,7 +307,7 @@
                         key="gbl.settings.components.editorial"/>
                 </label>
                 <fieldset class="form-group">
-                    <select name="j:componentsList" id="componentSelection" multiple size="30" required>
+                    <select name="j:componentsList" id="componentSelection" multiple size="30">
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
                             <option value="${component.string}"
                                     selected>${fn:substringBefore(component.string, '-')}
@@ -338,7 +351,7 @@
                 <div class="col-md-12">
                     <input type="submit" name="updateSiteButton" id="updateSiteButton"
                            class="btn btn-primary btn-sm"
-                           value="<fmt:message key='gbl.label.save'/>"/>
+                           value="<fmt:message key='gbl.label.save'/>" disabled/>
                 </div>
             </form>
         </form>
