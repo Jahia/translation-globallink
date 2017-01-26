@@ -1,10 +1,12 @@
 <jmix = 'http://www.jahia.org/jahia/mix/1.0'>
 <jnt = 'http://www.jahia.org/jahia/nt/1.0'>
 <mix = 'http://www.jcp.org/jcr/mix/1.0'>
+<gblnt = 'http://www.jahia.org/globalLink/nt/1.0'>
+<gblmix = 'http://www.jahia.org/globalLink/mix/1.0'>
 
-[jnt:globalLinkSettings] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
+[gblnt:globalLinkSettings] > jnt:content, mix:title, jmix:droppableContent
 
-[jmix:globalLinkBaseSettings] mixin
+[gblmix:globalLinkBaseSettings] mixin
  - j:globalLinkActivated (boolean) = 'false' autocreated indexed=no
  - j:globalLinkUsername (string) mandatory indexed=no
  - j:globalLinkPassword (string) mandatory indexed=no
@@ -19,13 +21,13 @@
  - j:globalLinkLastExec (date)
  - j:targetDirections (string) multiple
  - j:sourceDirections (string) multiple
- + * (jnt:globalLinkTargetLanguage) = jnt:globalLinkTargetLanguage
- + * (jnt:globalLinkSourceLanguage) = jnt:globalLinkSourceLanguage
+ + * (gblnt:globalLinkTargetLanguage) = gblnt:globalLinkTargetLanguage
+ + * (gblnt:globalLinkSourceLanguage) = gblnt:globalLinkSourceLanguage
 
-[jnt:globalLinkProject] > jnt:content, jmix:structuredContent
+[gblnt:globalLinkProject] > jnt:content, jmix:nolive
  - name (string) indexed=no noqueryorder nofulltext
- - sourceLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkSourceLanguage',displayLocaleName,sort]) mandatory
- - targetLanguage (string, choicelist[nodes='$currentSite//*;jnt:globalLinkTargetLanguage',displayLocaleName,sort]) mandatory multiple
+ - sourceLanguage (string, choicelist[nodes='$currentSite//*;gblnt:globalLinkSourceLanguage',displayLocaleName,sort]) mandatory
+ - targetLanguage (string, choicelist[nodes='$currentSite//*;gblnt:globalLinkTargetLanguage',displayLocaleName,sort]) mandatory multiple
  - includeChildPages (boolean)
  - skipTranslated (boolean)
  - gblStatus (string) hidden
@@ -39,9 +41,9 @@
  - gblError (string) hidden
  - dueDate (date) = now('1000*60*60*24*5') autocreated indexed=no noqueryorder nofulltext
 
-[jnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:studioOnly, jmix:siteComponent
+[gblnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:droppableContent
 
-[jnt:globalLinkTargetLanguage] > jnt:content, jmix:structuredContent
+[gblnt:globalLinkTargetLanguage] > jnt:content, jmix:nolive
 
-[jnt:globalLinkSourceLanguage] > jnt:content, jmix:structuredContent
+[gblnt:globalLinkSourceLanguage] > jnt:content, jmix:nolive
 

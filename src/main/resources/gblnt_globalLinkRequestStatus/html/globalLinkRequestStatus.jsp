@@ -11,7 +11,7 @@
 
 <c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
 <jcr:sql var="gblRequests"
-         sql="select * from [jnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
+         sql="select * from [gblnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
 
 <template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js"/>
 <template:addResources type="css" resources="bootstrap.min.css"/>
@@ -20,14 +20,36 @@
 <template:addResources type="javascript" resources="moment.min.js"/>
 <template:addResources type="javascript" resources="datatables.min.js"/>
 <template:addResources type="javascript" resources="datetime-moment.js"/>
-<div class="row" style="margin: 0">
-    <div class="col-md-12" style="margin: 0">
-        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px" style="margin: 0">
+<div class="row">
+    <div class="col-md-6">
+        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px"
+        >
+    </div>
+    <div class="col-md-6 pull-right" style="margin-top: 15px;margin-bottom: 10px">
+        <form id="cleanSubmissionForm" action="<c:url value='${url.base}${site.path}.globalLinkSubmissionClean.do'/>"
+              method="post" class="form-inline">
+            <input type="hidden" name="jcrRedirectTo"
+                   value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
+            <input type="hidden" name="jcrNewNodeOutputFormat"
+                   value="<c:url value='${renderContext.mainResource.template}.html'/>">
+            <div class="form-group">
+                <label for="daysOld"><fmt:message key="gbl.settings.clean.submission"/></label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" required
+                           id="daysOld" name="daysOld"
+                           value="30">
+                    <div class="input-group-addon">days</div>
+                </div>
+            </div>
+            <button type="submit"
+                    class="btn btn-primary btn-sm"><fmt:message key='gbl.label.clean'/></button>
+        </form>
     </div>
 </div>
+
 <div class="row">
     <div class="col-lg-12">
-        <table class="table table-striped nowrap" id="request-list">
+        <table class="table table-striped nowrap small" id="request-list">
             <thead>
             <tr>
                 <th><fmt:message key="request.page"/></th>
@@ -124,13 +146,14 @@
             processing    : false,
             responsive    : {details: false},
             scrollCollapse: true,
-            paging        : true,
+            paging        : false,
             scrollX       : true,
             scroller      : false,
             autoWidth     : false,
             dom           : "<'row'<'col-sm-6'l><'col-sm-3'i><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-6'><'col-sm-3'i>>",
             order         : [[2, 'desc']],
-            scrollY       : <c:choose><c:when test="${index.count lt 5}">true</c:when><c:otherwise>"500px"</c:otherwise></c:choose>
+            scrollY       : <c:choose><c:when test="${index.count lt 5}">true
+            </c:when><c:otherwise>"500px"</c:otherwise></c:choose>
         });
     });
 </script>

@@ -29,7 +29,7 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkQueryServiceImpl.class);
 
-    private final String sitesQuery = "select * from [jmix:globalLinkBaseSettings] as site where ISDESCENDANTNODE(site, [/sites])";
+    private final String sitesQuery = "select * from [gblmix:globalLinkBaseSettings] as site where ISDESCENDANTNODE(site, [/sites])";
 
     /**
      * {@inheritDoc}

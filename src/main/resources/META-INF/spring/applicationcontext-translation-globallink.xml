@@ -6,7 +6,7 @@
     <bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
         <property name="actionItem">
             <bean class="org.jahia.ajax.gwt.client.widget.toolbar.action.NewContentActionItem">
-		        <property name="nodeTypes" value="jnt:globalLinkProject"/>
+		        <property name="nodeTypes" value="gblnt:globalLinkProject"/>
 		        <property name="parentTypes" value="jnt:page"/>
 	      	</bean>
         </property>
@@ -45,6 +45,9 @@
 
     <bean class="org.jahia.translation.globallink.action.GlobalLinkConfigAction">
     </bean>
+    <bean class="org.jahia.translation.globallink.action.GlobalLinkSubmissionCleanAction">
+        <property name="jcrTemplate" ref="jcrTemplate"/>
+    </bean>
 
     <bean parent="jobSchedulingBean">
         <property name="ramJob" value="true"/>
@@ -65,7 +68,7 @@
     <bean class="org.jahia.translation.globallink.choicelist.DisplayLocaleNameChoicelistInitializer"/>
 
     <bean class="org.jahia.services.uicomponents.bean.editmode.EngineConfiguration">
-        <property name="key" value="jnt:globalLinkProject"/>
+        <property name="key" value="gblnt:globalLinkProject"/>
         <property name="engineTabs">
             <list>
                 <ref bean="Engine.Tab.Content"/>

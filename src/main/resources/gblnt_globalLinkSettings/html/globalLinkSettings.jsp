@@ -70,17 +70,17 @@
                                 return false;
                             }
                         });
-                    showHideError($componentSelection, false)
+                    showHideError($componentSelection, true)
                 },
                 afterSelect     : function () {
                     this.qs1.cache();
                     this.qs2.cache();
-                    showHideError($componentSelection);
+                    showHideError($componentSelection,false);
                 },
                 afterDeselect   : function () {
                     this.qs1.cache();
                     this.qs2.cache();
-                    showHideError($componentSelection)
+                    showHideError($componentSelection,false)
                 }
             });
 
@@ -299,7 +299,7 @@
             </div>
 
             <div class="col-md-5">
-                <h2><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span></h2>
+                <h3><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span></h3>
                 <label class="radio-inline">
                     <input type="radio" name="componentsType" value="all"><fmt:message
                         key="gbl.settings.components.all"/>

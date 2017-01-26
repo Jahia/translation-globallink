@@ -11,7 +11,7 @@ public class GlobalLinkConstants {
 
     public static final String JCR_LIVE_WS = "live";
 
-    public static final String GBL_MIXIN_TYPE = "jmix:globalLinkBaseSettings";
+    public static final String GBL_MIXIN_TYPE = "gblmix:globalLinkBaseSettings";
 
     public static final String GBL_PROPERTY_USERNAME = "j:globalLinkUsername";
 
@@ -37,9 +37,9 @@ public class GlobalLinkConstants {
 
     public static final String GBL_PROPERTY_LAST_EXEC = "j:globalLinkLastExec";
 
-    public static final String GBL_PROPERTY_SOURCE_DIRECTIONS = "jnt:globalLinkSourceLanguage";
+    public static final String GBL_PROPERTY_SOURCE_DIRECTIONS = "gblnt:globalLinkSourceLanguage";
 
-    public static final String GBL_PROPERTY_TARGET_DIRECTIONS = "jnt:globalLinkTargetLanguage";
+    public static final String GBL_PROPERTY_TARGET_DIRECTIONS = "gblnt:globalLinkTargetLanguage";
 
     public static final String GBL_PROJECT_SOURCE_LANG = "sourceLanguage";
 
@@ -65,7 +65,7 @@ public class GlobalLinkConstants {
 
     public static final String NODE_TYPE_BIGTEXT = "jnt:bigText";
 
-    public static final String NODE_TYPE_PROJECT = "jnt:globalLinkProject";
+    public static final String NODE_TYPE_PROJECT = "gblnt:globalLinkProject";
 
     public static final String DOCUMENT_ROOT_NODE = "page";
 

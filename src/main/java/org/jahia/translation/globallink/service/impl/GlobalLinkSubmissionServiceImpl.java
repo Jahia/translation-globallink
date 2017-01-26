@@ -28,6 +28,7 @@ import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO_DOCUMENT;
 
 /**
  * Implementation for Global link translation project submission service
@@ -250,7 +251,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (!requestDTO.getDocuments().isEmpty() && this.submitGBLRequest(requestDTO, config, glExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
             } else {
-                this.contentService.updateRequestStatus(requestDTO.getNodeWrapper(), this.sessionWrapper, STATUS_CANCELLED);
+                this.contentService.updateRequestStatus(requestDTO.getNodeWrapper(), this.sessionWrapper, STATUS_NO_DOCUMENT);
             }
         } catch (RepositoryException e) {
             LOGGER.error("Error while processing project request DTO -> ", e);
