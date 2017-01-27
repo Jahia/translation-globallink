@@ -11,9 +11,9 @@
 <fmt:message key="gbl.settings.error" var="error"/>
 
 <template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js"/>
-<template:addResources type="css" resources="bootstrap.min.css"/>
+<template:addResources type="css" resources="gblbootstrap.min.css"/>
 <template:addResources type="css" resources="multi-select.css"/>
-<template:addResources type="javascript" resources="bootstrap.min.js"/>
+<template:addResources type="javascript" resources="gblbootstrap.min.js"/>
 <template:addResources type="javascript" resources="jquery.multi-select.js"/>
 <template:addResources type="javascript" resources="jquery.quicksearch.js"/>
 

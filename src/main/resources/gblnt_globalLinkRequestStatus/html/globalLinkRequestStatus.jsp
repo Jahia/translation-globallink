@@ -14,9 +14,9 @@
          sql="select * from [gblnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
 
 <template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js"/>
-<template:addResources type="css" resources="bootstrap.min.css"/>
+<template:addResources type="css" resources="gblbootstrap.min.css"/>
 <template:addResources type="css" resources="datatables.min.css"/>
-<template:addResources type="javascript" resources="bootstrap.min.js"/>
+<template:addResources type="javascript" resources="gblbootstrap.min.js"/>
 <template:addResources type="javascript" resources="moment.min.js"/>
 <template:addResources type="javascript" resources="datatables.min.js"/>
 <template:addResources type="javascript" resources="datetime-moment.js"/>
