@@ -21,6 +21,7 @@
  - j:globalLinkLastExec (date)
  - j:targetDirections (string) multiple
  - j:sourceDirections (string) multiple
+ - status (string) indexed=no
  + * (gblnt:globalLinkTargetLanguage) = gblnt:globalLinkTargetLanguage
  + * (gblnt:globalLinkSourceLanguage) = gblnt:globalLinkSourceLanguage
 

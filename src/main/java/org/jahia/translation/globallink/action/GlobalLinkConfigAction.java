@@ -120,6 +120,7 @@ public class GlobalLinkConfigAction extends Action {
             }
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
+        siteNode.setProperty("status","OK");
         //Change by cedric to save even in case of errors
         sessionWrapper.save();
         this.getLanguageDirections(siteNode);
@@ -162,28 +163,35 @@ public class GlobalLinkConfigAction extends Action {
             GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(configs.get(0));
             Project project = null;
             if (glExchange != null) {
-                project = glExchange.getProject(configs.get(0).getProjectName());
-                LanguageDirection[] directions = project.getLanguageDirections();
-                for (LanguageDirection direction : directions) {
-                    String sourceLang = direction.sourceLanguage.replace("-", "_");
-                    String targetLang = direction.targetLanguage.replace("-", "_");
-                    LOGGER.info("Checking for lang: " + GlobalLinkUtil.getJavaLocale(targetLang));
-                    if (languages.contains(targetLang) && !siteNode.hasNode(targetLang + "-target")) {
-                        siteNode.addNode(targetLang + "-target", GBL_PROPERTY_TARGET_DIRECTIONS);
-                    } else {
-                        String genericTargetLang = StringUtils.substringBefore(targetLang, "_");
-                        if (hasFoundGenericLanguage(languages, genericTargetLang) && !siteNode.hasNode(targetLang + "-target")) {
+                try {
+                    project = glExchange.getProject(configs.get(0).getProjectName());
+                    LanguageDirection[] directions = project.getLanguageDirections();
+                    for (LanguageDirection direction : directions) {
+                        String sourceLang = direction.sourceLanguage.replace("-", "_");
+                        String targetLang = direction.targetLanguage.replace("-", "_");
+                        LOGGER.info("Checking for lang: " + GlobalLinkUtil.getJavaLocale(targetLang));
+                        if (languages.contains(targetLang) && !siteNode.hasNode(targetLang + "-target")) {
                             siteNode.addNode(targetLang + "-target", GBL_PROPERTY_TARGET_DIRECTIONS);
+                        } else {
+                            String genericTargetLang = StringUtils.substringBefore(targetLang, "_");
+                            if (hasFoundGenericLanguage(languages, genericTargetLang) && !siteNode.hasNode(targetLang + "-target")) {
+                                siteNode.addNode(targetLang + "-target", GBL_PROPERTY_TARGET_DIRECTIONS);
+                            }
                         }
-                    }
-                    if (languages.contains(sourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
-                        siteNode.addNode(sourceLang + "-source", GBL_PROPERTY_SOURCE_DIRECTIONS);
-                    } else {
-                        String genericSourceLang = StringUtils.substringBefore(sourceLang, "_");
-                        if (hasFoundGenericLanguage(languages, genericSourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
+                        if (languages.contains(sourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
                             siteNode.addNode(sourceLang + "-source", GBL_PROPERTY_SOURCE_DIRECTIONS);
+                        } else {
+                            String genericSourceLang = StringUtils.substringBefore(sourceLang, "_");
+                            if (hasFoundGenericLanguage(languages, genericSourceLang) && !siteNode.hasNode(sourceLang + "-source")) {
+                                siteNode.addNode(sourceLang + "-source", GBL_PROPERTY_SOURCE_DIRECTIONS);
+                            }
                         }
                     }
+                } catch (Exception e) {
+                    siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
+                    siteNode.setProperty("status", e.getMessage());
+                    siteNode.getSession().save();
+                    throw e;
                 }
             }
         }

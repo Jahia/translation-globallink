@@ -19,10 +19,10 @@
 
 <template:addResources>
     <script type="text/javascript">
-        function showHideError($componentSelection,init) {
+        function showHideError($componentSelection, init) {
             var options = $.makeArray($componentSelection.children('option:selected'));
             if (options.length == 0) {
-                if(!init) {
+                if (!init) {
                     $(".ms-selection").addClass("ms-error");
                 }
                 $("#updateSiteButton").prop("disabled", true);
@@ -32,8 +32,6 @@
             }
         }
         $(document).ready(function () {
-            $('#success').hide();
-            $('#error').hide();
             var $componentSelection = $('#componentSelection');
             var options             = $.makeArray($componentSelection.children('option'));
             options.sort(function (a, b) {
@@ -75,12 +73,12 @@
                 afterSelect     : function () {
                     this.qs1.cache();
                     this.qs2.cache();
-                    showHideError($componentSelection,false);
+                    showHideError($componentSelection, false);
                 },
                 afterDeselect   : function () {
                     this.qs1.cache();
                     this.qs2.cache();
-                    showHideError($componentSelection,false)
+                    showHideError($componentSelection, false)
                 }
             });
 
@@ -100,7 +98,7 @@
                 }, function (result) {
                     var $componentSelection = $('#componentSelection');
                     var options             = $.makeArray($componentSelection.children('option:selected'));
-                    var selected = [];
+                    var selected            = [];
                     $componentSelection.empty();
                     $.each(options, function () {
                         $componentSelection.append(this);
@@ -108,7 +106,7 @@
                     });
                     $.each(result, function () {
                         var optionValue = this.value + "-" + this.key;
-                        if(selected.indexOf(optionValue) == -1) {
+                        if (selected.indexOf(optionValue) == -1) {
                             var option = $("<option value='" + optionValue + "'>" + this.value + "</option>");
                             $componentSelection.append(option);
                         }
@@ -150,7 +148,8 @@
 </c:if>
 <div class="row" style="margin: 0">
     <div class="col-md-12" style="margin: 0">
-        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px" style="margin: 0">
+        <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px"
+             style="margin: 0">
     </div>
 </div>
 <div class="row">
@@ -159,12 +158,20 @@
               method="post">
             <div class="col-md-4">
                 <h1 class="globallink-heading"><fmt:message key="gbl.settings.title"/></h1>
-                <div class="alert alert-success" id="success">
-                    <strong></strong>
-                </div>
-                <div class="alert alert-danger" id="error">
-                    <strong></strong>
-                </div>
+                <c:if test="${not empty site.properties['status']}">
+                    <c:choose>
+                        <c:when test="${site.properties['status'].string eq 'OK' }">
+                            <div class="alert alert-success" id="success">
+                                <strong><fmt:message key="gbl.settings.success"/></strong>
+                            </div>
+                        </c:when>
+                        <c:otherwise>
+                            <div class="alert alert-danger" id="error">
+                                <strong>${site.properties['status'].string}</strong>
+                            </div>
+                        </c:otherwise>
+                    </c:choose>
+                </c:if>
 
                 <input type="hidden" name="jcrRedirectTo"
                        value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
@@ -299,7 +306,8 @@
             </div>
 
             <div class="col-md-5">
-                <h3><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span></h3>
+                <h3><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span>
+                </h3>
                 <label class="radio-inline">
                     <input type="radio" name="componentsType" value="all"><fmt:message
                         key="gbl.settings.components.all"/>

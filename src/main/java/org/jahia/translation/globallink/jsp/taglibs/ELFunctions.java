@@ -76,15 +76,19 @@ public class ELFunctions {
                     glExchange = GlobalLinkUtil.getGLExchangeClient(config);
                 }
                 if (glExchange != null) {
-                    Project project = glExchange.getProject(config.getProjectName());
-                    LanguageDirection[] directions = project.getLanguageDirections();
-                    for (LanguageDirection languageDirection : directions) {
-                        if (directionsString.equals("")) {
-                            directionsString = languageDirection.sourceLanguage + " -> " + languageDirection.targetLanguage;
-                        } else {
-                            directionsString = directionsString + ", " + languageDirection.sourceLanguage + " -> " +
-                                    languageDirection.targetLanguage;
+                    try {
+                        Project project = glExchange.getProject(config.getProjectName());
+                        LanguageDirection[] directions = project.getLanguageDirections();
+                        for (LanguageDirection languageDirection : directions) {
+                            if (directionsString.equals("")) {
+                                directionsString = languageDirection.sourceLanguage + " -> " + languageDirection.targetLanguage;
+                            } else {
+                                directionsString = directionsString + ", " + languageDirection.sourceLanguage + " -> " +
+                                        languageDirection.targetLanguage;
+                            }
                         }
+                    } catch (Exception e) {
+                        directionsString = e.getLocalizedMessage();
                     }
                 } else {
                     directionsString = "NA";
