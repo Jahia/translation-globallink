@@ -81,7 +81,6 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document document = docBuilder.newDocument();
             Element rootElement = document.createElement(DOCUMENT_ROOT_NODE);
-            List<JCRNodeWrapper> contentListNodes = JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_CONTENTLIST);
             String sourceLanguage = project.getSourceLanguage();
             if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
                 sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
@@ -92,11 +91,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             String finalSourceLanguage = sourceLanguage;
             this.processContentNodeForDocument(pageNode, componentList, document, rootElement,
                     finalSourceLanguage, sessionWrapper, project.isSkipTranslated());
-            contentListNodes.forEach(childNode -> {
 
-                this.processContentNodeForDocument(childNode, componentList, document, rootElement,
-                        finalSourceLanguage, sessionWrapper, project.isSkipTranslated());
-            });
             this.contentService.addContentCount(requestNode, sessionWrapper, count);
             if (this.count > 0) {
                 document.appendChild(rootElement);
