@@ -145,4 +145,12 @@
             </map>
         </property>
     </bean>
+
+    <bean class="org.jahia.services.content.decorator.validation.JCRNodeValidatorDefinition">
+        <property name="validators">
+            <map>
+                <entry key="gblnt:globalLinkProject" value="org.jahia.translation.globallink.validation.ProjectNodeValidator"/>
+            </map>
+        </property>
+    </bean>
 </beans>

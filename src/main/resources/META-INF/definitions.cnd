@@ -38,7 +38,7 @@
  - gblRequestId (string) hidden
  - gblContentCount (long) hidden
  - gblError (string) hidden
- - dueDate (date) = now('1000*60*60*24*5') autocreated indexed=no noqueryorder nofulltext
+ - dueDate (date) = now('1000*60*60*24*5')
 
 [gblnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:droppableContent, jmix:hiddenType
 
