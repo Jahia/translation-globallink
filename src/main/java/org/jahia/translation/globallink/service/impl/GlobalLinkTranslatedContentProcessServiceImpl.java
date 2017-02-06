@@ -79,9 +79,9 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
         String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
         try {
-            JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
-            for (int index = 0; index < values.length; index++) {
-                String language = values[index].getString();
+//            JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
+//            for (int index = 0; index < values.length; index++) {
+                String language = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
                 String fileName = "";
                 if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
                     fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
@@ -96,7 +96,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
                 if (file != null) {
                     processTranslatedDocument(file, requestNode);
                 }
-            }
+//            }
         } catch (RepositoryException re) {
             LOGGER.error("Error while processing request node: {} Exception {}", requestNode, re);
         }
@@ -110,9 +110,20 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
         try {
             JCRNodeWrapper pageNode = requestNode.getParent();
             this.contentService.lockNode(pageNode, this.sessionWrapper);
-            String locale = StringUtils.substringBefore(file.getName(), "_").replace("-", "_");
+            String locale = StringUtils.substringBefore(file.getName(), "_");
+            JCRValueWrapper[] values = pageNode.getResolveSite().getProperty("j:languageMappings").getValues();
+            for (JCRValueWrapper value : values) {
+                if(value.getString().endsWith(locale)) {
+                    locale = StringUtils.substringBefore(value.getString(),"###");
+                }
+            }
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
             String sourceLanguage = requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
+            for (JCRValueWrapper value : values) {
+                if(value.getString().endsWith(sourceLanguage)) {
+                    sourceLanguage = StringUtils.substringBefore(value.getString(),"###");
+                }
+            }
             if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
                 sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
                 if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {

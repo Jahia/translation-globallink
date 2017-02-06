@@ -2,6 +2,7 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="jcr" uri="http://www.jahia.org/tags/jcr" %>
+<%@ taglib prefix="ui" uri="http://www.jahia.org/tags/uiComponentsLib" %>
 <%@ taglib prefix="s" uri="http://www.jahia.org/tags/search" %>
 <%@ taglib prefix="functions" uri="http://www.jahia.org/tags/functions" %>
 <%@ taglib prefix="template" uri="http://www.jahia.org/tags/templateLib" %>
@@ -123,6 +124,12 @@
                 }, "json");
             });
 
+            $(".mappingSelector").each(function(){
+                var $this = $(this);
+                if($this.val() != "---") {
+                    $('#'+$this.data('siteLocale')+'hid').val($this.val())
+                }
+            })
         });
     </script>
 
@@ -354,16 +361,40 @@
                                 </ul>
                             </c:otherwise>
                         </c:choose>
+                        <fieldset class="form-group">
+                            <jsp:useBean id="mappings" class="java.util.LinkedHashMap" />
+                            <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap" />
+                            <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
+                            <c:forEach items="${existingOnes}" var="targetLanguage">
+                                <c:set target="${existingMappings}" property="${fn:substringAfter(targetLanguage.string,'###')}" value="${fn:substringBefore(targetLanguage.string,'###')}"/>
+                            </c:forEach>
+                            <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}" var="sourceLanguage">
+                                <c:set target="${mappings}" property="${fn:substringBefore(sourceLanguage.name,'-gblSource')}" value="${gbl:displayLocale(sourceLanguage.name, renderContext.UILocale)}"/>
+                                <jcr:nodeProperty node="${sourceLanguage}" name="targetLanguages" var="targetLanguages"/>
+                                <c:forEach items="${targetLanguages}" var="targetLanguage">
+                                    <c:set target="${mappings}" property="${targetLanguage.string}" value="${gbl:displayLocale(targetLanguage.string, renderContext.UILocale)}"/>
+                                </c:forEach>
+                            </c:forEach>
+                            <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
+                                <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
+                                <label>${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}
+                                    <select name="targetMapping" onchange="$('#${siteLocale}hid').val($(this).val())" class="mappingSelector" data-site-locale="${siteLocale}">
+                                        <option value="">-----</option>
+                                        <c:forEach items="${mappings}" var="mapping">
+                                            <option value="${siteLocale}###${mapping.key}" <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
+                                        </c:forEach>
+                                    </select>
+                                </label>
+                            </c:forEach>
+                        </fieldset>
                     </div>
                 </c:if>
             </div>
-            <form>
-                <div class="col-md-12">
-                    <input type="submit" name="updateSiteButton" id="updateSiteButton"
-                           class="btn btn-primary btn-sm"
-                           value="<fmt:message key='gbl.label.save'/>" disabled/>
-                </div>
-            </form>
+            <div class="col-md-12">
+                <input type="submit" name="updateSiteButton" id="updateSiteButton"
+                       class="btn btn-primary btn-sm"
+                       value="<fmt:message key='gbl.label.save'/>" disabled/>
+            </div>
         </form>
     </div>
 </div>

@@ -19,16 +19,14 @@
  - j:globalLinkfileLocation (string)
  - j:globalLinkInterval (long)
  - j:globalLinkLastExec (date)
- - j:targetDirections (string) multiple
- - j:sourceDirections (string) multiple
+ - j:languageMappings (string) multiple indexed=no
  - status (string) indexed=no
- + * (gblnt:globalLinkTargetLanguage) = gblnt:globalLinkTargetLanguage
  + * (gblnt:globalLinkSourceLanguage) = gblnt:globalLinkSourceLanguage
 
 [gblnt:globalLinkProject] > jnt:content, jmix:nolive
  - name (string) indexed=no noqueryorder nofulltext
  - sourceLanguage (string, choicelist[nodes='$currentSite//*;gblnt:globalLinkSourceLanguage',displayLocaleName,sort]) mandatory
- - targetLanguage (string, choicelist[nodes='$currentSite//*;gblnt:globalLinkTargetLanguage',displayLocaleName,sort]) mandatory multiple
+ - targetLanguage (string, choicelist[displayLocaleName,sort,dependentProperties='sourceLanguage']) mandatory
  - includeChildPages (boolean)
  - skipTranslated (boolean)
  - gblStatus (string) hidden
@@ -44,7 +42,6 @@
 
 [gblnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:droppableContent, jmix:hiddenType
 
-[gblnt:globalLinkTargetLanguage] > jnt:content, jmix:nolive
-
 [gblnt:globalLinkSourceLanguage] > jnt:content, jmix:nolive
+ - targetLanguages (string) multiple indexed=no
 

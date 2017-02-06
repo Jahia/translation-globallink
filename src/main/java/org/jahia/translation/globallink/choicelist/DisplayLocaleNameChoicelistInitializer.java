@@ -10,6 +10,7 @@ import org.jahia.translation.globallink.common.GlobalLinkConstants;
 import org.jahia.utils.LanguageCodeConverters;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,25 +31,33 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
 
     @Override
     public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s, List<ChoiceListValue> list, Locale userLocale, Map<String, Object> map) {
-        List<ChoiceListValue> results = new ArrayList<>(list.size());
+        List<ChoiceListValue> results = new ArrayList<>();
         try {
             JCRNodeWrapper nodeWrapper = (JCRNodeWrapper) map.get("contextParent");
             JCRSiteNode resolveSite = nodeWrapper.getResolveSite();
-            if(resolveSite.isNodeType(GlobalLinkConstants.GBL_MIXIN_TYPE) && resolveSite.getProperty(GlobalLinkConstants.GBL_PROPERTY_ENABLE).getBoolean()) {
-                Locale contextLocale = nodeWrapper.getSession().getLocale();
-                for (ChoiceListValue choiceListValue : list) {
-                    //Get the language code by removing -source or -target
-                    String languageCode = StringUtils.substringBefore(choiceListValue.getDisplayName(), "-");
-                    // get the locale object form the code
-                    Locale localeFromCode = LanguageCodeConverters.getLocaleFromCode(languageCode);
-                    if ((extendedPropertyDefinition.getName().equals("sourceLanguage") && contextLocale.getLanguage().equals(localeFromCode.getLanguage())) ||
-                            (extendedPropertyDefinition.getName().equals("targetLanguage") && !contextLocale.getLanguage().equals(localeFromCode.getLanguage()))) {
-                        // Render the locale object in the current user language
-                        choiceListValue.setDisplayName(localeFromCode.getDisplayName(userLocale));
-                        choiceListValue.setStringValue(languageCode);
-                        results.add(choiceListValue);
+            if(list!=null) {
+                if (resolveSite.isNodeType(GlobalLinkConstants.GBL_MIXIN_TYPE) && resolveSite.getProperty(GlobalLinkConstants.GBL_PROPERTY_ENABLE).getBoolean()) {
+                    for (ChoiceListValue choiceListValue : list) {
+                        //Get the language code by removing -source or -target
+                        String languageCode = StringUtils.substringBefore(choiceListValue.getDisplayName(), "-gblSource");
+                        // get the locale object form the code
+                        Locale localeFromCode = Locale.forLanguageTag(languageCode);
+                        if (extendedPropertyDefinition.getName().equals("sourceLanguage")) {
+                            // Render the locale object in the current user language
+                            choiceListValue.setDisplayName(localeFromCode.getDisplayName(userLocale));
+                            choiceListValue.setStringValue(languageCode);
+                            results.add(choiceListValue);
+                        }
                     }
                 }
+            } else if(map.containsKey("sourceLanguage")) {
+                JCRNodeWrapper sourceLanguageNode = resolveSite.getNode(((List)map.get("sourceLanguage")).get(0)+"-gblSource");
+                for (Value targetLanguages : sourceLanguageNode.getProperty("targetLanguages").getValues()) {
+                    Locale locale = Locale.forLanguageTag(targetLanguages.getString());
+                    results.add(new ChoiceListValue(locale.getDisplayName(userLocale),targetLanguages.getString()));
+                }
+            } else {
+                results.add(new ChoiceListValue("Please select a source language first","empty"));
             }
         } catch (RepositoryException e) {
             e.printStackTrace();

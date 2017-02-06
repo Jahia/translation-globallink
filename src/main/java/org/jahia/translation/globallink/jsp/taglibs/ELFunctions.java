@@ -107,6 +107,6 @@ public class ELFunctions {
     }
 
     public static String displayLocale(String locale, Locale toDisplayNameWith) {
-        return LanguageCodeConverters.getLocaleFromCode(StringUtils.substringBefore(locale,"-")).getDisplayName(toDisplayNameWith);
+        return Locale.forLanguageTag(locale).getDisplayName(toDisplayNameWith);
     }
 }

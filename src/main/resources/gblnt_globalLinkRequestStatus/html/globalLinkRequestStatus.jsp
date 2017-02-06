@@ -55,9 +55,9 @@
                 <th><fmt:message key="request.page"/></th>
                 <th><fmt:message key="request.date"/></th>
                 <th><fmt:message key="request.date.submitted"/></th>
-                <th class="nowrap" data-orderable="false"><fmt:message key="request.language"/></th>
+                <th class="nowrap text-center" data-orderable="false"><fmt:message key="request.language"/></th>
                 <th><fmt:message key="request.tickets"/></th>
-                <th data-orderable="false"><fmt:message key="request.target"/></th>
+                <th data-orderable="false" class="text-left"><fmt:message key="request.target"/></th>
                 <th><fmt:message key="request.status"/></th>
             </tr>
             </thead>
@@ -78,11 +78,11 @@
                                                 value="${gblRequest.properties['dueDate'].time}"/></td>
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
                                                 value="${gblRequest.properties['jcr:created'].time}"/></td>
-                            <td>${gbl:displayLocale(gblRequest.properties['sourceLanguage'].string, renderContext.UILocale)}&nbsp;->
+                            <td>${gbl:displayLocale(gblRequest.properties['sourceLanguage'].string, renderContext.UILocale)}&nbsp;->&nbsp;${gbl:displayLocale(gblRequest.properties['targetLanguage'].string, renderContext.UILocale)}
                                 <ul class="list-unstyled">
-                                    <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
-                                        <li>${gbl:displayLocale(lan.string, renderContext.UILocale)}</li>
-                                    </c:forEach>
+                                        <%--<c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">--%>
+                                        <%--<li>${gbl:displayLocale(lan.string, renderContext.UILocale)}</li>--%>
+                                        <%--</c:forEach>--%>
                                 </ul>
                             </td>
                             <td>
@@ -90,28 +90,26 @@
                             </td>
 
                             <td>
+                                <dl class="">
+                                    <c:forTokens items="${gblRequest.properties['targetTicket'].string}" delims=","
+                                                 var="targetData" varStatus="counter">
+                                        <c:set var="targetLocale" value="${fn:substringBefore(targetData, '_')}"/>
+                                        <c:set var="remaining" value="${fn:substringAfter(targetData, '_')}"/>
+                                        <c:set var="wordCount" value="${fn:substringAfter(remaining, '_')}"/>
+                                        <c:set var="ticket" value="${fn:substringBefore(remaining, '_')}"/>
 
-                                <c:forTokens items="${gblRequest.properties['targetTicket'].string}" delims=","
-                                             var="targetData" varStatus="counter">
-                                    <c:set var="targetLocale" value="${fn:substringBefore(targetData, '_')}"/>
-                                    <c:set var="remaining" value="${fn:substringAfter(targetData, '_')}"/>
-                                    <c:set var="wordCount" value="${fn:substringAfter(remaining, '_')}"/>
-                                    <c:set var="ticket" value="${fn:substringBefore(remaining, '_')}"/>
-                                    <dl class="dl-horizontal">
                                         <dt><fmt:message key="request.target.language"/></dt>
-                                        <dd>${gbl:displayLocale(fn:replace(targetLocale,"-","_"),renderContext.UILocale)}</dd>
+                                        <dd>${gbl:displayLocale(targetLocale,renderContext.UILocale)}</dd>
 
                                         <dt><fmt:message key="request.target.wordcount"/></dt>
                                         <dd>${wordCount}</dd>
-                                    </dl>
-                                </c:forTokens>
-                                <c:if test="${not empty gblRequest.properties['gblContentCount'].long}">
-                                    <dl class="dl-horizontal">
+
+                                    </c:forTokens>
+                                    <c:if test="${not empty gblRequest.properties['gblContentCount'].long}">
                                         <dt><fmt:message key="request.target.contentcount"/></dt>
                                         <dd>${gblRequest.properties['gblContentCount'].long}</dd>
-                                    </dl>
-                                </c:if>
-
+                                    </c:if>
+                                </dl>
                             </td>
 
                             <td>
@@ -135,6 +133,9 @@
         </table>
     </div>
 </div>
+<div class="row">
+    <div class="col-sm-12"></div>
+</div>
 <script>
     $(document).ready(function () {
         moment.locale('${renderContext.UILocale.language}');
@@ -150,7 +151,7 @@
             scrollX       : true,
             scroller      : false,
             autoWidth     : false,
-            dom           : "<'row'<'col-sm-6'l><'col-sm-3'i><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-6'><'col-sm-3'i>>",
+            dom           : "<'row'<'col-sm-9'><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-12'>>",
             order         : [[2, 'desc']],
             scrollY       : <c:choose><c:when test="${index.count lt 5}">true
             </c:when><c:otherwise>"500px"</c:otherwise></c:choose>

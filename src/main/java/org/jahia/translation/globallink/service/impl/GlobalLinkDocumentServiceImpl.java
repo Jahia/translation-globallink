@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -82,15 +83,14 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             Document document = docBuilder.newDocument();
             Element rootElement = document.createElement(DOCUMENT_ROOT_NODE);
             String sourceLanguage = project.getSourceLanguage();
-            if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
-                sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
-                if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
-                    throw new GlobalLinkServiceException("There is no language matching this source on this site");
+            JCRValueWrapper[] values = pageNode.getResolveSite().getProperty("j:languageMappings").getValues();
+            for (JCRValueWrapper value : values) {
+                if(value.getString().endsWith(sourceLanguage)) {
+                    sourceLanguage = StringUtils.substringBefore(value.getString(),"###");
                 }
             }
-            String finalSourceLanguage = sourceLanguage;
             this.processContentNodeForDocument(pageNode, componentList, document, rootElement,
-                    finalSourceLanguage, sessionWrapper, project.isSkipTranslated());
+                    sourceLanguage, sessionWrapper, project.isSkipTranslated());
 
             this.contentService.addContentCount(requestNode, sessionWrapper, count);
             if (this.count > 0) {

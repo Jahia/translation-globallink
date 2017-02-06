@@ -39,8 +39,6 @@ public class GlobalLinkConstants {
 
     public static final String GBL_PROPERTY_SOURCE_DIRECTIONS = "gblnt:globalLinkSourceLanguage";
 
-    public static final String GBL_PROPERTY_TARGET_DIRECTIONS = "gblnt:globalLinkTargetLanguage";
-
     public static final String GBL_PROJECT_SOURCE_LANG = "sourceLanguage";
 
     public static final String GBL_PROJECT_TARGET_LANG = "targetLanguage";

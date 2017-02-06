@@ -101,12 +101,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                         projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
                         String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
                         projectRequestDTO.setSourceLanguage(sourceLanguage);
-                        JCRValueWrapper[] values = project.getProperty(GBL_PROJECT_TARGET_LANG).getValues();
-                        String[] targetLanguages = new String[values.length];
-                        for (int i = 0; i < values.length; i++) {
-                            targetLanguages[i] = values[i].getString();
-                        }
-                        projectRequestDTO.setDesLanguages(targetLanguages);
+                        projectRequestDTO.setDesLanguages(new String[]{project.getProperty(GBL_PROJECT_TARGET_LANG).getString()});
                         projectRequestDTO.setNodeWrapper(project);
                         projectRequestDTO.setRequestId(UUID.randomUUID().toString());
                         projectRequestDTO.setDocumentpath(config.getDocumentPath());
@@ -150,9 +145,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                                      GLExchange glExchange) {
         String sourceLanguage = GlobalLinkUtil.getGLLocale(requestDTO.getSourceLanguage());
         String[] targetLanguages = requestDTO.getDesLanguages();
-        for (int i = 0; i < targetLanguages.length; i++) {
-            targetLanguages[i] = GlobalLinkUtil.getGLLocale(targetLanguages[i]);
-        }
         JCRNodeWrapper projectRootNode = requestDTO.getNodeWrapper();
         try {
             Project project = glExchange.getProject(config.getProjectName());
