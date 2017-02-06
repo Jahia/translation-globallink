@@ -32,6 +32,17 @@
                 $("#updateSiteButton").prop("disabled", false);
             }
         }
+        function checkMappings() {
+            var $updateSiteButton = $("#updateSiteButton");
+            $updateSiteButton.prop("disabled", true);
+            $(".mappingSelector").each(function () {
+                var $this             = $(this);
+                if ($this.val() != "") {
+                    $('#' + $this.data('siteLocale') + 'hid').val($this.val())
+                    $updateSiteButton.prop("disabled", false);
+                }
+            })
+        }
         $(document).ready(function () {
             var $componentSelection = $('#componentSelection');
             var options             = $.makeArray($componentSelection.children('option'));
@@ -124,12 +135,7 @@
                 }, "json");
             });
 
-            $(".mappingSelector").each(function () {
-                var $this = $(this);
-                if ($this.val() != "---") {
-                    $('#' + $this.data('siteLocale') + 'hid').val($this.val())
-                }
-            })
+            checkMappings();
         });
     </script>
 
@@ -190,7 +196,7 @@
 
                         <fieldset class="form-group">
                             <div class="col-md-3">
-                                <label for="gblUsername"><fmt:message key="gbl.settings.enable"/></label>
+                                <label for="globalLinkActivated"><fmt:message key="gbl.settings.enable"/></label>
                             </div>
                             <div class="col-md-4">
                                 <input type="checkbox" name="globalLinkActivated"
@@ -374,7 +380,7 @@
                         <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
                         <c:forEach items="${existingOnes}" var="targetLanguage">
                             <c:set target="${existingMappings}"
-                                   property="${fn:substringAfter(targetLanguage.string,'###')}"
+                                   property="${targetLanguage.string}"
                                    value="${fn:substringBefore(targetLanguage.string,'###')}"/>
                         </c:forEach>
                         <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}"
@@ -397,13 +403,14 @@
                                                class="col-sm-4 control-label">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
                                         <div class="col-sm-8">
                                             <select name="targetMapping${siteLocale}"
-                                                    onchange="$('#${siteLocale}hid').val($(this).val())"
+                                                    onchange="$('#${siteLocale}hid').val($(this).val());checkMappings();"
                                                     class="mappingSelector form-control"
                                                     data-site-locale="${siteLocale}">
                                                 <option value="">-----</option>
                                                 <c:forEach items="${mappings}" var="mapping">
-                                                    <option value="${siteLocale}###${mapping.key}"
-                                                            <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
+                                                    <c:set var="key">${siteLocale}###${mapping.key}</c:set>
+                                                    <option value="${key}"
+                                                            <c:if test="${existingMappings[key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
                                                 </c:forEach>
                                             </select>
                                         </div>
