@@ -46,7 +46,7 @@
                 selectableHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
                 selectionHeader : "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
                 selectableFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selectable" /></div>",
-                selectionFooter : "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selected" /></div>",
+                selectionFooter : "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selected" /><span class='glyphicon glyphicon-asterisk'></span></div>",
                 afterInit       : function (ms) {
                     var that                   = this,
                         $selectableSearch      = that.$selectableUl.prev(),
@@ -162,7 +162,7 @@
 <div class="row">
     <div class="col-md-12">
         <form id="updateSiteForm" action="<c:url value='${url.base}${site.path}.globalLinkConfig.do'/>"
-              method="post">
+              method="post" class="horizontal">
             <div class="col-md-4">
                 <h1 class="globallink-heading"><fmt:message key="gbl.settings.title"/></h1>
                 <c:if test="${not empty site.properties['status']}">
@@ -312,9 +312,9 @@
                 </div>
             </div>
 
-            <div class="col-md-5">
-                <h3><fmt:message key="gbl.settings.componentlist"/><span class="glyphicon glyphicon-asterisk"></span>
-                </h3>
+            <div class="col-md-4">
+                <h3><fmt:message key="gbl.settings.componentlist"/></h3>
+                <h6><fmt:message key="gbl.settings.componentlist.info"/></h6>
                 <label class="radio-inline">
                     <input type="radio" name="componentsType" value="all"><fmt:message
                         key="gbl.settings.components.all"/>
@@ -339,28 +339,35 @@
                     </select>
                 </fieldset>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <c:set var="directions" value="${gbl:projectInfo(renderContext.mainResource.node)}"/>
                 <c:if test="${directions != 'NS'}">
                     <div style="padding: 0px 10px;" class="data">
-                        <h1><fmt:message key="gbl.settings.projectdirections"/></h1>
+                        <div class="well">
+                            <h2><fmt:message key="gbl.settings.projectdirections"/></h2>
 
-                        <c:choose>
-                            <c:when test="${directions eq 'NA'}">
-                                <div class="alert alert-danger">
-                                    <strong>
-                                        <fmt:message key="gbl.settings.project.fail"/>
-                                    </strong>
-                                </div>
-                            </c:when>
-                            <c:otherwise>
-                                <ul>
-                                    <c:forTokens items="${directions}" delims="," var="direction">
-                                        <li><p>${direction}</p></li>
-                                    </c:forTokens>
-                                </ul>
-                            </c:otherwise>
-                        </c:choose>
+                            <c:choose>
+                                <c:when test="${directions eq 'NA'}">
+                                    <div class="alert alert-danger">
+                                        <strong>
+                                            <fmt:message key="gbl.settings.project.fail"/>
+                                        </strong>
+                                    </div>
+                                </c:when>
+                                <c:otherwise>
+                                    <ul class="list-inline">
+                                        <c:forTokens items="${directions}" delims="," var="direction">
+                                            <li><span class="label label-success">${direction}</span></li>
+                                        </c:forTokens>
+                                    </ul>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h2><fmt:message key="gbl.settings.projectdirections.mappings"/></h2>
+                            </div>
+                        </div>
 
                         <jsp:useBean id="mappings" class="java.util.LinkedHashMap"/>
                         <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap"/>
@@ -382,21 +389,28 @@
                             </c:forEach>
                         </c:forEach>
                         <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
-                            <fieldset class="form-group">
-                                <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
-                                <label for="targetMapping${siteLocale}">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
-                                <select name="targetMapping${siteLocale}" onchange="$('#${siteLocale}hid').val($(this).val())"
-                                        class="mappingSelector" data-site-locale="${siteLocale}">
-                                    <option value="">-----</option>
-                                    <c:forEach items="${mappings}" var="mapping">
-                                        <option value="${siteLocale}###${mapping.key}"
-                                                <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
-                                    </c:forEach>
-                                </select>
-                            </fieldset>
+                            <div class="row" style="padding-top: 5px">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
+                                        <label for="targetMapping${siteLocale}"
+                                               class="col-sm-4 control-label">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
+                                        <div class="col-sm-8">
+                                            <select name="targetMapping${siteLocale}"
+                                                    onchange="$('#${siteLocale}hid').val($(this).val())"
+                                                    class="mappingSelector form-control"
+                                                    data-site-locale="${siteLocale}">
+                                                <option value="">-----</option>
+                                                <c:forEach items="${mappings}" var="mapping">
+                                                    <option value="${siteLocale}###${mapping.key}"
+                                                            <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </c:forEach>
-
-
                     </div>
                 </c:if>
             </div>
