@@ -124,10 +124,10 @@
                 }, "json");
             });
 
-            $(".mappingSelector").each(function(){
+            $(".mappingSelector").each(function () {
                 var $this = $(this);
-                if($this.val() != "---") {
-                    $('#'+$this.data('siteLocale')+'hid').val($this.val())
+                if ($this.val() != "---") {
+                    $('#' + $this.data('siteLocale') + 'hid').val($this.val())
                 }
             })
         });
@@ -361,32 +361,42 @@
                                 </ul>
                             </c:otherwise>
                         </c:choose>
-                        <fieldset class="form-group">
-                            <jsp:useBean id="mappings" class="java.util.LinkedHashMap" />
-                            <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap" />
-                            <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
-                            <c:forEach items="${existingOnes}" var="targetLanguage">
-                                <c:set target="${existingMappings}" property="${fn:substringAfter(targetLanguage.string,'###')}" value="${fn:substringBefore(targetLanguage.string,'###')}"/>
+
+                        <jsp:useBean id="mappings" class="java.util.LinkedHashMap"/>
+                        <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap"/>
+                        <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
+                        <c:forEach items="${existingOnes}" var="targetLanguage">
+                            <c:set target="${existingMappings}"
+                                   property="${fn:substringAfter(targetLanguage.string,'###')}"
+                                   value="${fn:substringBefore(targetLanguage.string,'###')}"/>
+                        </c:forEach>
+                        <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}"
+                                   var="sourceLanguage">
+                            <c:set target="${mappings}"
+                                   property="${fn:substringBefore(sourceLanguage.name,'-gblSource')}"
+                                   value="${gbl:displayLocale(sourceLanguage.name, renderContext.UILocale)}"/>
+                            <jcr:nodeProperty node="${sourceLanguage}" name="targetLanguages" var="targetLanguages"/>
+                            <c:forEach items="${targetLanguages}" var="targetLanguage">
+                                <c:set target="${mappings}" property="${targetLanguage.string}"
+                                       value="${gbl:displayLocale(targetLanguage.string, renderContext.UILocale)}"/>
                             </c:forEach>
-                            <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}" var="sourceLanguage">
-                                <c:set target="${mappings}" property="${fn:substringBefore(sourceLanguage.name,'-gblSource')}" value="${gbl:displayLocale(sourceLanguage.name, renderContext.UILocale)}"/>
-                                <jcr:nodeProperty node="${sourceLanguage}" name="targetLanguages" var="targetLanguages"/>
-                                <c:forEach items="${targetLanguages}" var="targetLanguage">
-                                    <c:set target="${mappings}" property="${targetLanguage.string}" value="${gbl:displayLocale(targetLanguage.string, renderContext.UILocale)}"/>
-                                </c:forEach>
-                            </c:forEach>
-                            <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
+                        </c:forEach>
+                        <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
+                            <fieldset class="form-group">
                                 <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
-                                <label>${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}
-                                    <select name="targetMapping" onchange="$('#${siteLocale}hid').val($(this).val())" class="mappingSelector" data-site-locale="${siteLocale}">
-                                        <option value="">-----</option>
-                                        <c:forEach items="${mappings}" var="mapping">
-                                            <option value="${siteLocale}###${mapping.key}" <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
-                                        </c:forEach>
-                                    </select>
-                                </label>
-                            </c:forEach>
-                        </fieldset>
+                                <label for="targetMapping${siteLocale}">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
+                                <select name="targetMapping${siteLocale}" onchange="$('#${siteLocale}hid').val($(this).val())"
+                                        class="mappingSelector" data-site-locale="${siteLocale}">
+                                    <option value="">-----</option>
+                                    <c:forEach items="${mappings}" var="mapping">
+                                        <option value="${siteLocale}###${mapping.key}"
+                                                <c:if test="${existingMappings[mapping.key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
+                                    </c:forEach>
+                                </select>
+                            </fieldset>
+                        </c:forEach>
+
+
                     </div>
                 </c:if>
             </div>
