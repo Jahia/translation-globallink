@@ -143,19 +143,20 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      */
     private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config,
                                      GLExchange glExchange) {
-        String sourceLanguage = GlobalLinkUtil.getGLLocale(requestDTO.getSourceLanguage());
-        String[] targetLanguages = requestDTO.getDesLanguages();
+        String[] split = requestDTO.getSourceLanguage().split("###");
+        String sourceLanguage = split[1];
+        List<String> targetLanguages = new LinkedList<>();
+        for (String targetLanguage : requestDTO.getDesLanguages()) {
+            targetLanguages.add(StringUtils.substringAfter(targetLanguage,"###"));
+        }
         JCRNodeWrapper projectRootNode = requestDTO.getNodeWrapper();
         try {
             Project project = glExchange.getProject(config.getProjectName());
             Submission submission = new Submission();
-            String jahiaSourceLanguage = sourceLanguage.replace("-","_");
+            String jahiaSourceLanguage = split[0];
             JCRSiteNode siteNode = config.getSiteNode();
             if(!siteNode.getLanguages().contains(jahiaSourceLanguage)){
-                jahiaSourceLanguage = StringUtils.substringBefore(jahiaSourceLanguage,"_");
-                if(!siteNode.getLanguages().contains(jahiaSourceLanguage)){
                     throw new GlobalLinkServiceException("no source lang matching in site");
-                }
             }
             JCRNodeWrapper parent = projectRootNode.getParent();
             String pageTitle;
@@ -188,7 +189,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             requestDTO.getDocuments().forEach((document) -> {
                 document.setFileformat(config.getFileFormat());
                 document.setSourceLanguage(sourceLanguage);
-                document.setTargetLanguages(targetLanguages);
+                document.setTargetLanguages(targetLanguages.toArray(new String[targetLanguages.size()]));
                 try {
                     String uploadTicket = glExchange.uploadTranslatable(document);
                     String id = StringUtils.substringBefore(StringUtils

@@ -82,13 +82,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
             Document document = docBuilder.newDocument();
             Element rootElement = document.createElement(DOCUMENT_ROOT_NODE);
-            String sourceLanguage = project.getSourceLanguage();
-            JCRValueWrapper[] values = pageNode.getResolveSite().getProperty("j:languageMappings").getValues();
-            for (JCRValueWrapper value : values) {
-                if(value.getString().endsWith(sourceLanguage)) {
-                    sourceLanguage = StringUtils.substringBefore(value.getString(),"###");
-                }
-            }
+            String sourceLanguage = StringUtils.substringBefore(project.getSourceLanguage(),"###");
             this.processContentNodeForDocument(pageNode, componentList, document, rootElement,
                     sourceLanguage, sessionWrapper, project.isSkipTranslated());
 
@@ -106,7 +100,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                 return true;
             }
             return false;
-        } catch (ParserConfigurationException | TransformerException | DOMException | RepositoryException ex) {
+        } catch (ParserConfigurationException | TransformerException | DOMException ex) {
             LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }

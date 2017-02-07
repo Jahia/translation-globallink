@@ -4,7 +4,6 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkDocumentService;
@@ -81,21 +80,22 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
         try {
 //            JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
 //            for (int index = 0; index < values.length; index++) {
-                String language = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
-                String fileName = "";
-                if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
-                    fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
-                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                            + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
-                } else {
-                    fileName = DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH
-                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                            + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
-                }
-                File file = IOUtil.getFile(fileName);
-                if (file != null) {
-                    processTranslatedDocument(file, requestNode);
-                }
+            String languageMapping = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
+            String language = StringUtils.substringAfter(languageMapping, "###");
+            String fileName = "";
+            if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
+                fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
+                        + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
+                        + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
+            } else {
+                fileName = DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH
+                        + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
+                        + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
+            }
+            File file = IOUtil.getFile(fileName);
+            if (file != null) {
+                processTranslatedDocument(file, requestNode, languageMapping);
+            }
 //            }
         } catch (RepositoryException re) {
             LOGGER.error("Error while processing request node: {} Exception {}", requestNode, re);
@@ -106,35 +106,19 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      * Handle translated document and check all translation content
      * for respective bigtext nodes.
      */
-    private void processTranslatedDocument(File file, JCRNodeWrapper requestNode) {
+    private void processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
         try {
             JCRNodeWrapper pageNode = requestNode.getParent();
             this.contentService.lockNode(pageNode, this.sessionWrapper);
-            String locale = StringUtils.substringBefore(file.getName(), "_");
-            JCRValueWrapper[] values = pageNode.getResolveSite().getProperty("j:languageMappings").getValues();
-            for (JCRValueWrapper value : values) {
-                if(value.getString().endsWith(locale)) {
-                    locale = StringUtils.substringBefore(value.getString(),"###");
-                }
-            }
+            String locale = StringUtils.substringBefore(language, "###");
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
-            String sourceLanguage = requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
-            for (JCRValueWrapper value : values) {
-                if(value.getString().endsWith(sourceLanguage)) {
-                    sourceLanguage = StringUtils.substringBefore(value.getString(),"###");
-                }
-            }
+            String sourceLanguage = StringUtils.substringBefore(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString(), "###");
+
             if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
-                sourceLanguage = StringUtils.substringBefore(sourceLanguage, "_");
-                if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
-                    throw new GlobalLinkServiceException("There is no language matching this source on this site");
-                }
+                throw new GlobalLinkServiceException("There is no language matching this source on this site");
             }
             if (!pageNode.getResolveSite().getLanguages().contains(locale)) {
-                locale = StringUtils.substringBefore(locale, "_");
-                if (!pageNode.getResolveSite().getLanguages().contains(locale)) {
-                    throw new GlobalLinkServiceException("There is no language matching this source on this site");
-                }
+                throw new GlobalLinkServiceException("There is no language matching this target on this site");
             }
             try {
                 this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLanguage);

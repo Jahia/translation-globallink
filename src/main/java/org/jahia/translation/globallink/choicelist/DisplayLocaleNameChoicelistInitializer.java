@@ -7,13 +7,11 @@ import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
 import org.jahia.translation.globallink.common.GlobalLinkConstants;
+import org.jahia.utils.LanguageCodeConverters;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by rincevent on 2016-07-21.
@@ -36,22 +34,34 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
             JCRSiteNode resolveSite = nodeWrapper.getResolveSite();
             if (list != null) {
                 if (resolveSite.isNodeType(GlobalLinkConstants.GBL_MIXIN_TYPE) && resolveSite.getProperty(GlobalLinkConstants.GBL_PROPERTY_ENABLE).getBoolean()) {
+                    Value[] mappings = resolveSite.getProperty("j:languageMappings").getValues();
                     for (ChoiceListValue choiceListValue : list) {
                         //Get the language code by removing -source or -target
                         String languageCode = StringUtils.substringBefore(choiceListValue.getDisplayName(), "-gblSource");
-                        // get the locale object form the code
-                        Locale localeFromCode = Locale.forLanguageTag(languageCode);
-                        // Render the locale object in the current user language
-                        choiceListValue.setDisplayName(localeFromCode.getDisplayName(userLocale));
-                        choiceListValue.setStringValue(languageCode);
-                        results.add(choiceListValue);
+                        List<String> sourceMapping = new LinkedList<>();
+                        for (Value mapping : mappings) {
+                            String mappingString = mapping.getString();
+                            if(mappingString.endsWith(languageCode)) {
+                                sourceMapping.add(mappingString);
+                            }
+                        }
+                        addResults(userLocale, results, sourceMapping);
                     }
                 }
             } else if (map.containsKey("sourceLanguage")) {
-                JCRNodeWrapper sourceLanguageNode = resolveSite.getNode(((List) map.get("sourceLanguage")).get(0) + "-gblSource");
+                String sourceLanguage = ((String) ((List) map.get("sourceLanguage")).get(0)).split("###")[1];
+                JCRNodeWrapper sourceLanguageNode = resolveSite.getNode(sourceLanguage + "-gblSource");
+                Value[] mappings = resolveSite.getProperty("j:languageMappings").getValues();
                 for (Value targetLanguages : sourceLanguageNode.getProperty("targetLanguages").getValues()) {
-                    Locale locale = Locale.forLanguageTag(targetLanguages.getString());
-                    results.add(new ChoiceListValue(locale.getDisplayName(userLocale), targetLanguages.getString()));
+                    String languageCode = targetLanguages.getString();
+                    List<String> sourceMapping = new LinkedList<>();
+                    for (Value mapping : mappings) {
+                        String mappingString = mapping.getString();
+                        if(mappingString.endsWith(languageCode)) {
+                            sourceMapping.add(mappingString);
+                        }
+                    }
+                    addResults(userLocale, results, sourceMapping);
                 }
             } else {
                 results.add(new ChoiceListValue("Please select a source language first", "empty"));
@@ -60,5 +70,16 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
             e.printStackTrace();
         }
         return results;
+    }
+
+    private void addResults(Locale userLocale, List<ChoiceListValue> results, List<String> sourceMapping) {
+        for (String s1 : sourceMapping) {
+            String[] locales = s1.split("###");
+            // Render the locale object in the current user language
+            ChoiceListValue value = new ChoiceListValue();
+            value.setDisplayName(LanguageCodeConverters.getLocaleFromCode(locales[0]).getDisplayName(userLocale)+" <---> "+Locale.forLanguageTag(locales[1]).getDisplayName(userLocale));
+            value.setStringValue(s1);
+            results.add(value);
+        }
     }
 }
