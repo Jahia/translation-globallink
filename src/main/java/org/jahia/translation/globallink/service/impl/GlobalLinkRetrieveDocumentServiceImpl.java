@@ -16,6 +16,7 @@ import org.jahia.translation.globallink.util.JCRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
@@ -97,12 +98,21 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                 targets = glExchange.getCancelledTargets(submissionTicket, 100);
                 if (targets.length > 0) {
                     Arrays.asList(targets).forEach(target -> {
-                        this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
+                        try {
+                            if(requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(target.getDocumentTicket())) {
+                                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
+                            }
+                        } catch (RepositoryException e) {
+                            LOGGER.error("Error cancelling submission - ", e);
+                        }
                     });
                 } else {
                     try {
                         String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
-                        if (submissionStatus.equals(STATUS_READY)) {
+                        if(submissionStatus == null) {
+                            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
+                        }
+                        else if (submissionStatus.equals(STATUS_READY)) {
                             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
                         }
                     } catch (Exception e) {

@@ -14,6 +14,9 @@ public class SubmissionStatus {
     public static final String STATUS_TRANSLATED = "request.translated";
 
     public static final String STATUS_CANCELLED = "request.cancelled";
+
+    public static final String STATUS_DELETED = "request.deleted";
+
     public static final String STATUS_NO_DOCUMENT = "request.no.document";
 
     public static final String STATUS_CONTENT_ERROR = "request.content.error";

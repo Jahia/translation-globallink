@@ -24,3 +24,12 @@ rule "Delete empty submission"
     then
 >       gblSubmissionService.removeEmptySubmission(node, drools);
 end
+
+rule "Notify user on status change"
+    salience 50
+    when
+        A property gblSubmitState has been set on a node
+        - the node has the type gblnt:globalLinkProject
+    then
+>       gblSubmissionService.sendNotification(node, drools);
+end

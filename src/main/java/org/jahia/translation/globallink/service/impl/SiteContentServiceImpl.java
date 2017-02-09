@@ -149,7 +149,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status)
             throws GlobalLinkServiceException {
         try {
-            if(!nodeWrapper.isLocked()) {
+            if(!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
                 nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
                 sessionWrapper.save();
             }

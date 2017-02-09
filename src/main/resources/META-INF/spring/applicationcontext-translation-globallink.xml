@@ -61,6 +61,8 @@
     	<property name="gblQueryService" ref="globalLinkQueryService"/>
     	<property name="documentService" ref="documentService"/>
     	<property name="contentService" ref="contentService"/>
+        <property name="mailService" ref="MailService"/>
+        <property name="userManagerService" ref="JahiaUserManagerService"/>
     </bean>
     
     <bean id="retrieveDocumentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkRetrieveDocumentServiceImpl">
@@ -99,7 +101,7 @@
         <property name="trigger">
             <bean class="org.quartz.CronTrigger">
                 <property name="name" value="TranslationJobTrigger"/>
-                <property name="cronExpression" value="25 0/5 * * * ?"/>
+                <property name="cronExpression" value="15 0/1 * * * ?"/>
             </bean>
         </property>
     </bean>
@@ -136,6 +138,8 @@
         <property name="submissionService" ref="submissionService"/>
         <property name="queryService" ref="globalLinkQueryService"/>
         <property name="contentService" ref="contentService"/>
+        <property name="mailService" ref="MailService"/>
+        <property name="userManagerService" ref="JahiaUserManagerService"/>
     </bean>
 
     <bean class="org.jahia.services.content.rules.ModuleGlobalObject">

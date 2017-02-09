@@ -6,8 +6,14 @@ import com.globallink.api.model.Project;
 import com.globallink.api.model.Submission;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.jahia.services.content.*;
+import org.jahia.services.content.JCRContentUtils;
+import org.jahia.services.content.JCRNodeIteratorWrapper;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
+import org.jahia.services.content.decorator.JCRUserNode;
+import org.jahia.services.mail.MailServiceImpl;
+import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -24,10 +30,10 @@ import javax.jcr.RepositoryException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO_DOCUMENT;
 
 /**
@@ -46,6 +52,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private JCRSessionWrapper sessionWrapper;
 
     private SiteContentService contentService;
+    private MailServiceImpl mailService;
+    private JahiaUserManagerService userManagerService;
 
     /**
      * {@inheritDoc}
@@ -147,7 +155,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         String sourceLanguage = split[1];
         List<String> targetLanguages = new LinkedList<>();
         for (String targetLanguage : requestDTO.getDesLanguages()) {
-            targetLanguages.add(StringUtils.substringAfter(targetLanguage,"###"));
+            targetLanguages.add(StringUtils.substringAfter(targetLanguage, "###"));
         }
         JCRNodeWrapper projectRootNode = requestDTO.getNodeWrapper();
         try {
@@ -155,12 +163,12 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             Submission submission = new Submission();
             String jahiaSourceLanguage = split[0];
             JCRSiteNode siteNode = config.getSiteNode();
-            if(!siteNode.getLanguages().contains(jahiaSourceLanguage)){
-                    throw new GlobalLinkServiceException("no source lang matching in site");
+            if (!siteNode.getLanguages().contains(jahiaSourceLanguage)) {
+                throw new GlobalLinkServiceException("no source lang matching in site");
             }
             JCRNodeWrapper parent = projectRootNode.getParent();
             String pageTitle;
-            if(parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
+            if (parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
                 pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getProperty("jcr:title").getString();
             } else {
                 pageTitle = parent.getName();
@@ -177,11 +185,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages\n"
                     + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
             submission.setPmNotes(pmNotes);
-            if(projectRootNode.hasProperty("dueDate")) {
+            if (projectRootNode.hasProperty("dueDate")) {
                 submission.setDueDate(projectRootNode.getProperty("dueDate").getDate().getTime());
             } else {
                 Calendar calendar = Calendar.getInstance();
-                calendar.add(Calendar.DAY_OF_YEAR,5);
+                calendar.add(Calendar.DAY_OF_YEAR, 5);
                 submission.setDueDate(calendar.getTime());
             }
             glExchange.initSubmission(submission);
@@ -273,6 +281,18 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     }
                 } else {
                     try {
+                        if (mailService.isEnabled()) {
+                            JCRNodeWrapper node = requestDTO.getNodeWrapper();
+                            JCRUserNode jcrUserNode = userManagerService.lookupUser(node.getCreationUser(), pageNode.getSession());
+                            if (jcrUserNode.hasProperty("j:email")) {
+                                MessageFormat messageFormat = new MessageFormat("Your translation submission {0} was empty for page " + child.getDisplayableName() + " and so has not been submitted");
+                                String name = node.getProperty("name").getString();
+                                mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
+                                        messageFormat.format(new Object[]{
+                                                name
+                                        }));
+                            }
+                        }
                         requestNode.remove();
                         this.sessionWrapper.save();
                     } catch (RepositoryException e) {
@@ -319,18 +339,23 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (config.getSiteNode().hasProperty(GBL_PROPERTY_LAST_EXEC) &&
                     config.getSiteNode().hasProperty(GBL_PROPERTY_INTERVAL)) {
                 Calendar lastExecuted = config.getSiteNode().getProperty(GBL_PROPERTY_LAST_EXEC).getDate();
-                lastExecuted.add(Calendar.SECOND, Integer.valueOf(
+                lastExecuted.add(Calendar.MINUTE, Integer.valueOf(
                         (String.valueOf(config.getSiteNode().getProperty(GBL_PROPERTY_INTERVAL).getLong()))
                 ));
-                if (lastExecuted.compareTo(Calendar.getInstance()) == 1) {
-                    return false;
-                }
-                return true;
+                return Calendar.getInstance().after(lastExecuted);
             }
             return true;
         } catch (RepositoryException re) {
             LOGGER.error("Error while checking submission interval -> ", re);
         }
         return false;
+    }
+
+    public void setMailService(MailServiceImpl mailService) {
+        this.mailService = mailService;
+    }
+
+    public void setUserManagerService(JahiaUserManagerService userManagerService) {
+        this.userManagerService = userManagerService;
     }
 }

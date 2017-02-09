@@ -25,10 +25,10 @@ public class ProjectNodeValidator implements JCRNodeValidator {
     @FutureDueDate
     public Calendar getDueDate() {
         try {
-            JCRPropertyWrapper property = node.getProperty("dueDate");
             if(node.getName().equals(NODE_NAME_GLOBAL_LINK) || !node.isNew()) {
                 return null;
             }
+            JCRPropertyWrapper property = node.getProperty("dueDate");
             if (property != null) {
                 return property.getDate();
             }
