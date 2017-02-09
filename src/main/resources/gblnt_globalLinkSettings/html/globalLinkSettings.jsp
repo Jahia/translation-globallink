@@ -34,14 +34,17 @@
         }
         function checkMappings() {
             var $updateSiteButton = $("#updateSiteButton");
-            $updateSiteButton.prop("disabled", true);
-            $(".mappingSelector").each(function () {
-                var $this             = $(this);
-                if ($this.val() != "") {
-                    $('#' + $this.data('siteLocale') + 'hid').val($this.val())
-                    $updateSiteButton.prop("disabled", false);
-                }
-            })
+            var $mappingSelector  = $(".mappingSelector");
+            if ($mappingSelector.length > 0) {
+                $updateSiteButton.prop("disabled", true);
+                $mappingSelector.each(function () {
+                    var $this = $(this);
+                    if ($this.val() != "") {
+                        $('#' + $this.data('siteLocale') + 'hid').val($this.val());
+                        $updateSiteButton.prop("disabled", false);
+                    }
+                })
+            }
         }
         $(document).ready(function () {
             var $componentSelection = $('#componentSelection');
