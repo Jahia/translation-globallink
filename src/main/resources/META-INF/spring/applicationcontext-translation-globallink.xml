@@ -74,6 +74,8 @@
     	<property name="gblQueryService" ref="globalLinkQueryService"/>
     	<property name="documentService" ref="documentService"/>
     	<property name="contentService" ref="contentService"/>
+        <property name="mailService" ref="MailService"/>
+        <property name="userManagerService" ref="JahiaUserManagerService"/>
     </bean>
     
     <bean id="documentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkDocumentServiceImpl">

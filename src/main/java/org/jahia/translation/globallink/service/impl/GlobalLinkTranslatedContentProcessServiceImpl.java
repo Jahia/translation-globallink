@@ -4,6 +4,9 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.decorator.JCRUserNode;
+import org.jahia.services.mail.MailServiceImpl;
+import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkDocumentService;
@@ -19,6 +22,7 @@ import org.w3c.dom.NodeList;
 
 import javax.jcr.RepositoryException;
 import java.io.File;
+import java.text.MessageFormat;
 import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
@@ -44,6 +48,8 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private JCRSessionWrapper sessionWrapper;
 
     private SiteContentService contentService;
+    private MailServiceImpl mailService;
+    private JahiaUserManagerService userManagerService;
 
     /**
      * {@inheritDoc}
@@ -120,14 +126,27 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
             if (!pageNode.getResolveSite().getLanguages().contains(locale)) {
                 throw new GlobalLinkServiceException("There is no language matching this target on this site");
             }
-            try {
-                this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLanguage);
-                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_TRANSLATED);
-            } catch (GlobalLinkServiceException ex) {
-                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CONTENT_ERROR);
-                LOGGER.error("Error while checking in content: ", ex);
-            }
+            this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLanguage);
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_TRANSLATED);
             this.contentService.unLockNode(pageNode, this.sessionWrapper);
+        } catch (GlobalLinkServiceException ex) {
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CONTENT_ERROR);
+            try {
+                if (mailService.isEnabled()) {
+                    JCRUserNode jcrUserNode = userManagerService.lookupUser(requestNode.getCreationUser(), requestNode.getSession());
+                    if (jcrUserNode.hasProperty("j:email")) {
+                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " + requestNode.getParent().getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
+                        String name = requestNode.getProperty("name").getString();
+                        mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
+                                messageFormat.format(new Object[]{
+                                        name
+                                }));
+                    }
+                }
+            } catch (RepositoryException e) {
+                LOGGER.error("Error sending notification: ", ex);
+            }
+            LOGGER.error("Error while checking in content: ", ex);
         } catch (Exception ex) {
             LOGGER.error("Error while processing document: ", ex);
         }
@@ -145,4 +164,11 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
         this.contentService = contentService;
     }
 
+    public void setMailService(MailServiceImpl mailService) {
+        this.mailService = mailService;
+    }
+
+    public void setUserManagerService(JahiaUserManagerService userManagerService) {
+        this.userManagerService = userManagerService;
+    }
 }
