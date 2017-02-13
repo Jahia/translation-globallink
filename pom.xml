@@ -60,7 +60,6 @@
         </repository>
     </repositories>
     <build>
-        <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -78,6 +77,7 @@
                     <doCheck>false</doCheck>
                     <doUpdate>false</doUpdate>
                     <shortRevisionLength>5</shortRevisionLength>
+                    <buildNumberPropertyName>transBuildNumber</buildNumberPropertyName>
                 </configuration>
             </plugin>
             <plugin>
@@ -87,7 +87,7 @@
                 <configuration>
                     <instructions>
                         <Embed-Dependency>globallink-connect-api</Embed-Dependency>
-                        <Implementation-Build>${buildNumber}</Implementation-Build>
+                        <Implementation-Build>${transBuildNumber}</Implementation-Build>
                     </instructions>
                 </configuration>
             </plugin>
@@ -100,6 +100,12 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.jahia.server</groupId>
+                <artifactId>jahia-maven-plugin</artifactId>
+                <version>5.0-SNAPSHOT</version>
+            </plugin>
         </plugins>
+        <finalName>${project.artifactId}-${project.version}</finalName>
     </build>
 </project>
