@@ -120,7 +120,10 @@ public class GlobalLinkConfigAction extends Action {
             }
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
-        siteNode.setProperty("j:languageMappings", getMultiRequestparameter(request, "j:languageMappings"));
+        String[] multiRequestparameter = getMultiRequestparameter(request, "j:languageMappings");
+        if(multiRequestparameter!=null) {
+            siteNode.setProperty("j:languageMappings", multiRequestparameter);
+        }
         siteNode.setProperty("status", "OK");
         //Change by cedric to save even in case of errors
         sessionWrapper.save();
