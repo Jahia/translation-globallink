@@ -84,7 +84,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             Element rootElement = document.createElement(DOCUMENT_ROOT_NODE);
             String sourceLanguage = StringUtils.substringBefore(project.getSourceLanguage(),"###");
             this.processContentNodeForDocument(pageNode, componentList, document, rootElement,
-                    sourceLanguage, sessionWrapper, project.isSkipTranslated());
+                    sourceLanguage, sessionWrapper, project.isSkipTranslated(), !project.isChildIncluded());
 
             this.contentService.addContentCount(requestNode, sessionWrapper, count);
             if (this.count > 0) {
@@ -136,7 +136,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      */
     @SuppressWarnings("unchecked")
     private void processContentNodeForDocument(JCRNodeWrapper nodeWrapper, List<String> componentList, Document document,
-                                               Element rootElement, String locale, JCRSessionWrapper sessionWrapper, boolean skipTranslated) {
+                                               Element rootElement, String locale, JCRSessionWrapper sessionWrapper, boolean skipTranslated, boolean skipSubPages) {
         try {
             if (componentList.contains(nodeWrapper.getPrimaryNodeTypeName())) {
                 Element contentElement = document.createElement(DOCUMENT_CONTENT_NODE);
@@ -188,8 +188,14 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             }
             if (nodeWrapper.hasNodes()) {
                 nodeWrapper.getNodes().forEach(node -> {
-                    processContentNodeForDocument(node, componentList, document, rootElement, locale,
-                            sessionWrapper, skipTranslated);
+                    try {
+                        if(!(skipSubPages && node.isNodeType("jnt:page"))) {
+                            processContentNodeForDocument(node, componentList, document, rootElement, locale,
+                                    sessionWrapper, skipTranslated, skipSubPages);
+                        }
+                    } catch (RepositoryException e) {
+                        LOGGER.error("Error while processing content node {} exception {}", nodeWrapper, e);
+                    }
                 });
             }
         } catch (RepositoryException re) {

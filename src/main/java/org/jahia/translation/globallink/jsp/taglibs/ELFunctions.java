@@ -46,7 +46,7 @@ public class ELFunctions {
     public static Map<String, String> getComponentList(JCRNodeWrapper nodeWrapper, Locale locale, Script script,
                                                        JCRValueWrapper[] valueWrappers) {
         try {
-            return GlobalLinkUtil.filterComponentsList(ComponentRegistry.getComponentTypes(nodeWrapper, null,
+            return GlobalLinkUtil.filterComponentsList(GlobalLinkUtil.getComponentTypes(nodeWrapper, null,
                     GlobalLinkUtil.getExcludedComponents(valueWrappers), locale));
         } catch (Exception ex) {
             LOGGER.error("Error while fetching components list -> ", ex);

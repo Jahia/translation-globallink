@@ -52,6 +52,7 @@
         <table class="table table-striped nowrap small" id="request-list">
             <thead>
             <tr>
+                <th>Ticket</th>
                 <th><fmt:message key="request.page"/></th>
                 <th><fmt:message key="request.date"/></th>
                 <th><fmt:message key="request.date.submitted"/></th>
@@ -67,7 +68,7 @@
                     <c:when test="${gblRequest.properties['skipTranslated'].boolean && gblRequest.properties['gblContentCount'].long == 0}">
                     </c:when>
                     <c:otherwise>
-                        <tr>
+                        <tr><td data-order="${gblRequest.properties['submissionTicket'].string}"><small title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small></td>
                             <td>
                                 <a href="<c:url value="${url.baseEdit}${gblRequest.parent.path}.html"/>"
                                    target="_blank">
@@ -152,7 +153,7 @@
             scroller      : false,
             autoWidth     : false,
             dom           : "<'row'<'col-sm-9'><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-12'>>",
-            order         : [[2, 'desc']],
+            order         : [[3, 'desc']],
             scrollY       : <c:choose><c:when test="${index.count lt 5}">true
             </c:when><c:otherwise>"500px"</c:otherwise></c:choose>
         });

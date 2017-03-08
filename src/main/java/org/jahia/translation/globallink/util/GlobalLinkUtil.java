@@ -2,17 +2,23 @@ package org.jahia.translation.globallink.util;
 
 import com.globallink.api.GLExchange;
 import com.globallink.api.config.ProjectDirectorConfig;
+import com.google.common.base.Functions;
+import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRValueWrapper;
+import org.jahia.services.content.decorator.JCRSiteNode;
+import org.jahia.services.content.nodetypes.ConstraintsHelper;
 import org.jahia.services.content.nodetypes.ExtendedNodeType;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.services.content.nodetypes.NodeTypeRegistry;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
+import org.jahia.utils.Patterns;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.PathNotFoundException;
 import javax.jcr.PropertyType;
 import javax.jcr.RepositoryException;
 import javax.jcr.nodetype.NoSuchNodeTypeException;
@@ -124,5 +130,86 @@ public class GlobalLinkUtil {
             }
         });
         return filteredMap;
+    }
+
+    private static boolean allowType(ExtendedNodeType t, List<String> includeTypeList,
+                                     List<String> excludeTypeList) {
+        if(t.getName().equals("jmix:publication")) {
+            return false;
+        }
+        boolean include = true;
+        String typeName = t.getName();
+
+        if (excludeTypeList != null && !excludeTypeList.isEmpty()) {
+            include = !excludeTypeList.contains(typeName);
+            if (include) {
+                for (String s : excludeTypeList) {
+                    if (t.isNodeType(s)) {
+                        include = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!include) {
+            return false;
+        }
+
+        if (includeTypeList != null && !includeTypeList.isEmpty()) {
+            include = false;
+            include = includeTypeList.contains(typeName);
+            if (!include) {
+                for (String s : includeTypeList) {
+                    if (t.isNodeType(s)) {
+                        include = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return include;
+    }
+
+    public static Map<String, String> getComponentTypes(final JCRNodeWrapper node,
+                                                        final List<String> includeTypeList, final List<String> excludeTypeList,
+                                                        Locale displayLocale) throws PathNotFoundException, RepositoryException {
+
+        if (displayLocale == null) {
+            displayLocale = node.getSession().getLocale();
+        }
+
+        Map<String, String> finalComponents = new HashMap<String, String>();
+
+        JCRSiteNode resolvedSite = node.getResolveSite();
+
+        String[] constraints = Patterns.SPACE.split(ConstraintsHelper.getConstraints(node));
+
+        Set<String> l = new HashSet<String>();
+        l.add("system-jahia");
+
+        if (resolvedSite != null) {
+            l.addAll(resolvedSite.getInstalledModulesWithAllDependencies());
+        }
+
+        for (String aPackage : l) {
+            for (ExtendedNodeType type : NodeTypeRegistry.getInstance().getNodeTypes(aPackage)) {
+                if (allowType(type, includeTypeList, excludeTypeList)) {
+                    for (String s : constraints) {
+                        if (!finalComponents.containsKey(type.getName()) && type.isNodeType(s)) {
+                            finalComponents.put(type.getName(), type.getLabel(displayLocale));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        SortedMap<String, String> sortedComponents = new TreeMap<String, String>(
+                Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(Functions.forMap(finalComponents)));
+        sortedComponents.putAll(finalComponents);
+
+        return sortedComponents;
     }
 }
