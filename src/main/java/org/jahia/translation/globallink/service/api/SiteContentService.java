@@ -35,6 +35,17 @@ public interface SiteContentService {
             throws GlobalLinkServiceException;
 
     /**
+     * Lock the page for Translation process.
+     *
+     * @param nodeWrapper
+     * @param sessionWrapper
+     * @return
+     * @throws GlobalLinkServiceException
+     */
+    boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper)
+            throws GlobalLinkServiceException;
+
+    /**
      * Unlock Page after translation process is complete.
      *
      * @param nodeWrapper

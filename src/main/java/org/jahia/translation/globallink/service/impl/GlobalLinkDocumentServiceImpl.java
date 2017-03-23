@@ -145,7 +145,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                     JCRNodeWrapper translationNode = nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale);
                     if ((skipTranslated && !translationNode.hasProperty(NODE_NAME_TRANS_PROP)) ||
                             (skipTranslated && !translationNode.getProperty(NODE_NAME_TRANS_PROP).getBoolean()) || !skipTranslated) {
-                        this.contentService.lockNode(translationNode, sessionWrapper);
+                        this.contentService.lockTranslationNode(translationNode, sessionWrapper);
                         nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale).getProperties().forEachRemaining(property -> {
                             try {
                                 ExtendedPropertyDefinition propertyDefinition =

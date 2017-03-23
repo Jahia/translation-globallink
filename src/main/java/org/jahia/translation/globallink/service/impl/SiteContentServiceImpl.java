@@ -81,6 +81,19 @@ public class SiteContentServiceImpl implements SiteContentService {
         }
     }
 
+    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+        try {
+            if (!nodeWrapper.isLocked() && nodeWrapper.isLockable()) {
+                nodeWrapper.lockAndStoreToken("translation"," globalLink ");
+                sessionWrapper.save();
+                return true;
+            }
+            return false;
+        } catch (Exception ex) {
+            LOGGER.error("Service Exception -> ", ex);
+            throw new GlobalLinkServiceException(ex.getMessage(), ex);
+        }
+    }
     /**
      * {@inheritDoc}
      */
@@ -220,6 +233,9 @@ public class SiteContentServiceImpl implements SiteContentService {
     public void addTransStateForContentNode(JCRNodeWrapper translationNode, JCRSessionWrapper sessionWrapper)
             throws GlobalLinkServiceException {
         try {
+            if (translationNode.isLocked()) {
+                translationNode.unlock("translation"," globalLink ");
+            }
             translationNode.setProperty(NODE_NAME_TRANS_PROP, true);
             sessionWrapper.save();
         } catch (Exception ex) {
