@@ -342,7 +342,7 @@
                         <c:forEach
                                 items="${gbl:componentList(renderContext.mainResource.node, renderContext.request.locale, script, site.properties['j:componentsList'])}"
                                 var="component">
-                            <option value="${component.value}-${component.key}">${component.value}(${component.key})
+                            <option value="${component.value}-${component.key}">${component.value}
                             </option>
                         </c:forEach>
                     </select>
