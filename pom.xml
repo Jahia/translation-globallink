@@ -7,12 +7,11 @@
         <version>7.1.2.0</version>
     </parent>
     <artifactId>jahia-translation-globallink</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
-        <powermock.version>1.6.5</powermock.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default</jahia-depends>
     </properties>
@@ -37,18 +36,6 @@
             <groupId>org.gs4tr.projectdirector.adaptors</groupId>
             <artifactId>globallink-connect-api</artifactId>
             <version>4.18.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-mockito</artifactId>
-            <version>${powermock.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
     <repositories>
