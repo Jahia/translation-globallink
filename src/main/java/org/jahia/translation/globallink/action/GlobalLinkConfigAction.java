@@ -169,7 +169,7 @@ public class GlobalLinkConfigAction extends Action {
                     Map<String, Set<String>> directionsParsed = new LinkedHashMap<>();
                     for (LanguageDirection direction : directions) {
                         if (!directionsParsed.containsKey(direction.sourceLanguage)) {
-                            directionsParsed.put(direction.sourceLanguage, new LinkedHashSet<>());
+                            directionsParsed.put(direction.sourceLanguage, new LinkedHashSet<String>());
                         }
                         directionsParsed.get(direction.sourceLanguage).add(direction.targetLanguage);
                     }

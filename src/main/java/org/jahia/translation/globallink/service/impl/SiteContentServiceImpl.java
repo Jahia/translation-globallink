@@ -45,14 +45,15 @@ public class SiteContentServiceImpl implements SiteContentService {
                 if (requestDTO.isChildIncluded()) {
                     JCRNodeIteratorWrapper nodeWrapperList = this.queryService.getRequestNodeList(requestDTO.getRequestId(),
                             sessionWrapper.getWorkspace().getQueryManager());
-                    nodeWrapperList.forEach(nodeWrapper -> {
+                    while (nodeWrapperList.hasNext()) {
+                        JCRNodeWrapper nodeWrapper = (JCRNodeWrapper) nodeWrapperList.next();
                         try {
                             nodeWrapper.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmitTicket());
                             nodeWrapper.setProperty(GBL_SUBMISSION_STATE, STATUS_SUBMITTED);
                         } catch (RepositoryException re) {
                             LOGGER.error("Exception while adding submission ticket for Child Page -> ", re);
                         }
-                    });
+                    }
                 }
             }
             sessionWrapper.save();

@@ -38,8 +38,8 @@ public class GlobalLinkSubmissionCleanAction extends Action {
     }
 
     @Override
-    public ActionResult doExecute(HttpServletRequest req, RenderContext renderContext, Resource resource, JCRSessionWrapper session, Map<String, List<String>> parameters, URLResolver urlResolver) throws Exception {
-        List<String> daysOld = parameters.get("daysOld");
+    public ActionResult doExecute(HttpServletRequest req, final RenderContext renderContext, Resource resource, JCRSessionWrapper session, Map<String, List<String>> parameters, URLResolver urlResolver) throws Exception {
+        final List<String> daysOld = parameters.get("daysOld");
         if (daysOld != null && !daysOld.isEmpty()) {
             jcrTemplate.doExecuteWithSystemSessionAsUser(getCurrentUser(), Constants.EDIT_WORKSPACE, Locale.ENGLISH, new JCRCallback<Object>() {
                 @Override

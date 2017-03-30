@@ -98,13 +98,13 @@ public class GlobalLinkUtil {
     public static List<String> getExcludedComponents(JCRValueWrapper[] valueWrappers) {
         List<String> excludeList = new ArrayList<>();
         if (valueWrappers != null && valueWrappers.length > 0) {
-            Arrays.asList(valueWrappers).forEach(jcrValueWrapper -> {
+            for (JCRValueWrapper jcrValueWrapper : valueWrappers) {
                 try {
                     excludeList.add(StringUtils.substringAfter(jcrValueWrapper.getString(), "-"));
                 } catch (RepositoryException e) {
                     LOGGER.error("Cannot get string value for jcr value wrapper: {} exception {}", jcrValueWrapper, e);
                 }
-            });
+            }
             return excludeList;
         }
         return null;
@@ -112,15 +112,15 @@ public class GlobalLinkUtil {
 
     public static Map<String, String> filterComponentsList(Map<String, String> components) {
         Map<String, String> filteredMap = new HashMap<>();
-        components.forEach((key, value) -> {
+        for (Map.Entry<String, String> entry : components.entrySet()) {
             try {
-                ExtendedNodeType extendedNodeType = NodeTypeRegistry.getInstance().getNodeType(key);
+                ExtendedNodeType extendedNodeType = NodeTypeRegistry.getInstance().getNodeType(entry.getKey());
                 if(extendedNodeType.isNodeType("jmix:editorialContent")) {
                     Map<String, ExtendedPropertyDefinition> definitions = extendedNodeType.getPropertyDefinitionsAsMap();
                     for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
                         ExtendedPropertyDefinition value1 = definitionEntry.getValue();
                         if (!value1.isProtected() && value1.isInternationalized() && value1.getRequiredType() == PropertyType.STRING) {
-                            filteredMap.put(key, value);
+                            filteredMap.put(entry.getKey(), entry.getValue());
                             break;
                         }
                     }
@@ -128,7 +128,7 @@ public class GlobalLinkUtil {
             } catch (NoSuchNodeTypeException e) {
                 LOGGER.error("failed to check internationalized properties", e);
             }
-        });
+        }
         return filteredMap;
     }
 

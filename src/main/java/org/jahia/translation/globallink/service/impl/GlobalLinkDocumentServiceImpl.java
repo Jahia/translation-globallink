@@ -1,10 +1,7 @@
 package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.jahia.services.content.JCRContentUtils;
-import org.jahia.services.content.JCRNodeWrapper;
-import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRValueWrapper;
+import org.jahia.services.content.*;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -20,10 +17,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.jcr.Property;
-import javax.jcr.PropertyType;
-import javax.jcr.RepositoryException;
-import javax.jcr.Value;
+import javax.jcr.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -146,7 +140,9 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                     if ((skipTranslated && !translationNode.hasProperty(NODE_NAME_TRANS_PROP)) ||
                             (skipTranslated && !translationNode.getProperty(NODE_NAME_TRANS_PROP).getBoolean()) || !skipTranslated) {
                         this.contentService.lockTranslationNode(translationNode, sessionWrapper);
-                        nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale).getProperties().forEachRemaining(property -> {
+                        PropertyIterator properties = nodeWrapper.getNode(NODE_TRANSLATE_PREFIX + locale).getProperties();
+                        while (properties.hasNext()) {
+                            Property property = (Property) properties.next();
                             try {
                                 ExtendedPropertyDefinition propertyDefinition =
                                         nodeWrapper.getApplicablePropertyDefinition(((Property) property).getName());
@@ -159,7 +155,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                     Element propertyElement = document.createElement(propertyName);
                                     if (propertyDefinition.isMultiple()) {
                                         Value[] values = ((Property) property).getValues();
-                                        Arrays.asList(values).forEach(value -> {
+                                        for (Value value : values) {
                                             try {
                                                 Element textElement = document.createElement(DOCUMENT_CONTENT_PROP_TEXT);
                                                 textElement.setAttribute(DOCUMENT_CONTENT_PROP_TRAS, "yes");
@@ -168,7 +164,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                             } catch (RepositoryException re) {
                                                 LOGGER.error("Error while getting value -> ", re);
                                             }
-                                        });
+                                        }
                                     } else {
                                         Element textElement = document.createElement(DOCUMENT_CONTENT_PROP_TEXT);
                                         textElement.setAttribute(DOCUMENT_CONTENT_PROP_TRAS, "yes");
@@ -180,14 +176,16 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                             } catch (RepositoryException re) {
                                 LOGGER.error("Exception while checking property -> {} Exception {} ", property, re);
                             }
-                        });
+                        }
                         this.count++;
                         rootElement.appendChild(contentElement);
                     }
                 }
             }
             if (nodeWrapper.hasNodes()) {
-                nodeWrapper.getNodes().forEach(node -> {
+                JCRNodeIteratorWrapper nodes = nodeWrapper.getNodes();
+                while (nodes.hasNext()) {
+                    JCRNodeWrapper node = (JCRNodeWrapper) nodes.next();
                     try {
                         if(!(skipSubPages && node.isNodeType("jnt:page"))) {
                             processContentNodeForDocument(node, componentList, document, rootElement, locale,
@@ -196,7 +194,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                     } catch (RepositoryException e) {
                         LOGGER.error("Error while processing content node {} exception {}", nodeWrapper, e);
                     }
-                });
+                }
             }
         } catch (RepositoryException re) {
             LOGGER.error("Error while processing content node {} exception {}", nodeWrapper, re);

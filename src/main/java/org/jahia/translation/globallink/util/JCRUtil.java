@@ -52,7 +52,7 @@ public class JCRUtil {
      */
     public static List<GlobalLinkConfigurationDTO> getConfigurationList(List<JCRSiteNode> sites) {
         List<GlobalLinkConfigurationDTO> configList = new ArrayList<>();
-        sites.forEach((node) -> {
+        for (JCRSiteNode node : sites) {
             try {
                 if (node.hasProperty(GBL_PROPERTY_USERNAME) && node.getProperty(GBL_PROPERTY_ENABLE).getBoolean()) {
                     GlobalLinkConfigurationDTO gblConfig = new GlobalLinkConfigurationDTO();
@@ -75,7 +75,7 @@ public class JCRUtil {
             } catch (RepositoryException ex) {
                 LOGGER.error("Error while preparing config -> ", ex);
             }
-        });
+        }
         return configList;
     }
 
@@ -89,13 +89,13 @@ public class JCRUtil {
     public static List<String> getComponentListFromConf(JCRValueWrapper[] valueWrappers) {
         List<String> componentList = new ArrayList<>();
         if (valueWrappers != null && valueWrappers.length > 0) {
-            Arrays.asList(valueWrappers).forEach(jcrValueWrapper -> {
+            for (JCRValueWrapper jcrValueWrapper : valueWrappers) {
                 try {
                     componentList.add(StringUtils.substringAfter(jcrValueWrapper.getString(), "-"));
                 } catch (RepositoryException re) {
                     LOGGER.error("Error while getting component value -> ", re);
                 }
-            });
+            }
         }
         return componentList;
     }

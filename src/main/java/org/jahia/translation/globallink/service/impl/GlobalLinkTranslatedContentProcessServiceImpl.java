@@ -57,9 +57,9 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     @Override
     public void processTranslatedContent(List<GlobalLinkConfigurationDTO> configList) {
         this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
-        configList.forEach(config -> {
+        for (GlobalLinkConfigurationDTO config : configList) {
             processRetrievedRequestsForConfig(config);
-        });
+        }
     }
 
     /**
@@ -70,9 +70,10 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private void processRetrievedRequestsForConfig(GlobalLinkConfigurationDTO config) {
         JCRNodeIteratorWrapper retrievedRequests = this.gblQueryService.getRetrievedRequests(config.getSiteNode().getPath(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        retrievedRequests.forEach(request -> {
+        while (retrievedRequests.hasNext()) {
+            JCRNodeWrapper request = (JCRNodeWrapper) retrievedRequests.next();
             processRequest(request, config);
-        });
+        }
     }
 
     /**

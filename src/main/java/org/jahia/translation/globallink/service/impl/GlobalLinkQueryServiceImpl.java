@@ -55,7 +55,9 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
             List<JCRSiteNode> siteList = new ArrayList<>();
             Query jcrQuery = queryManager.createQuery(this.sitesQuery, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
-            queryResult.getNodes().forEach(node -> {
+            JCRNodeIteratorWrapper nodes = queryResult.getNodes();
+            while (nodes.hasNext()) {
+                JCRNodeWrapper node = (JCRNodeWrapper) nodes.next();
                 JCRSiteNode siteNode;
                 try {
                     siteNode = node.getResolveSite();
@@ -63,7 +65,7 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
                 } catch (Exception e) {
                     LOGGER.error("Cannot get site for node -> " + node.getPath());
                 }
-            });
+            }
             return siteList;
         } catch (Exception ex) {
             LOGGER.error("Service Exception -> ", ex);

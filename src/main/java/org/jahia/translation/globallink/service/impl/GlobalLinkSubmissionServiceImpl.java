@@ -65,11 +65,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
             List<JCRSiteNode> sites = this.gblQueryService.getAllSites(this.sessionWrapper.getWorkspace().getQueryManager());
             List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(sites);
-            configList.forEach((config) -> {
+            for (GlobalLinkConfigurationDTO config : configList) {
                 LOGGER.info("Site found with GBL Translation config - {} Sitename - {}", config.getUsername(),
                         config.getSiteNode().getName());
                 this.processAllGBLTranslationProjects(config);
-            });
+            }
             return configList;
         } catch (Exception ex) {
             LOGGER.error("Exception while starting submission process -> ", ex);
@@ -99,7 +99,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        projects.forEach((project) -> {
+        for (JCRNodeWrapper project : projects) {
             try {
                 if (checkInterval(config)) {
                     if ((!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID)) &&
@@ -127,7 +127,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             } catch (RepositoryException | GlobalLinkServiceException ex) {
                 LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
             }
-        });
+        }
     }
 
 
@@ -194,7 +194,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             }
             glExchange.initSubmission(submission);
             String parentIdentifier = parent.getIdentifier();
-            requestDTO.getDocuments().forEach((document) -> {
+            List<Document> documents = requestDTO.getDocuments();
+            for (Document document : documents) {
                 document.setFileformat(config.getFileFormat());
                 document.setSourceLanguage(sourceLanguage);
                 document.setTargetLanguages(targetLanguages.toArray(new String[targetLanguages.size()]));
@@ -217,7 +218,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     this.contentService.addTranslationRequestError(projectRootNode, this.sessionWrapper,
                             ex.getMessage());
                 }
-            });
+            }
             String[] submitTokens = glExchange.startSubmission();
             LOGGER.info("Submission Tickets: " + submitTokens.length);
             requestDTO.setSubmitTicket(submitTokens[0]);
@@ -269,7 +270,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private void processChildPages(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode,
                                    GlobalLinkConfigurationDTO config) {
         List<JCRNodeWrapper> pages = JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_PAGE);
-        pages.forEach(child -> {
+        for (JCRNodeWrapper child : pages) {
             try {
                 JCRNodeWrapper requestNode = this.contentService.addGlobalLinkRequestNode(child, this.sessionWrapper, requestDTO);
                 boolean documentForProject = this.documentService.createDocumentForProject(requestDTO, child, requestNode,
@@ -305,7 +306,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             } catch (GlobalLinkServiceException se) {
                 LOGGER.error("Exception while processing child page -> ", se);
             }
-        });
+        }
     }
 
     /**

@@ -50,9 +50,9 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         try {
             LOGGER.info("====  Initializing Retrieve process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
-            configList.forEach(config -> {
+            for (GlobalLinkConfigurationDTO config : configList) {
                 this.retrieveDocuments(config);
-            });
+            }
         } catch (Exception ex) {
             LOGGER.error("Exception while starting document retrieve process -> ", ex);
         }
@@ -68,51 +68,50 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         JCRNodeIteratorWrapper submittedRequests = this.queryService.getSubmittedRequests(config.getSiteNode().getPath(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
         GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-        submittedRequests.forEach((request) -> {
+        for (JCRNodeWrapper request : submittedRequests) {
             processRequestForRetrieval(request, glExchange, config);
-        });
+        }
     }
 
     /**
      * Process a request for retrieval of all the completed targets and
      * translated documents.
      *
-     * @param requestNode   Noe containing the request data
+     * @param requestNode Noe containing the request data
      * @param glExchange
      * @param config
      */
     private void processRequestForRetrieval(JCRNodeWrapper requestNode, GLExchange glExchange,
                                             GlobalLinkConfigurationDTO config) {
         String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
-        if(!StringUtils.isEmpty(submissionTicket)) {
+        if (!StringUtils.isEmpty(submissionTicket)) {
             Target[] targets = glExchange.getCompletedTargets(submissionTicket, 100);
             List<Target> completedTargets = new ArrayList<>();
             if (targets.length > 0) {
-                Arrays.asList(targets).forEach(target -> {
+                for (Target target : targets) {
                     boolean status = processTarget(target, glExchange, config);
                     if (status) {
                         completedTargets.add(target);
                     }
-                });
+                }
             } else {
                 targets = glExchange.getCancelledTargets(submissionTicket, 100);
                 if (targets.length > 0) {
-                    Arrays.asList(targets).forEach(target -> {
+                    for (Target target : targets) {
                         try {
-                            if(requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(target.getDocumentTicket())) {
+                            if (requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(target.getDocumentTicket())) {
                                 this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
                             }
                         } catch (RepositoryException e) {
                             LOGGER.error("Error cancelling submission - ", e);
                         }
-                    });
+                    }
                 } else {
                     try {
                         String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
-                        if(submissionStatus == null) {
+                        if (submissionStatus == null) {
                             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
-                        }
-                        else if (submissionStatus.equals(STATUS_READY)) {
+                        } else if (submissionStatus.equals(STATUS_READY)) {
                             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
                         }
                     } catch (Exception e) {

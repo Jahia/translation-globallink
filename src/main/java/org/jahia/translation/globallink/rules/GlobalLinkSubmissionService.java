@@ -49,13 +49,14 @@ public class GlobalLinkSubmissionService {
     public void removeEmptySubmission(AddedNodeFact addedNodeFact, KnowledgeHelper drools) {
         List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
         JCRNodeWrapper node = addedNodeFact.getNode();
-        globalLinkConfigurationDTOS.forEach(config -> {
+        for (GlobalLinkConfigurationDTO config : globalLinkConfigurationDTOS) {
+
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
                 JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
                 JCRNodeIteratorWrapper submittedRequests = queryService.getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
                 if (glExchange != null) {
-                    submittedRequests.forEach((request) -> {
+                    for (JCRNodeWrapper request : submittedRequests) {
                         try {
                             String submissionTicket = request.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
                             String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
@@ -67,10 +68,10 @@ public class GlobalLinkSubmissionService {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    });
+                    }
                 }
             }
-        });
+        }
     }
 
     public void sendNotification(AbstractNodeFact fact, KnowledgeHelper drools) {
@@ -81,7 +82,7 @@ public class GlobalLinkSubmissionService {
                 if (jcrUserNode.hasProperty("j:email")) {
                     MessageFormat messageFormat = new MessageFormat("Your translation submission {0} has changed status to {1}");
                     String name = node.getProperty("name").getString();
-                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request "+name,
+                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
                             messageFormat.format(new Object[]{
                                     name,
                                     StringUtils.substringAfterLast(node.getProperty("gblSubmitState").getString(), ".")
