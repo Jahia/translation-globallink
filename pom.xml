@@ -7,7 +7,7 @@
         <version>7.1.2.0</version>
     </parent>
     <artifactId>jahia-translation-globallink</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
@@ -20,7 +20,7 @@
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/translation-globallink.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/translation-globallink.git</url>
-      <tag>1_0_0</tag>
+      <tag>HEAD</tag>
   </scm>
     <distributionManagement>
         <repository>
