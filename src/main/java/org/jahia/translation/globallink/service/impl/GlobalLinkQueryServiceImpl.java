@@ -16,14 +16,13 @@ import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_BIGTEXT;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_RETRIEVED;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
+import static org.jahia.translation.globallink.common.SubmissionStatus.*;
 
 /**
  * Implementation for JCR Query service for Global Link Translation
  *
  * @author Aashish.Kocchar, WebitUp.
+ * @author Mate.Ezgeta, Jahia.
  */
 public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
 
@@ -133,7 +132,8 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.gblSubmitState = '"
                     + STATUS_SUBMITTED + "' OR gblProject.gblSubmitState = '"
-                    + STATUS_CANCELLED + "' AND ISDESCENDANTNODE(gblProject, [" + path + "])";
+                    + STATUS_CANCELLED + "' OR gblProject.gblSubmitState = '"
+                    + STATUS_TRANSLATED + "' AND ISDESCENDANTNODE(gblProject, [" + path + "])";
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
             return queryResult.getNodes();
