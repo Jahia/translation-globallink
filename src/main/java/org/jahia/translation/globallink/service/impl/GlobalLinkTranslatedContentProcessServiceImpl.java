@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.NodeList;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.List;
@@ -85,25 +87,24 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
         String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
         try {
-//            JCRValueWrapper[] values = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
-//            for (int index = 0; index < values.length; index++) {
-            String languageMapping = requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getString();
-            String language = StringUtils.substringAfter(languageMapping, "###");
-            String fileName = "";
-            if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
-                fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
-                        + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                        + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
-            } else {
-                fileName = DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH
-                        + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                        + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
+            for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
+                String languageMapping = targetLanguages.getString();
+                String language = StringUtils.substringAfter(languageMapping, "###");
+                String fileName = "";
+                if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
+                    fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
+                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
+                            + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
+                } else {
+                    fileName = DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH
+                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
+                            + requestNode.getParent().getIdentifier() + FILE_EXT_XML;
+                }
+                File file = IOUtil.getFile(fileName);
+                if (file != null) {
+                    processTranslatedDocument(file, requestNode, languageMapping);
+                }
             }
-            File file = IOUtil.getFile(fileName);
-            if (file != null) {
-                processTranslatedDocument(file, requestNode, languageMapping);
-            }
-//            }
         } catch (RepositoryException re) {
             LOGGER.error("Error while processing request node: {} Exception {}", requestNode, re);
         }
