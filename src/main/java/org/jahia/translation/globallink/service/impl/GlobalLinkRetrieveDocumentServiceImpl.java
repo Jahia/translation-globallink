@@ -6,6 +6,7 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.mail.MailService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.GlobalLinkRetrieveDocumentService;
@@ -41,6 +42,8 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     private SiteContentService contentService;
 
     private GlobalLinkQueryService queryService;
+
+    private MailService mailService;
 
     /**
      * {@inheritDoc}
