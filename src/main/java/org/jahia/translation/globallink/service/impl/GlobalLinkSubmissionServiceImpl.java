@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -89,6 +90,19 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         this.contentService = contentService;
     }
 
+    public static String[] add(String[] originalArray, String newItem)
+    {
+        int currentSize = originalArray.length;
+        int newSize = currentSize + 1;
+        String[] tempArray = new String[ newSize ];
+        for (int i=0; i < currentSize; i++)
+        {
+            tempArray[i] = originalArray [i];
+        }
+        tempArray[newSize- 1] = newItem;
+        return tempArray;
+    }
+
     /**
      * Check and process all the project available under a site.
      *
@@ -99,8 +113,19 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        for (JCRNodeWrapper project : projects) {
+        if (glExchange == null) {
+            if (mailService.isEnabled()) {
+                String to = mailService.defaultRecipient();
+                String from = mailService.defaultSender();
+                mailService.sendMessage(from, to, null, null, "GlobalLink Translation settings are not valid or the GlobalLink Translation Server may be down!", null, "GlobalLink Translation Server is not reachable for the web site: " + config.getSiteNode().getSiteKey() +".<br> " +
+                        "Configuration settings might be out of date, or the GlobalLink Translation Server may be down or your internet settings may be down.<br> " +
+                        "Please check the GlobalLink Translation Server settings for the web site: " + config.getSiteNode().getSiteKey() + ".<br>" +
+                        "Please check the Jahia LOG files and outputs for further details!<br>");
+            }
+        }
+        for (JCRNodeWrapper project : projects)
             try {
+
                 if (checkInterval(config)) {
                     if ((!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID)) &&
                             !project.hasProperty(GBL_PROJECT_ERROR)) {
@@ -109,7 +134,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                         projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
                         String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
                         projectRequestDTO.setSourceLanguage(sourceLanguage);
-                        projectRequestDTO.setDesLanguages(new String[]{project.getProperty(GBL_PROJECT_TARGET_LANG).getString()});
+                        ArrayList<String> allTargetLanguages = new ArrayList<String>();
+                        for (Value targetLanguages : project.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
+                            allTargetLanguages.add(targetLanguages.getString());
+                        }
+                        projectRequestDTO.setDesLanguages(allTargetLanguages.toArray(new String[allTargetLanguages.size()]));
                         projectRequestDTO.setNodeWrapper(project);
                         projectRequestDTO.setRequestId(UUID.randomUUID().toString());
                         projectRequestDTO.setDocumentpath(config.getDocumentPath());
@@ -127,7 +156,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             } catch (RepositoryException | GlobalLinkServiceException ex) {
                 LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
             }
-        }
     }
 
 
