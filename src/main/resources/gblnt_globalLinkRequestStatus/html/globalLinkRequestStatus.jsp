@@ -79,11 +79,11 @@
                                                 value="${gblRequest.properties['dueDate'].time}"/></td>
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
                                                 value="${gblRequest.properties['jcr:created'].time}"/></td>
-                            <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), renderContext.UILocale)}&nbsp;->&nbsp;${gbl:displayLocale(fn:substringAfter(gblRequest.properties['targetLanguage'].string,"###"), renderContext.UILocale)}
+                            <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), renderContext.UILocale)}&nbsp;->&nbsp;
                                 <ul class="list-unstyled">
-                                        <%--<c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">--%>
-                                        <%--<li>${gbl:displayLocale(lan.string, renderContext.UILocale)}</li>--%>
-                                        <%--</c:forEach>--%>
+                                        <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
+                                        <li>${gbl:displayLocale(fn:substringAfter(lan.string,"###"), renderContext.UILocale)}</li>
+                                        </c:forEach>
                                 </ul>
                             </td>
                             <td>
