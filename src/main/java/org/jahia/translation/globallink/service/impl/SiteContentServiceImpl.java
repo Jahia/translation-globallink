@@ -185,7 +185,7 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             JCRNodeWrapper requestNode = nodeWrapper.addNode(NODE_NAME_GLOBAL_LINK, NODE_TYPE_PROJECT);
             requestNode.setProperty(GBL_PROJECT_SOURCE_LANG, requestDTO.getSourceLanguage());
-            requestNode.setProperty(GBL_PROJECT_TARGET_LANG, requestDTO.getDesLanguages()[0]);
+            requestNode.setProperty(GBL_PROJECT_TARGET_LANG, requestDTO.getDesLanguages());
             requestNode.setProperty(GBL_PROJECT_REQUEST_ID, requestDTO.getRequestId());
             requestNode.setProperty(GBL_SKIP_TRANSLATED, requestDTO.isSkipTranslated());
             requestNode.setProperty(GBL_INCLUDE_CHILD, requestDTO.isChildIncluded());
