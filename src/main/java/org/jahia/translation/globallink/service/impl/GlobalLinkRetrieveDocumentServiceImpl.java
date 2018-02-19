@@ -92,6 +92,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             List<Target> completedTargets = new ArrayList<>();
             if (targets.length > 0) {
                 for (Target target : targets) {
+
                     boolean status = processTarget(target, glExchange, config);
                     if (status) {
                         completedTargets.add(target);
@@ -153,13 +154,9 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             if (IOUtil.createFile(target.getData(glExchange), filePath)) {
                 glExchange.sendDownloadConfirmation(target.getTicket());
             }
-            if (glExchange.getSubmissionStatus(requestNode.getProperty(GBL_PROJECT_SUB_TICKET).getString())
-                    .equals(STATUS_DELIVERED) || glExchange.getSubmissionStatus(requestNode.
-                    getProperty(GBL_PROJECT_SUB_TICKET).getString()).equals(STATUS_PROCESSED)) {
-                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_RETRIEVED);
-                String targetStatus = target.getTargetLocale() + "_" + target.getTicket() + "_" + target.getWordCount().getTotal();
-                this.contentService.addTargetTicketsInStatus(requestNode, targetStatus, this.sessionWrapper);
-            }
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_RETRIEVED);
+            String targetStatus = target.getTargetLocale() + "_" + target.getTicket() + "_" + target.getWordCount().getTotal();
+            this.contentService.addTargetTicketsInStatus(requestNode, targetStatus, this.sessionWrapper);
             return true;
         } catch (Exception ex) {
             LOGGER.error("Error retrieving translated document - ", ex);
