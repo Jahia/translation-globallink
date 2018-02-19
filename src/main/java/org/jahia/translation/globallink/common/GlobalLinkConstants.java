@@ -89,7 +89,7 @@ public class GlobalLinkConstants {
 
     public static final String NODE_TYPE_PAGE = "jnt:page";
 
-    public static final String NODE_NAME_GLOBAL_LINK = "globallinkproject";
+    public static final String NODE_NAME_GLOBAL_LINK = "globallink-request";
 
     public static final String NODE_NAME_TRANS_PROP = "isTranslated";
 
