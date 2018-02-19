@@ -174,20 +174,20 @@
               method="post" class="horizontal">
             <div class="col-md-4">
                 <h1 class="globallink-heading"><fmt:message key="gbl.settings.title"/></h1>
-                <c:if test="${not empty site.properties['status']}">
-                    <c:choose>
-                        <c:when test="${site.properties['status'].string eq 'OK' }">
-                            <div class="alert alert-success" id="success">
-                                <strong><fmt:message key="gbl.settings.success"/></strong>
-                            </div>
-                        </c:when>
-                        <c:otherwise>
-                            <div class="alert alert-danger" id="error">
-                                <strong>${site.properties['status'].string}</strong>
-                            </div>
-                        </c:otherwise>
-                    </c:choose>
-                </c:if>
+                <%--<c:if test="${not empty site.properties['status']}">--%>
+                    <%--<c:choose>--%>
+                        <%--<c:when test="${site.properties['status'].string eq 'OK' }">--%>
+                            <%--<div class="alert alert-success" id="success">--%>
+                                <%--<strong><fmt:message key="gbl.settings.success"/></strong>--%>
+                            <%--</div>--%>
+                        <%--</c:when>--%>
+                        <%--<c:otherwise>--%>
+                            <%--<div class="alert alert-danger" id="error">--%>
+                                <%--<strong>${site.properties['status'].string}</strong>--%>
+                            <%--</div>--%>
+                        <%--</c:otherwise>--%>
+                    <%--</c:choose>--%>
+                <%--</c:if>--%>
 
                 <input type="hidden" name="jcrRedirectTo"
                        value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
@@ -369,58 +369,59 @@
                                             <li><span class="label label-success">${direction}</span></li>
                                         </c:forTokens>
                                     </ul>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <h2><fmt:message key="gbl.settings.projectdirections.mappings"/></h2>
+                                        </div>
+                                    </div>
+
+                                    <jsp:useBean id="mappings" class="java.util.LinkedHashMap"/>
+                                    <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap"/>
+                                    <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
+                                    <c:forEach items="${existingOnes}" var="targetLanguage">
+                                        <c:set target="${existingMappings}"
+                                               property="${targetLanguage.string}"
+                                               value="${fn:substringBefore(targetLanguage.string,'###')}"/>
+                                    </c:forEach>
+                                    <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}"
+                                               var="sourceLanguage">
+                                        <c:set target="${mappings}"
+                                               property="${fn:substringBefore(sourceLanguage.name,'-gblSource')}"
+                                               value="${gbl:displayLocale(sourceLanguage.name, renderContext.UILocale)}"/>
+                                        <jcr:nodeProperty node="${sourceLanguage}" name="targetLanguages" var="targetLanguages"/>
+                                        <c:forEach items="${targetLanguages}" var="targetLanguage">
+                                            <c:set target="${mappings}" property="${targetLanguage.string}"
+                                                   value="${gbl:displayLocale(targetLanguage.string, renderContext.UILocale)}"/>
+                                        </c:forEach>
+                                    </c:forEach>
+                                    <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
+                                        <div class="row" style="padding-top: 5px">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
+                                                    <label for="targetMapping${siteLocale}"
+                                                           class="col-sm-4 control-label">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
+                                                    <div class="col-sm-8">
+                                                        <select name="targetMapping${siteLocale}"
+                                                                onchange="$('#${siteLocale}hid').val($(this).val());checkMappings();"
+                                                                class="mappingSelector form-control"
+                                                                data-site-locale="${siteLocale}">
+                                                            <option value="">-----</option>
+                                                            <c:forEach items="${mappings}" var="mapping">
+                                                                <c:set var="key">${siteLocale}###${mapping.key}</c:set>
+                                                                <option value="${key}"
+                                                                        <c:if test="${existingMappings[key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </c:forEach>
                                 </c:otherwise>
                             </c:choose>
                         </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <h2><fmt:message key="gbl.settings.projectdirections.mappings"/></h2>
-                            </div>
-                        </div>
 
-                        <jsp:useBean id="mappings" class="java.util.LinkedHashMap"/>
-                        <jsp:useBean id="existingMappings" class="java.util.LinkedHashMap"/>
-                        <jcr:nodeProperty node="${site}" name="j:languageMappings" var="existingOnes"/>
-                        <c:forEach items="${existingOnes}" var="targetLanguage">
-                            <c:set target="${existingMappings}"
-                                   property="${targetLanguage.string}"
-                                   value="${fn:substringBefore(targetLanguage.string,'###')}"/>
-                        </c:forEach>
-                        <c:forEach items="${jcr:getChildrenOfType(site, 'gblnt:globalLinkSourceLanguage')}"
-                                   var="sourceLanguage">
-                            <c:set target="${mappings}"
-                                   property="${fn:substringBefore(sourceLanguage.name,'-gblSource')}"
-                                   value="${gbl:displayLocale(sourceLanguage.name, renderContext.UILocale)}"/>
-                            <jcr:nodeProperty node="${sourceLanguage}" name="targetLanguages" var="targetLanguages"/>
-                            <c:forEach items="${targetLanguages}" var="targetLanguage">
-                                <c:set target="${mappings}" property="${targetLanguage.string}"
-                                       value="${gbl:displayLocale(targetLanguage.string, renderContext.UILocale)}"/>
-                            </c:forEach>
-                        </c:forEach>
-                        <c:forEach items="${renderContext.site.languagesAsLocales}" var="siteLocale">
-                            <div class="row" style="padding-top: 5px">
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <input type="hidden" name="j:languageMappings" id="${siteLocale}hid">
-                                        <label for="targetMapping${siteLocale}"
-                                               class="col-sm-4 control-label">${functions:displayLocaleNameWith(siteLocale, renderContext.UILocale)}</label>
-                                        <div class="col-sm-8">
-                                            <select name="targetMapping${siteLocale}"
-                                                    onchange="$('#${siteLocale}hid').val($(this).val());checkMappings();"
-                                                    class="mappingSelector form-control"
-                                                    data-site-locale="${siteLocale}">
-                                                <option value="">-----</option>
-                                                <c:forEach items="${mappings}" var="mapping">
-                                                    <c:set var="key">${siteLocale}###${mapping.key}</c:set>
-                                                    <option value="${key}"
-                                                            <c:if test="${existingMappings[key] eq siteLocale}">selected</c:if>>${mapping.value}</option>
-                                                </c:forEach>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </c:forEach>
                     </div>
                 </c:if>
             </div>
