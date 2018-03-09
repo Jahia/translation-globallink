@@ -17,6 +17,7 @@
 <template:addResources type="javascript" resources="gblbootstrap.min.js"/>
 <template:addResources type="javascript" resources="jquery.multi-select.js"/>
 <template:addResources type="javascript" resources="jquery.quicksearch.js"/>
+<c:set var="directions" value="${gbl:projectInfo(renderContext.mainResource.node)}"/>
 
 <template:addResources>
     <script type="text/javascript">
@@ -173,6 +174,18 @@
         <form id="updateSiteForm" action="<c:url value='${url.base}${site.path}.globalLinkConfig.do'/>"
               method="post" class="horizontal">
             <div class="col-md-4">
+
+            <c:choose>
+                <c:when test="${directions eq 'NA'}">
+                    <div style="padding:4px; font-weight:bold; background: red; color: white;"><fmt:message key="gbl.settings.configNOK"/></div>
+                </c:when>
+                <c:otherwise>
+                    <div style="padding:4px; font-weight:bold; background: green; color: white;"><fmt:message key="gbl.settings.configOK"/></div>
+
+                </c:otherwise>
+            </c:choose>
+
+
                 <h1 class="globallink-heading"><fmt:message key="gbl.settings.title"/></h1>
                 <%--<c:if test="${not empty site.properties['status']}">--%>
                     <%--<c:choose>--%>
@@ -349,7 +362,6 @@
                 </fieldset>
             </div>
             <div class="col-md-4">
-                <c:set var="directions" value="${gbl:projectInfo(renderContext.mainResource.node)}"/>
                 <c:if test="${directions != 'NS'}">
                     <div style="padding: 0px 10px;" class="data">
                         <div class="well">
