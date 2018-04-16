@@ -242,7 +242,7 @@
                             </div>
                             <div class="col-md-9">
                                 <input type="password" class="form-control" placeholder="**********" required
-                                       id="gblPassword" name="j:globalLinkPassword"
+                                       id="gblPassword" name="j:globalLinkPasswordglobalLinkPassword"
                                        value="${site.properties['j:globalLinkPassword'].string}">
                             </div>
                         </fieldset>
