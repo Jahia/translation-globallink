@@ -14,6 +14,7 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
+import org.jahia.translation.globallink.client.WithExchangeClient;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -110,52 +111,54 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @return
      */
     private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
-        GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-        JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
-                this.sessionWrapper.getWorkspace().getQueryManager());
-        if (glExchange == null) {
-            if (mailService.isEnabled()) {
-                String to = mailService.defaultRecipient();
-                String from = mailService.defaultSender();
-                mailService.sendMessage(from, to, null, null, "GlobalLink Translation settings are not valid or the GlobalLink Translation Server may be down!", null, "GlobalLink Translation Server is not reachable for the web site: " + config.getSiteNode().getSiteKey() +".<br> " +
-                        "Configuration settings might be out of date, or the GlobalLink Translation Server may be down or your internet settings may be down.<br> " +
-                        "Please check the GlobalLink Translation Server settings for the web site: " + config.getSiteNode().getSiteKey() + ".<br>" +
-                        "Please check the Jahia LOG files and outputs for further details!<br>");
-            }
-        }
-        for (JCRNodeWrapper project : projects)
-            try {
-
-                if (checkInterval(config)) {
-                    if ((!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID)) &&
-                            !project.hasProperty(GBL_PROJECT_ERROR)) {
-                        LOGGER.info("processing project node: {}" + project.getPath());
-                        GlobalLinkProjectRequestDTO projectRequestDTO = new GlobalLinkProjectRequestDTO();
-                        projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
-                        String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
-                        projectRequestDTO.setSourceLanguage(sourceLanguage);
-                        ArrayList<String> allTargetLanguages = new ArrayList<String>();
-                        for (Value targetLanguages : project.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
-                            allTargetLanguages.add(targetLanguages.getString());
-                        }
-                        projectRequestDTO.setDesLanguages(allTargetLanguages.toArray(new String[allTargetLanguages.size()]));
-                        projectRequestDTO.setNodeWrapper(project);
-                        projectRequestDTO.setRequestId(UUID.randomUUID().toString());
-                        projectRequestDTO.setDocumentpath(config.getDocumentPath());
-                        if (project.hasProperty(GBL_SKIP_TRANSLATED)) {
-                            projectRequestDTO.setSkipTranslated(project.getProperty(GBL_SKIP_TRANSLATED).getBoolean());
-                        } else {
-                            projectRequestDTO.setSkipTranslated(false);
-                        }
-                        this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
-                        processRequestDTO(projectRequestDTO, glExchange, config);
-                        config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
-                        this.sessionWrapper.save();
-                    }
+        //GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
+        WithExchangeClient.execute(config, glExchange -> {
+            JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
+                    this.sessionWrapper.getWorkspace().getQueryManager());
+            if (glExchange == null) {
+                if (mailService.isEnabled()) {
+                    String to = mailService.defaultRecipient();
+                    String from = mailService.defaultSender();
+                    mailService.sendMessage(from, to, null, null, "GlobalLink Translation settings are not valid or the GlobalLink Translation Server may be down!", null, "GlobalLink Translation Server is not reachable for the web site: " + config.getSiteNode().getSiteKey() +".<br> " +
+                            "Configuration settings might be out of date, or the GlobalLink Translation Server may be down or your internet settings may be down.<br> " +
+                            "Please check the GlobalLink Translation Server settings for the web site: " + config.getSiteNode().getSiteKey() + ".<br>" +
+                            "Please check the Jahia LOG files and outputs for further details!<br>");
                 }
-            } catch (RepositoryException | GlobalLinkServiceException ex) {
-                LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
             }
+            for (JCRNodeWrapper project : projects)
+                try {
+
+                    if (checkInterval(config)) {
+                        if ((!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID)) &&
+                                !project.hasProperty(GBL_PROJECT_ERROR)) {
+                            LOGGER.info("processing project node: {}" + project.getPath());
+                            GlobalLinkProjectRequestDTO projectRequestDTO = new GlobalLinkProjectRequestDTO();
+                            projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
+                            String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
+                            projectRequestDTO.setSourceLanguage(sourceLanguage);
+                            ArrayList<String> allTargetLanguages = new ArrayList<String>();
+                            for (Value targetLanguages : project.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
+                                allTargetLanguages.add(targetLanguages.getString());
+                            }
+                            projectRequestDTO.setDesLanguages(allTargetLanguages.toArray(new String[allTargetLanguages.size()]));
+                            projectRequestDTO.setNodeWrapper(project);
+                            projectRequestDTO.setRequestId(UUID.randomUUID().toString());
+                            projectRequestDTO.setDocumentpath(config.getDocumentPath());
+                            if (project.hasProperty(GBL_SKIP_TRANSLATED)) {
+                                projectRequestDTO.setSkipTranslated(project.getProperty(GBL_SKIP_TRANSLATED).getBoolean());
+                            } else {
+                                projectRequestDTO.setSkipTranslated(false);
+                            }
+                            this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
+                            processRequestDTO(projectRequestDTO, glExchange, config);
+                            config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
+                            this.sessionWrapper.save();
+                        }
+                    }
+                } catch (RepositoryException | GlobalLinkServiceException ex) {
+                    LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
+                }
+        });
     }
 
 

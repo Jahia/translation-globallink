@@ -11,6 +11,7 @@ import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.scripting.Script;
 import org.jahia.services.templates.ComponentRegistry;
+import org.jahia.translation.globallink.client.WithExchangeClient;
 import org.jahia.translation.globallink.common.GlobalLinkConstants;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
@@ -64,40 +65,41 @@ public class ELFunctions {
      */
     public static String checkAndGetProjectInfo(JCRNodeWrapper nodeWrapper) throws RepositoryException {
         List<JCRSiteNode> siteNodeList = new ArrayList<>();
-        String directionsString = "";
+        final StringBuilder directionsString = new StringBuilder();
         if (nodeWrapper != null) {
             siteNodeList.add(nodeWrapper.getResolveSite());
             List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(siteNodeList);
-            GlobalLinkConfigurationDTO config = null;
             if (configList != null && configList.size() > 0) {
-                config = configList.get(0);
-                GLExchange glExchange = null;
+                final GlobalLinkConfigurationDTO config = configList.get(0);
                 if (config != null) {
-                    glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-                }
-                if (glExchange != null) {
-                    try {
-                        Project project = glExchange.getProject(config.getProjectName());
-                        LanguageDirection[] directions = project.getLanguageDirections();
-                        for (LanguageDirection languageDirection : directions) {
-                            if (directionsString.equals("")) {
-                                directionsString = languageDirection.sourceLanguage + " -> " + languageDirection.targetLanguage;
-                            } else {
-                                directionsString = directionsString + ", " + languageDirection.sourceLanguage + " -> " +
-                                        languageDirection.targetLanguage;
+                    boolean isClient = WithExchangeClient.execute(config, glExchange -> {
+                        try {
+                            Project project = glExchange.getProject(config.getProjectName());
+                            LanguageDirection[] directions = project.getLanguageDirections();
+                            for (LanguageDirection languageDirection : directions) {
+                                if (directionsString.toString().equals("")) {
+                                    directionsString.append(languageDirection.sourceLanguage).append(" -> ").append(languageDirection.targetLanguage);
+                                } else {
+                                    directionsString.append(directionsString).append(", ").append(languageDirection.sourceLanguage).append(" -> ").append(languageDirection.targetLanguage);
+                                }
                             }
+                        } catch (Exception e) {
+                            directionsString.append(e.getLocalizedMessage());
                         }
-                    } catch (Exception e) {
-                        directionsString = e.getLocalizedMessage();
+                    });
+                    if (!isClient) {
+                        directionsString.append("NA");
                     }
-                } else {
-                    directionsString = "NA";
+
+                }
+                if (config == null) {
+                    directionsString.append("NA");
                 }
             } else {
-                directionsString = "NS";
+                directionsString.append("NS");
             }
         }
-        return directionsString;
+        return directionsString.toString();
     }
 
     public static JCRNodeWrapper getNodeFromId(String nodeId) throws RepositoryException {

@@ -1,6 +1,7 @@
 package org.jahia.translation.globallink.rules;
 
 import com.globallink.api.GLExchange;
+import com.globallink.api.model.ItemStatusEnum;
 import org.apache.commons.lang.StringUtils;
 import org.drools.core.spi.KnowledgeHelper;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
@@ -12,6 +13,7 @@ import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.content.rules.DeletedNodeFact;
 import org.jahia.services.mail.MailService;
 import org.jahia.services.usermanager.JahiaUserManagerService;
+import org.jahia.translation.globallink.client.WithExchangeClient;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl;
@@ -54,22 +56,22 @@ public class GlobalLinkSubmissionService {
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
                 JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
                 JCRNodeIteratorWrapper submittedRequests = queryService.getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
-                GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-                if (glExchange != null) {
+
+                WithExchangeClient.execute(config, glExchange -> {
                     for (JCRNodeWrapper request : submittedRequests) {
                         try {
                             String submissionTicket = request.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
-                            String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
-                            if (submissionStatus.equals(STATUS_READY)) {
+                            ItemStatusEnum submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
+                            if (submissionStatus.equals(ItemStatusEnum.READY)) {
                                 glExchange.cancelSubmission(submissionTicket, "Content has been deleted on " + config.getSiteNode().getServerName());
                                 contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
                             }
                             drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                         } catch (Exception e) {
-                            e.printStackTrace();
+                           LOGGER.error("Error while removing submission", e);
                         }
                     }
-                }
+                });
             }
         }
     }

@@ -1,12 +1,14 @@
 package org.jahia.translation.globallink.service.impl;
 
 import com.globallink.api.GLExchange;
+import com.globallink.api.model.ItemStatusEnum;
 import com.globallink.api.model.Target;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.mail.MailService;
+import org.jahia.translation.globallink.client.WithExchangeClient;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.GlobalLinkRetrieveDocumentService;
@@ -21,7 +23,6 @@ import javax.jcr.RepositoryException;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
@@ -70,10 +71,11 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     private void retrieveDocuments(GlobalLinkConfigurationDTO config) {
         JCRNodeIteratorWrapper submittedRequests = this.queryService.getSubmittedRequests(config.getSiteNode().getPath(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-        for (JCRNodeWrapper request : submittedRequests) {
-            processRequestForRetrieval(request, glExchange, config);
-        }
+        WithExchangeClient.execute(config, glExchange -> {
+            for (JCRNodeWrapper request : submittedRequests) {
+                processRequestForRetrieval(request, glExchange, config);
+            }
+        });
     }
 
     /**
@@ -88,7 +90,8 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                                             GlobalLinkConfigurationDTO config) {
         String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
         if (!StringUtils.isEmpty(submissionTicket)) {
-            Target[] targets = glExchange.getCompletedTargets(submissionTicket, 100);
+
+            Target[] targets = glExchange.getCompletedTargetsBySubmission(submissionTicket, 100);
             List<Target> completedTargets = new ArrayList<>();
             if (targets.length > 0) {
                 for (Target target : targets) {
@@ -99,7 +102,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                     }
                 }
             } else {
-                targets = glExchange.getCancelledTargets(submissionTicket, 100);
+                targets = glExchange.getCancelledTargetsBySubmission(submissionTicket, 100);
                 if (targets.length > 0) {
                     for (Target target : targets) {
                         try {
@@ -112,10 +115,10 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                     }
                 } else {
                     try {
-                        String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
+                        ItemStatusEnum submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
                         if (submissionStatus == null) {
                             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
-                        } else if (submissionStatus.equals(STATUS_READY)) {
+                        } else if (submissionStatus.equals(ItemStatusEnum.READY)) {
                             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
                         }
                     } catch (Exception e) {

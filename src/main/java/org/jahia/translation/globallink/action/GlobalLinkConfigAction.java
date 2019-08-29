@@ -1,6 +1,5 @@
 package org.jahia.translation.globallink.action;
 
-import com.globallink.api.GLExchange;
 import com.globallink.api.model.LanguageDirection;
 import com.globallink.api.model.Project;
 import org.apache.commons.lang.StringUtils;
@@ -13,8 +12,8 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
+import org.jahia.translation.globallink.client.WithExchangeClient;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
-import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.json.JSONObject;
 import org.quartz.CronTrigger;
@@ -155,16 +154,14 @@ public class GlobalLinkConfigAction extends Action {
         return null;
     }
 
-    private void getLanguageDirections(JCRSiteNode siteNode) throws RepositoryException {
+    private void getLanguageDirections(JCRSiteNode siteNode) {
         List<JCRSiteNode> siteNodes = new ArrayList<>();
         siteNodes.add(siteNode);
         List<GlobalLinkConfigurationDTO> configs = JCRUtil.getConfigurationList(siteNodes);
         if (configs.size() > 0) {
-            GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(configs.get(0));
-            Project project = null;
-            if (glExchange != null) {
+            WithExchangeClient.execute(configs.get(0), glExchange -> {
                 try {
-                    project = glExchange.getProject(configs.get(0).getProjectName());
+                    Project project = glExchange.getProject(configs.get(0).getProjectName());
                     LanguageDirection[] directions = project.getLanguageDirections();
                     Map<String, Set<String>> directionsParsed = new LinkedHashMap<>();
                     for (LanguageDirection direction : directions) {
@@ -186,13 +183,15 @@ public class GlobalLinkConfigAction extends Action {
 
                     }
                 } catch (Exception e) {
-                    siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
-                    siteNode.setProperty("status", e.getMessage());
-                    siteNode.getSession().save();
-                    throw e;
+                    try {
+                        siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
+                        siteNode.setProperty("status", e.getMessage());
+                        siteNode.getSession().save();
+                    } catch (RepositoryException repoExp) {
+                        throw new RuntimeException(repoExp);
+                    }
                 }
-            }
+            });
         }
     }
-
 }

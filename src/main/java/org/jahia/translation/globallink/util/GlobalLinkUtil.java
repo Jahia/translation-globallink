@@ -52,28 +52,6 @@ public class GlobalLinkUtil {
         return locale.replace("-", "_");
     }
 
-    /**
-     * Get Global link PD Client.
-     *
-     * @param config
-     * @return
-     */
-    public static GLExchange getGLExchangeClient(GlobalLinkConfigurationDTO config) {
-        // Creating configuration for global link
-        ProjectDirectorConfig gblConfig = new ProjectDirectorConfig();
-        gblConfig.setUrl(config.getUrl());
-        gblConfig.setUsername(config.getUsername());
-        gblConfig.setPassword(config.getPassword());
-        gblConfig.setUserAgent(config.getUserAgent());
-        try {
-            GLExchange glExchange = new GLExchange(gblConfig);
-            return glExchange;
-        } catch (Exception ex) {
-            LOGGER.error("Error while generating GLExchange client: ", ex);
-        }
-        return null;
-    }
-
     public static String getSourceDocumentPath(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode) {
         try {
             String docPath = DOCUMENT_PATH;
