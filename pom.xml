@@ -19,7 +19,7 @@
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/translation-globallink.git</developerConnection>
         <url>scm:git:git@github.com:Jahia/translation-globallink.git</url>
-      <tag>HEAD</tag>
+      <tag>1_0_x</tag>
   </scm>
     <distributionManagement>
         <repository>
