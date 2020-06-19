@@ -1,14 +1,8 @@
 # Jahia GlobalLink Translation Connector
 
-## Prerequisites
+This module is made for calling the REST API of translation.com
 
-Build locally the module **globallink-connect-api-java** of translation.com
-
-```sh
-$ git clone https://github.com/translations-com/globallink-connect-api-java
-$ cd globallink-connect-api-java
-$ mvn clean install
-```
+The documentation of the API can be found at the following link: https://connect-dev.translations.com/docs/api/
 
 ## How to deploy
 
