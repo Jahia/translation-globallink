@@ -1,10 +1,10 @@
 package org.jahia.translation.globallink.util;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.config.ProjectDirectorConfig;
 import com.google.common.base.Functions;
 import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
+import org.gs4tr.gcc.restclient.GCConfig;
+import org.gs4tr.gcc.restclient.GCExchange;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -53,23 +53,17 @@ public class GlobalLinkUtil {
     }
 
     /**
-     * Get Global link PD Client.
      *
      * @param config
      * @return
      */
-    public static GLExchange getGLExchangeClient(GlobalLinkConfigurationDTO config) {
-        // Creating configuration for global link
-        ProjectDirectorConfig gblConfig = new ProjectDirectorConfig();
-        gblConfig.setUrl(config.getUrl());
-        gblConfig.setUsername(config.getUsername());
-        gblConfig.setPassword(config.getPassword());
-        gblConfig.setUserAgent(config.getUserAgent());
+    public static GCExchange getGlobalLinkClient(GlobalLinkConfigurationDTO config) {
+        GCConfig gcConfig = new GCConfig(config.getUrl(), config.getUsername(), config.getPassword());
+        gcConfig.setUserAgent(config.getUserAgent());
         try {
-            GLExchange glExchange = new GLExchange(gblConfig);
-            return glExchange;
+            return new GCExchange(gcConfig);
         } catch (Exception ex) {
-            LOGGER.error("Error while generating GLExchange client: ", ex);
+            LOGGER.error("Error while generating GCExchange client: ", ex);
         }
         return null;
     }
@@ -157,7 +151,6 @@ public class GlobalLinkUtil {
         }
 
         if (includeTypeList != null && !includeTypeList.isEmpty()) {
-            include = false;
             include = includeTypeList.contains(typeName);
             if (!include) {
                 for (String s : includeTypeList) {

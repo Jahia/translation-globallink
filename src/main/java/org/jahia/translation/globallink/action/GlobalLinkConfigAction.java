@@ -1,9 +1,11 @@
 package org.jahia.translation.globallink.action;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.model.LanguageDirection;
-import com.globallink.api.model.Project;
 import org.apache.commons.lang.StringUtils;
+import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.Connector;
+import org.gs4tr.gcc.restclient.model.LanguageDirection;
+import org.gs4tr.gcc.restclient.model.LocaleConfig;
+import org.gs4tr.gcc.restclient.operation.ConnectorsConfig.ConnectorsConfigResponseData;
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.registries.ServicesRegistry;
@@ -26,8 +28,16 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toSet;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 
@@ -43,10 +53,8 @@ public class GlobalLinkConfigAction extends Action {
     /**
      * Saves the GlobalLink configurations to the site node.
      */
-    @Override
-    public ActionResult doExecute(HttpServletRequest request, RenderContext renderContext, Resource resource,
-                                  JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map,
-                                  URLResolver urlResolver) throws Exception {
+    @Override public ActionResult doExecute(HttpServletRequest request, RenderContext renderContext, Resource resource,
+            JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
         ActionResult actionResult = new ActionResult(SC_OK, request.getRequestURL().toString(), new JSONObject());
         try {
             this.saveGlobalLinkConfigs(request, renderContext, jcrSessionWrapper);
@@ -88,14 +96,15 @@ public class GlobalLinkConfigAction extends Action {
         siteNode.setProperty(GBL_PROPERTY_PASSWORD, getRequestParameter(request, GBL_PROPERTY_PASSWORD));
         siteNode.setProperty(GBL_PROPERTY_URL, getRequestParameter(request, GBL_PROPERTY_URL));
         siteNode.setProperty(GBL_PROPERTY_AGENT, getRequestParameter(request, GBL_PROPERTY_AGENT));
-        siteNode.setProperty(GBL_PROPERTY_PROJECT, getRequestParameter(request, GBL_PROPERTY_PROJECT));
+        siteNode.setProperty(GBL_PROPERTY_CONNECTOR_NAME, getRequestParameter(request, GBL_PROPERTY_CONNECTOR_NAME));
         siteNode.setProperty(GBL_PROPERTY_PREFIX, getRequestParameter(request, GBL_PROPERTY_PREFIX));
         siteNode.setProperty(GBL_PROPERTY_FORMAT, getRequestParameter(request, GBL_PROPERTY_FORMAT));
         siteNode.setProperty(GBL_PROPERTY_DOC_LOCATION, getRequestParameter(request, GBL_PROPERTY_DOC_LOCATION));
         if (!getRequestParameter(request, GBL_PROPERTY_INTERVAL).equals(StringUtils.EMPTY)) {
             siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
             try {
-                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler().getTriggersOfJob("translationJob", "DEFAULT");
+                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler()
+                        .getTriggersOfJob("translationJob", "DEFAULT");
                 for (int i = 0; i < triggersOfJob.length; i++) {
                     Trigger trigger = triggersOfJob[i];
                     if (trigger instanceof CronTrigger) {
@@ -110,7 +119,8 @@ public class GlobalLinkConfigAction extends Action {
                             aLong = 1l;
                         }
                         cronTrigger1.setCronExpression("25 0/" + aLong + " * * * ?");
-                        Date date = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler().rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
+                        Date date = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler()
+                                .rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
                     }
                 }
             } catch (SchedulerException e) {
@@ -121,13 +131,13 @@ public class GlobalLinkConfigAction extends Action {
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
         String[] multiRequestparameter = getMultiRequestparameter(request, "j:languageMappings");
-        if(multiRequestparameter!=null) {
+        if (multiRequestparameter != null) {
             siteNode.setProperty("j:languageMappings", multiRequestparameter);
         }
         siteNode.setProperty("status", "OK");
         //Change by cedric to save even in case of errors
         sessionWrapper.save();
-        this.getLanguageDirections(siteNode);
+        this.getLanguageMapping(siteNode);
         sessionWrapper.save();
     }
 
@@ -155,36 +165,38 @@ public class GlobalLinkConfigAction extends Action {
         return null;
     }
 
-    private void getLanguageDirections(JCRSiteNode siteNode) throws RepositoryException {
-        List<JCRSiteNode> siteNodes = new ArrayList<>();
-        siteNodes.add(siteNode);
-        List<GlobalLinkConfigurationDTO> configs = JCRUtil.getConfigurationList(siteNodes);
-        if (configs.size() > 0) {
-            GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(configs.get(0));
-            Project project = null;
-            if (glExchange != null) {
-                try {
-                    project = glExchange.getProject(configs.get(0).getProjectName());
-                    LanguageDirection[] directions = project.getLanguageDirections();
-                    Map<String, Set<String>> directionsParsed = new LinkedHashMap<>();
-                    for (LanguageDirection direction : directions) {
-                        if (!directionsParsed.containsKey(direction.sourceLanguage)) {
-                            directionsParsed.put(direction.sourceLanguage, new LinkedHashSet<String>());
-                        }
-                        directionsParsed.get(direction.sourceLanguage).add(direction.targetLanguage);
-                    }
-                    for (String source : directionsParsed.keySet()) {
-                        JCRNodeWrapper sourceNode;
-                        String sourceNodeName = source + "-gblSource";
-                        if (siteNode.hasNode(sourceNodeName)) {
-                            sourceNode = siteNode.getNode(sourceNodeName);
-                        } else {
-                            sourceNode = siteNode.addNode(sourceNodeName, GBL_PROPERTY_SOURCE_DIRECTIONS);
-                        }
-                        Set<String> strings = directionsParsed.get(source);
-                        sourceNode.setProperty("targetLanguages", strings.toArray(new String[strings.size()]));
+    private void getLanguageMapping(JCRSiteNode siteNode) throws RepositoryException {
+        GlobalLinkConfigurationDTO configuration = JCRUtil.getSiteConfiguration(siteNode);
 
-                    }
+        if (configuration != null) {
+            GCExchange gcExchange = Optional.of(configuration).map(GlobalLinkUtil::getGlobalLinkClient).orElse(null);
+
+            if (gcExchange != null) {
+                Connector jahiaConnector = gcExchange.getConnectors().stream()
+                        .filter(connector -> connector.getConnectorName().equals(configuration.getConnectorName())).findFirst()
+                        .orElse(null);
+                try {
+                    Optional.ofNullable(jahiaConnector)
+                            .ifPresent(connector -> gcExchange.setConnectorKey(jahiaConnector.getConnectorKey()));
+
+                    Map<String, Set<String>> availableLanguageMapping = getAvailableLanguageMapping(gcExchange.getConnectorsConfig());
+
+                    availableLanguageMapping.forEach((key, value) -> {
+                        JCRNodeWrapper sourceNode;
+                        String sourceNodeName = key + "-gblSource";
+                        try {
+                            if (siteNode.hasNode(sourceNodeName)) {
+                                sourceNode = siteNode.getNode(sourceNodeName);
+                            } else {
+                                sourceNode = siteNode.addNode(sourceNodeName, GBL_PROPERTY_SOURCE_DIRECTIONS);
+                            }
+                            Set<String> targetLanguages = availableLanguageMapping.get(key);
+                            sourceNode.setProperty("targetLanguages", targetLanguages.toArray(new String[targetLanguages.size()]));
+                        } catch (RepositoryException e) {
+                            throw new RuntimeException(e);
+                        }
+                    });
+
                 } catch (Exception e) {
                     siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
                     siteNode.setProperty("status", e.getMessage());
@@ -195,4 +207,22 @@ public class GlobalLinkConfigAction extends Action {
         }
     }
 
+    private static Map<String, Set<String>> getAvailableLanguageMapping(ConnectorsConfigResponseData connectorsConfigResponseData) {
+        List<LanguageDirection> languageMappingList = connectorsConfigResponseData.getLanguageDirections();
+        if (languageMappingList.isEmpty()) {
+            Optional<LocaleConfig> sourceLocaleConfigOptional = connectorsConfigResponseData.getSupportedLocales().stream()
+                    .filter(LocaleConfig::getIsSource).findFirst();
+
+            if (sourceLocaleConfigOptional.isPresent()) {
+                LocaleConfig localeConfig = sourceLocaleConfigOptional.get();
+                return Collections.singletonMap(localeConfig.getConnectorLocale(),
+                        connectorsConfigResponseData.getSupportedLocales().stream().filter(locale -> !locale.getIsSource())
+                                .map(LocaleConfig::getConnectorLocale).collect(toSet()));
+            }
+        } else {
+            return languageMappingList.stream().collect(Collectors.groupingBy(LanguageDirection::getSourceLocale,
+                    Collectors.mapping(LanguageDirection::getTargetLocale, Collectors.toSet())));
+        }
+        return Collections.emptyMap();
+    }
 }

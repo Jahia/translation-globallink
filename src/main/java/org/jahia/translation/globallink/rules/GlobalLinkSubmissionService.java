@@ -1,6 +1,5 @@
 package org.jahia.translation.globallink.rules;
 
-import com.globallink.api.GLExchange;
 import org.apache.commons.lang.StringUtils;
 import org.drools.core.spi.KnowledgeHelper;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
@@ -47,7 +46,8 @@ public class GlobalLinkSubmissionService {
     }
 
     public void removeEmptySubmission(AddedNodeFact addedNodeFact, KnowledgeHelper drools) {
-        List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
+        //TODO BACKLOG-13965
+       /* List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
         JCRNodeWrapper node = addedNodeFact.getNode();
         for (GlobalLinkConfigurationDTO config : globalLinkConfigurationDTOS) {
 
@@ -71,7 +71,7 @@ public class GlobalLinkSubmissionService {
                     }
                 }
             }
-        }
+        }*/
     }
 
     public void sendNotification(AbstractNodeFact fact, KnowledgeHelper drools) {

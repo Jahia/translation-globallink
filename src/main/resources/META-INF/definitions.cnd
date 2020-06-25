@@ -12,7 +12,7 @@
  - j:globalLinkPassword (string) mandatory indexed=no
  - j:globalLinkUrl (string) mandatory indexed=no
  - j:globalLinkUserAgent (string) mandatory indexed=no
- - j:globalLinkProject (string) mandatory indexed=no
+ - j:globalLinkConnectorName (string) mandatory indexed=no
  - j:globalLinkSubmissionPrefix (string) mandatory indexed=no
  - j:globalLinkfileFormat (string) mandatory indexed=no
  - j:componentsList (string) multiple
