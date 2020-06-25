@@ -1,6 +1,5 @@
 package org.jahia.translation.globallink.dto;
 
-import com.globallink.api.model.Document;
 import org.jahia.services.content.JCRNodeWrapper;
 
 import java.io.Serializable;
@@ -22,7 +21,8 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
     private String uploadTicket;
     private String submitTicket;
     private boolean childIncluded;
-    private List<Document> documents;
+    //TODO BACKLOG-13965
+    //private List<Document> documents;
     private String fileFormat;
     private String requestId;
     private String documentpath;
@@ -76,13 +76,13 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
         this.childIncluded = childIncluded;
     }
 
-    public List<Document> getDocuments() {
+    /*public List<Document> getDocuments() {
         return documents;
     }
 
     public void setDocuments(List<Document> documents) {
         this.documents = documents;
-    }
+    }*/
 
     public String getFileFormat() {
         return fileFormat;

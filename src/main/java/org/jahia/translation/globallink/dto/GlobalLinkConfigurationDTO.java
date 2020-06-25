@@ -19,7 +19,7 @@ public class GlobalLinkConfigurationDTO implements Serializable {
     private String password;
     private String url;
     private String userAgent;
-    private String projectName;
+    private String connectorName;
     private String submissionPrefix;
     private JCRSiteNode siteNode;
     private String fileFormat;
@@ -66,12 +66,12 @@ public class GlobalLinkConfigurationDTO implements Serializable {
         this.userAgent = userAgent;
     }
 
-    public String getProjectName() {
-        return projectName;
+    public String getConnectorName() {
+        return connectorName;
     }
 
-    public void setProjectName(String projectName) {
-        this.projectName = projectName;
+    public void setConnectorName(String connectorName) {
+        this.connectorName = connectorName;
     }
 
     public String getSubmissionPrefix() {
@@ -115,7 +115,7 @@ public class GlobalLinkConfigurationDTO implements Serializable {
     }
 
     public String toString() {
-        return "Project -> " + this.projectName + " For User -> " + this.username +
+        return "Connector name -> " + this.connectorName + " For User -> " + this.username +
                 " With User Agent -> " + this.userAgent + " And URL -> " + this.url;
     }
 }

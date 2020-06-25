@@ -1,30 +1,28 @@
 package org.jahia.translation.globallink.jsp.taglibs;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.model.LanguageDirection;
-import com.globallink.api.model.Project;
-import org.apache.commons.lang.StringUtils;
+import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.Connector;
+import org.gs4tr.gcc.restclient.model.LanguageDirection;
+import org.gs4tr.gcc.restclient.model.LocaleConfig;
+import org.gs4tr.gcc.restclient.operation.ConnectorsConfig.ConnectorsConfigResponseData;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionFactory;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.JCRValueWrapper;
-import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.scripting.Script;
-import org.jahia.services.templates.ComponentRegistry;
 import org.jahia.translation.globallink.common.GlobalLinkConstants;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
-import org.jahia.utils.LanguageCodeConverters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Class for all ELFunctions for Global link translation jsp taglibs.
@@ -44,10 +42,10 @@ public class ELFunctions {
      * @return
      */
     public static Map<String, String> getComponentList(JCRNodeWrapper nodeWrapper, Locale locale, Script script,
-                                                       JCRValueWrapper[] valueWrappers) {
+            JCRValueWrapper[] valueWrappers) {
         try {
-            return GlobalLinkUtil.filterComponentsList(GlobalLinkUtil.getComponentTypes(nodeWrapper, null,
-                    GlobalLinkUtil.getExcludedComponents(valueWrappers), locale));
+            return GlobalLinkUtil.filterComponentsList(
+                    GlobalLinkUtil.getComponentTypes(nodeWrapper, null, GlobalLinkUtil.getExcludedComponents(valueWrappers), locale));
         } catch (Exception ex) {
             LOGGER.error("Error while fetching components list -> ", ex);
         }
@@ -56,53 +54,63 @@ public class ELFunctions {
 
     /**
      * Check a global link configuration settings and populate language
-     * directions from project directory.
+     * mapping
      *
      * @param nodeWrapper
      * @return
      * @throws RepositoryException
      */
     public static String checkAndGetProjectInfo(JCRNodeWrapper nodeWrapper) throws RepositoryException {
-        List<JCRSiteNode> siteNodeList = new ArrayList<>();
-        String directionsString = "";
+        String languageMappingValue = null;
         if (nodeWrapper != null) {
-            siteNodeList.add(nodeWrapper.getResolveSite());
-            List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(siteNodeList);
-            GlobalLinkConfigurationDTO config = null;
-            if (configList != null && configList.size() > 0) {
-                config = configList.get(0);
-                GLExchange glExchange = null;
-                if (config != null) {
-                    glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-                }
-                if (glExchange != null) {
+            GlobalLinkConfigurationDTO configuration = JCRUtil.getSiteConfiguration(nodeWrapper.getResolveSite());
+            if (configuration != null) {
+                GCExchange gcExchange = Optional.of(configuration).map(GlobalLinkUtil::getGlobalLinkClient).orElse(null);
+
+                if (gcExchange != null) {
+                    Connector jahiaConnector = gcExchange.getConnectors().stream()
+                            .filter(connector -> connector.getConnectorName().equals(configuration.getConnectorName())).findFirst()
+                            .orElse(null);
                     try {
-                        Project project = glExchange.getProject(config.getProjectName());
-                        LanguageDirection[] directions = project.getLanguageDirections();
-                        for (LanguageDirection languageDirection : directions) {
-                            if (directionsString.equals("")) {
-                                directionsString = languageDirection.sourceLanguage + " -> " + languageDirection.targetLanguage;
-                            } else {
-                                directionsString = directionsString + ", " + languageDirection.sourceLanguage + " -> " +
-                                        languageDirection.targetLanguage;
-                            }
-                        }
+                        Optional.ofNullable(jahiaConnector)
+                                .ifPresent(connector -> gcExchange.setConnectorKey(jahiaConnector.getConnectorKey()));
+                        languageMappingValue = getAvailableLanguageMapping(gcExchange.getConnectorsConfig());
                     } catch (Exception e) {
-                        directionsString = e.getLocalizedMessage();
+                        languageMappingValue = e.getLocalizedMessage();
                     }
                 } else {
-                    directionsString = "NA";
+                    languageMappingValue = "NA";
                 }
             } else {
-                directionsString = "NS";
+                languageMappingValue = "NS";
             }
         }
-        return directionsString;
+        return languageMappingValue;
+    }
+
+    private static String getAvailableLanguageMapping(ConnectorsConfigResponseData connectorsConfigResponseData) {
+        List<LanguageDirection> languageMappingList = connectorsConfigResponseData.getLanguageDirections();
+        String languageDirectionValue = "";
+        if (languageMappingList.isEmpty()) {
+            Optional<LocaleConfig> sourceLocaleConfigOptional = connectorsConfigResponseData.getSupportedLocales().stream()
+                    .filter(LocaleConfig::getIsSource).findFirst();
+
+            if (sourceLocaleConfigOptional.isPresent()) {
+                LocaleConfig localeConfig = sourceLocaleConfigOptional.get();
+                languageDirectionValue = connectorsConfigResponseData.getSupportedLocales().stream().filter(locale -> !locale.getIsSource())
+                        .map(languageDirection -> new StringBuilder().append(localeConfig.getConnectorLocale()).append(" -> ")
+                                .append(languageDirection.getConnectorLocale())).collect(Collectors.joining(", "));
+            }
+        } else {
+            languageDirectionValue = languageMappingList.stream()
+                    .map(languageDirection -> new StringBuilder().append(languageDirection.getSourceLocale()).append(" -> ")
+                            .append(languageDirection.getTargetLocale())).collect(Collectors.joining(", "));
+        }
+        return languageDirectionValue;
     }
 
     public static JCRNodeWrapper getNodeFromId(String nodeId) throws RepositoryException {
-        JCRSessionWrapper jcrSessionWrapper = JCRSessionFactory.getInstance()
-                .getCurrentUserSession(GlobalLinkConstants.JCR_DEFAULT_WS);
+        JCRSessionWrapper jcrSessionWrapper = JCRSessionFactory.getInstance().getCurrentUserSession(GlobalLinkConstants.JCR_DEFAULT_WS);
         return jcrSessionWrapper.getNodeByUUID(nodeId).getNode("j:translation_en");
     }
 

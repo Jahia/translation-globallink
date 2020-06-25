@@ -1,9 +1,5 @@
 package org.jahia.translation.globallink.service.impl;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.model.Document;
-import com.globallink.api.model.Project;
-import com.globallink.api.model.Submission;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRContentUtils;
@@ -69,7 +65,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             for (GlobalLinkConfigurationDTO config : configList) {
                 LOGGER.info("Site found with GBL Translation config - {} Sitename - {}", config.getUsername(),
                         config.getSiteNode().getName());
-                this.processAllGBLTranslationProjects(config);
+               // this.processAllGBLTranslationProjects(config);
             }
             return configList;
         } catch (Exception ex) {
@@ -103,12 +99,13 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         return tempArray;
     }
 
+    //TODO BACKLOG-13965
+/*
     /**
      * Check and process all the project available under a site.
      *
      * @param config
      * @return
-     */
     private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
         GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
@@ -176,7 +173,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      *
      * @param requestDTO
      * @return
-     */
     private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config,
                                      GLExchange glExchange) {
         String[] split = requestDTO.getSourceLanguage().split("###");
@@ -266,7 +262,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param requestDTO
      * @param glExchange
      * @param config
-     */
     private void processRequestDTO(GlobalLinkProjectRequestDTO requestDTO, GLExchange glExchange,
                                    GlobalLinkConfigurationDTO config) {
         List<Document> documents = new ArrayList<>();
@@ -294,7 +289,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param requestDTO
      * @param pageNode
      * @param config
-     */
     private void processChildPages(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode,
                                    GlobalLinkConfigurationDTO config) {
         List<JCRNodeWrapper> pages = JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_PAGE);
@@ -342,7 +336,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      *
      * @param filePath
      * @return
-     */
     private Document prepareGlobalLinkDocument(String filePath) {
         try {
             File srcFile = new File(filePath);
@@ -362,7 +355,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      *
      * @param config
      * @return
-     */
     private boolean checkInterval(GlobalLinkConfigurationDTO config) {
         try {
             if (config.getSiteNode().hasProperty(GBL_PROPERTY_LAST_EXEC) &&
@@ -379,7 +371,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         }
         return false;
     }
-
+*/
     public void setMailService(MailServiceImpl mailService) {
         this.mailService = mailService;
     }

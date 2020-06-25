@@ -23,7 +23,7 @@ public class GlobalLinkConstants {
 
     public static final String GBL_PROPERTY_AGENT = "j:globalLinkUserAgent";
 
-    public static final String GBL_PROPERTY_PROJECT = "j:globalLinkProject";
+    public static final String GBL_PROPERTY_CONNECTOR_NAME = "j:globalLinkConnectorName";
 
     public static final String GBL_PROPERTY_PREFIX = "j:globalLinkSubmissionPrefix";
 

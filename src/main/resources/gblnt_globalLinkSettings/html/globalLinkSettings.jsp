@@ -271,12 +271,12 @@
 
                         <fieldset class="form-group">
                             <div class="col-md-3">
-                                <label for="gblProject"><fmt:message key="gbl.settings.project"/></label>
+                                <label for="gblProject"><fmt:message key="gbl.settings.connectorName"/></label>
                             </div>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" placeholder="JAH000000" required
-                                       id="gblProject" name="j:globalLinkProject"
-                                       value="${site.properties['j:globalLinkProject'].string}">
+                                <input type="text" class="form-control" placeholder="FS Jahia" required
+                                       id="gblProject" name="j:globalLinkConnectorName"
+                                       value="${site.properties['j:globalLinkConnectorName'].string}">
                             </div>
                         </fieldset>
 

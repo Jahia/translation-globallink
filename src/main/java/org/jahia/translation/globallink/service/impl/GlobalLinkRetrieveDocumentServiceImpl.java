@@ -1,8 +1,7 @@
 package org.jahia.translation.globallink.service.impl;
 
-import com.globallink.api.GLExchange;
-import com.globallink.api.model.Target;
 import org.apache.commons.lang.StringUtils;
+import org.gs4tr.gcc.restclient.GCExchange;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -70,10 +69,8 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     private void retrieveDocuments(GlobalLinkConfigurationDTO config) {
         JCRNodeIteratorWrapper submittedRequests = this.queryService.getSubmittedRequests(config.getSiteNode().getPath(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-        for (JCRNodeWrapper request : submittedRequests) {
-            processRequestForRetrieval(request, glExchange, config);
-        }
+
+        submittedRequests.forEach(request -> processRequestForRetrieval(request, GlobalLinkUtil.getGlobalLinkClient(config), config));
     }
 
     /**
@@ -81,15 +78,16 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
      * translated documents.
      *
      * @param requestNode Noe containing the request data
-     * @param glExchange
+     * @param gcExchange
      * @param config
      */
-    private void processRequestForRetrieval(JCRNodeWrapper requestNode, GLExchange glExchange,
+    private void processRequestForRetrieval(JCRNodeWrapper requestNode, GCExchange gcExchange,
                                             GlobalLinkConfigurationDTO config) {
-        String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
+        //TODO BACKLOG-13965
+       /* String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
         if (!StringUtils.isEmpty(submissionTicket)) {
             Target[] targets = glExchange.getCompletedTargets(submissionTicket, 100);
-            List<Target> completedTargets = new ArrayList<>();
+            List<Target> completedTargets = new ArrayList();
             if (targets.length > 0) {
                 for (Target target : targets) {
 
@@ -126,13 +124,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         }
     }
 
-    /**
-     * Process and save translated document from completed target.
-     *
-     * @param target
-     * @param glExchange
-     * @return
-     */
+
     private boolean processTarget(Target target, GLExchange glExchange, GlobalLinkConfigurationDTO config) {
         try {
             LOGGER.info("Ticket: {}", target.getTicket());
@@ -162,6 +154,8 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             LOGGER.error("Error retrieving translated document - ", ex);
             return false;
         }
+    }
+    */
     }
 
     public void setContentService(SiteContentService contentService) {

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
@@ -46,6 +48,10 @@ public class JCRUtil {
         }
     }
 
+    public static GlobalLinkConfigurationDTO getSiteConfiguration(JCRSiteNode siteNode){
+        List<GlobalLinkConfigurationDTO> configurationDTOS = getConfigurationList(Collections.singletonList(siteNode));
+        return !configurationDTOS.isEmpty() ? configurationDTOS.get(0) : null;
+    }
     /**
      * Preparing list of configurations for all the sites that have GLobal link
      * translation settings
@@ -59,7 +65,7 @@ public class JCRUtil {
                     gblConfig.setUsername(node.getProperty(GBL_PROPERTY_USERNAME).getString());
                     gblConfig.setPassword(node.getProperty(GBL_PROPERTY_PASSWORD).getString());
                     gblConfig.setEnable(node.getProperty(GBL_PROPERTY_ENABLE).getBoolean());
-                    gblConfig.setProjectName(node.getProperty(GBL_PROPERTY_PROJECT).getString());
+                    gblConfig.setConnectorName(node.getProperty(GBL_PROPERTY_CONNECTOR_NAME).getString());
                     gblConfig.setSubmissionPrefix(node.getProperty(GBL_PROPERTY_PREFIX).getString());
                     gblConfig.setUrl(node.getProperty(GBL_PROPERTY_URL).getString());
                     gblConfig.setUserAgent(node.getProperty(GBL_PROPERTY_AGENT).getString());
