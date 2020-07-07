@@ -9,6 +9,7 @@ import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import java.util.ArrayList;
@@ -76,14 +77,13 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
      * {@inheritDoc}
      */
     @Override
-    public JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager)
-            throws GlobalLinkServiceException {
+    public JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager){
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where ISDESCENDANTNODE(gblProject, [" + siteNode.getPath() + "])";
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
             return queryResult.getNodes();
-        } catch (Exception ex) {
+        } catch (RepositoryException ex) {
             LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }

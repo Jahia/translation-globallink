@@ -40,7 +40,7 @@ public class SiteContentServiceImpl implements SiteContentService {
             JCRNodeWrapper statusNode = requestDTO.getNodeWrapper();
             if (isSuccess) {
                 statusNode.setProperty(GBL_SUBMISSION_STATE, STATUS_SUBMITTED);
-                statusNode.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmitTicket());
+                statusNode.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmissionId());
                 statusNode.setProperty(GBL_PROJECT_UPLOAD_TICKET, requestDTO.getUploadTicket());
                 if (requestDTO.isChildIncluded()) {
                     JCRNodeIteratorWrapper nodeWrapperList = this.queryService.getRequestNodeList(requestDTO.getRequestId(),
@@ -48,7 +48,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                     while (nodeWrapperList.hasNext()) {
                         JCRNodeWrapper nodeWrapper = (JCRNodeWrapper) nodeWrapperList.next();
                         try {
-                            nodeWrapper.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmitTicket());
+                            nodeWrapper.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmissionId());
                             nodeWrapper.setProperty(GBL_SUBMISSION_STATE, STATUS_SUBMITTED);
                         } catch (RepositoryException re) {
                             LOGGER.error("Exception while adding submission ticket for Child Page -> ", re);

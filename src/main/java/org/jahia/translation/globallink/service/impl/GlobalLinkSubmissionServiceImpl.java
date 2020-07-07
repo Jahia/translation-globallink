@@ -2,6 +2,11 @@ package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.Connector;
+import org.gs4tr.gcc.restclient.operation.SubmissionSubmit.SubmissionSubmitResponseData;
+import org.gs4tr.gcc.restclient.request.SubmissionSubmitRequest;
+import org.gs4tr.gcc.restclient.request.UploadFileRequest;
 import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -52,6 +57,26 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private MailServiceImpl mailService;
     private JahiaUserManagerService userManagerService;
 
+    public void setMailService(MailServiceImpl mailService) {
+        this.mailService = mailService;
+    }
+
+    public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
+        this.gblQueryService = gblQueryService;
+    }
+
+    public void setDocumentService(GlobalLinkDocumentService documentService) {
+        this.documentService = documentService;
+    }
+
+    public void setContentService(SiteContentService contentService) {
+        this.contentService = contentService;
+    }
+
+    public void setUserManagerService(JahiaUserManagerService userManagerService) {
+        this.userManagerService = userManagerService;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -65,25 +90,13 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             for (GlobalLinkConfigurationDTO config : configList) {
                 LOGGER.info("Site found with GBL Translation config - {} Sitename - {}", config.getUsername(),
                         config.getSiteNode().getName());
-               // this.processAllGBLTranslationProjects(config);
+                this.processAllGBLTranslationProjects(config);
             }
             return configList;
         } catch (Exception ex) {
             LOGGER.error("Exception while starting submission process -> ", ex);
         }
         return null;
-    }
-
-    public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
-        this.gblQueryService = gblQueryService;
-    }
-
-    public void setDocumentService(GlobalLinkDocumentService documentService) {
-        this.documentService = documentService;
-    }
-
-    public void setContentService(SiteContentService contentService) {
-        this.contentService = contentService;
     }
 
     public static String[] add(String[] originalArray, String newItem)
@@ -99,26 +112,30 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         return tempArray;
     }
 
-    //TODO BACKLOG-13965
-/*
     /**
      * Check and process all the project available under a site.
      *
      * @param config
      * @return
+     */
     private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
-        GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
+        GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
+        if (gcExchange != null) {
+            gcExchange.getConnectors()
+                    .stream()
+                    .filter(connector -> connector.getConnectorName().equals(config.getConnectorName()))
+                    .findFirst()
+                    .ifPresent(connector -> gcExchange.setConnectorKey(connector.getConnectorKey()));
+        }
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
-        if (glExchange == null) {
-            if (mailService.isEnabled()) {
-                String to = mailService.defaultRecipient();
-                String from = mailService.defaultSender();
-                mailService.sendMessage(from, to, null, null, "GlobalLink Translation settings are not valid or the GlobalLink Translation Server may be down!", null, "GlobalLink Translation Server is not reachable for the web site: " + config.getSiteNode().getSiteKey() +".<br> " +
-                        "Configuration settings might be out of date, or the GlobalLink Translation Server may be down or your internet settings may be down.<br> " +
-                        "Please check the GlobalLink Translation Server settings for the web site: " + config.getSiteNode().getSiteKey() + ".<br>" +
-                        "Please check the Jahia LOG files and outputs for further details!<br>");
-            }
+        if (gcExchange == null && mailService.isEnabled()) {
+            String to = mailService.defaultRecipient();
+            String from = mailService.defaultSender();
+            mailService.sendMessage(from, to, null, null, "GlobalLink Translation settings are not valid or the GlobalLink Translation Server may be down!", null, "GlobalLink Translation Server is not reachable for the web site: " + config.getSiteNode().getSiteKey() +".<br> " +
+                    "Configuration settings might be out of date, or the GlobalLink Translation Server may be down or your internet settings may be down.<br> " +
+                    "Please check the GlobalLink Translation Server settings for the web site: " + config.getSiteNode().getSiteKey() + ".<br>" +
+                    "Please check the Jahia LOG files and outputs for further details!<br>");
         }
         for (JCRNodeWrapper project : projects)
             try {
@@ -145,7 +162,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                             projectRequestDTO.setSkipTranslated(false);
                         }
                         this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
-                        processRequestDTO(projectRequestDTO, glExchange, config);
+                        processRequestDTO(projectRequestDTO, gcExchange, config);
                         config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
                         this.sessionWrapper.save();
                     }
@@ -155,16 +172,16 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             }
     }
 
+    private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config) throws RepositoryException {
 
-    private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, List<String> componentList)
-            throws RepositoryException {
         if (this.documentService.createDocumentForProject(requestDTO, requestDTO.getNodeWrapper().getParent(),
-                requestDTO.getNodeWrapper(), componentList, sessionWrapper)) {
-            Document document = prepareGlobalLinkDocument(GlobalLinkUtil.getSourceDocumentPath(requestDTO,
-                    requestDTO.getNodeWrapper().getParent()));
-            if (document != null) {
-                requestDTO.getDocuments().add(document);
-            }
+                requestDTO.getNodeWrapper(), config.getComponentList(), sessionWrapper)) {
+
+            String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO,
+                    requestDTO.getNodeWrapper().getParent());
+
+           Optional.ofNullable(prepareGlobalLinkDocument(documentName,config.getFileFormat()))
+                   .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
         }
     }
 
@@ -173,8 +190,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      *
      * @param requestDTO
      * @return
+     */
     private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config,
-                                     GLExchange glExchange) {
+                                     GCExchange gcExchange) {
+        String submissionName;
+        Date dueDate;
         String[] split = requestDTO.getSourceLanguage().split("###");
         String sourceLanguage = split[1];
         List<String> targetLanguages = new LinkedList<>();
@@ -183,8 +203,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         }
         JCRNodeWrapper projectRootNode = requestDTO.getNodeWrapper();
         try {
-            Project project = glExchange.getProject(config.getProjectName());
-            Submission submission = new Submission();
             String jahiaSourceLanguage = split[0];
             JCRSiteNode siteNode = config.getSiteNode();
             if (!siteNode.getLanguages().contains(jahiaSourceLanguage)) {
@@ -198,54 +216,33 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 pageTitle = parent.getName();
             }
             if (projectRootNode.hasProperty("name")) {
-                submission.setName(projectRootNode.getProperty("name").getString() + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages");
+                submissionName =
+                        projectRootNode.getProperty("name").getString() + (requestDTO.isChildIncluded() ? " " + "with" + " " : " without ")
+                                + "sub pages";
             } else {
-                submission.setName(config.getSubmissionPrefix() + " - from page " + pageTitle + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages");
+                submissionName = config.getSubmissionPrefix() + " - from page " + pageTitle + (requestDTO.isChildIncluded() ? " with " :
+                        " without ") + " sub pages";
             }
-            projectRootNode.setProperty("name", submission.getName());
+            projectRootNode.setProperty("name", submissionName);
             projectRootNode.getSession().save();
-            submission.setProject(project);
 
             String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : " without ") + " sub pages\n"
                     + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
-            submission.setPmNotes(pmNotes);
             if (projectRootNode.hasProperty("dueDate")) {
-                submission.setDueDate(projectRootNode.getProperty("dueDate").getDate().getTime());
+                dueDate = projectRootNode.getProperty("dueDate").getDate().getTime();
             } else {
                 Calendar calendar = Calendar.getInstance();
                 calendar.add(Calendar.DAY_OF_YEAR, 5);
-                submission.setDueDate(calendar.getTime());
+                dueDate = calendar.getTime();
             }
-            glExchange.initSubmission(submission);
-            String parentIdentifier = parent.getIdentifier();
-            List<Document> documents = requestDTO.getDocuments();
-            for (Document document : documents) {
-                document.setFileformat(config.getFileFormat());
-                document.setSourceLanguage(sourceLanguage);
-                document.setTargetLanguages(targetLanguages.toArray(new String[targetLanguages.size()]));
-                try {
-                    String uploadTicket = glExchange.uploadTranslatable(document);
-                    String id = StringUtils.substringBefore(StringUtils
-                            .substringAfterLast(document.getName(), "___"), ".");
-                    if (!id.equals(parentIdentifier)) {
-                        JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.setTime(submission.getDueDate());
-                        requestNode.setProperty("dueDate", calendar);
-                        requestNode.setProperty("name", submission.getName());
-                        this.contentService.addUploadTicketForRequest(requestNode, this.sessionWrapper, uploadTicket);
-                    } else {
-                        requestDTO.setUploadTicket(uploadTicket);
-                    }
-                } catch (Exception ex) {
-                    LOGGER.error("Error while uploading document -> ", ex);
-                    this.contentService.addTranslationRequestError(projectRootNode, this.sessionWrapper,
-                            ex.getMessage());
-                }
-            }
-            String[] submitTokens = glExchange.startSubmission();
-            LOGGER.info("Submission Tickets: " + submitTokens.length);
-            requestDTO.setSubmitTicket(submitTokens[0]);
+            SubmissionSubmitRequest submissionSubmitRequest = new SubmissionSubmitRequest(submissionName, dueDate, sourceLanguage,
+                    targetLanguages
+                    , uploadContentlist(requestDTO, gcExchange, parent, dueDate, submissionName));
+            submissionSubmitRequest.setInstructions(pmNotes);
+
+            SubmissionSubmitResponseData submissionSubmitResponseData = gcExchange.submitSubmission(submissionSubmitRequest);
+            LOGGER.info("Submission Id: {}", submissionSubmitResponseData.getSubmissionId());
+            requestDTO.setSubmissionId(submissionSubmitResponseData.getSubmissionId());
 
             return true;
         } catch (Exception ex) {
@@ -256,24 +253,52 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         return false;
     }
 
+    private List<String> uploadContentlist(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange, JCRNodeWrapper parent,
+            Date dueDate, String submissionName){
+        List<UploadFileRequest> uploadFileRequests = requestDTO.getUploadFileRequests();
+
+        List<String> contentIds = new ArrayList<>();
+        uploadFileRequests.forEach(uploadFileRequest ->{
+            try {
+                String contentId = gcExchange.uploadContent(uploadFileRequest);
+                contentIds.add(contentId);
+                String id = StringUtils.substringBefore(StringUtils
+                        .substringAfterLast(uploadFileRequest.getFileName(), "___"), ".");
+                if (!id.equals(parent.getIdentifier())) {
+                    JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTime(dueDate);
+                    requestNode.setProperty("dueDate", calendar);
+                    requestNode.setProperty("name", submissionName);
+                    this.contentService.addUploadTicketForRequest(requestNode, this.sessionWrapper, contentId);
+                } else {
+                    requestDTO.setUploadTicket(contentId);
+                }
+            } catch (Exception ex) {
+                LOGGER.error("Error while uploading document -> ", ex);
+                this.contentService.addTranslationRequestError(requestDTO.getNodeWrapper(), this.sessionWrapper,
+                        ex.getMessage());
+            }
+        });
+        return contentIds;
+    }
     /**
      * Process a request for submission.
      *
      * @param requestDTO
-     * @param glExchange
+     * @param gcExchange
      * @param config
-    private void processRequestDTO(GlobalLinkProjectRequestDTO requestDTO, GLExchange glExchange,
+     */
+    private void processRequestDTO(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange,
                                    GlobalLinkConfigurationDTO config) {
-        List<Document> documents = new ArrayList<>();
         try {
-            requestDTO.setDocuments(documents);
-            processDocumentForProject(requestDTO, config.getComponentList());
+            processDocumentForProject(requestDTO, config);
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) &&
                     requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD).getBoolean()) {
                 requestDTO.setChildIncluded(true);
                 processChildPages(requestDTO, requestDTO.getNodeWrapper().getParent(), config);
             }
-            if (!requestDTO.getDocuments().isEmpty() && this.submitGBLRequest(requestDTO, config, glExchange)) {
+            if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
             } else {
                 this.contentService.updateRequestStatus(requestDTO.getNodeWrapper(), this.sessionWrapper, STATUS_NO_DOCUMENT);
@@ -289,19 +314,19 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param requestDTO
      * @param pageNode
      * @param config
+     */
     private void processChildPages(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode,
                                    GlobalLinkConfigurationDTO config) {
-        List<JCRNodeWrapper> pages = JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_PAGE);
-        for (JCRNodeWrapper child : pages) {
+        JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_PAGE).forEach(child ->{
             try {
                 JCRNodeWrapper requestNode = this.contentService.addGlobalLinkRequestNode(child, this.sessionWrapper, requestDTO);
                 boolean documentForProject = this.documentService.createDocumentForProject(requestDTO, child, requestNode,
                         config.getComponentList(), sessionWrapper);
                 if (documentForProject) {
-                    Document document = prepareGlobalLinkDocument(GlobalLinkUtil.getSourceDocumentPath(requestDTO, child));
-                    if (document != null) {
-                        requestDTO.getDocuments().add(document);
-                    }
+                    String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO,
+                            child);
+                    Optional.ofNullable(prepareGlobalLinkDocument(documentName,config.getFileFormat()))
+                            .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
                 } else {
                     try {
                         if (mailService.isEnabled()) {
@@ -319,32 +344,23 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                         requestNode.remove();
                         this.sessionWrapper.save();
                     } catch (RepositoryException e) {
-                        e.printStackTrace();
+                        LOGGER.error("Error while sending mail", e);
                     }
                 }
-                if (JCRContentUtils.getChildrenOfType(child, NODE_TYPE_PAGE).size() > 0) {
+                if (!JCRContentUtils.getChildrenOfType(child, NODE_TYPE_PAGE).isEmpty()) {
                     processChildPages(requestDTO, child, config);
                 }
             } catch (GlobalLinkServiceException se) {
                 LOGGER.error("Exception while processing child page -> ", se);
             }
-        }
+        });
     }
 
-    /**
-     * Prepare {@link Document} for a page node.
-     *
-     * @param filePath
-     * @return
-    private Document prepareGlobalLinkDocument(String filePath) {
+    private UploadFileRequest prepareGlobalLinkDocument(String filePath, String fileType) {
         try {
-            File srcFile = new File(filePath);
-            Document document = new Document();
-            document.setData(IOUtils.toString(new FileReader(srcFile)));
-            document.setName(srcFile.getName());
-            return document;
+            return new UploadFileRequest(filePath, null, fileType);
         } catch (IOException ex) {
-            LOGGER.error("Error while preparing global link source document -> ", ex);
+            LOGGER.error("Error while preparing global link content -> ", ex);
         }
         return null;
     }
@@ -355,6 +371,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      *
      * @param config
      * @return
+     */
     private boolean checkInterval(GlobalLinkConfigurationDTO config) {
         try {
             if (config.getSiteNode().hasProperty(GBL_PROPERTY_LAST_EXEC) &&
@@ -370,13 +387,5 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             LOGGER.error("Error while checking submission interval -> ", re);
         }
         return false;
-    }
-*/
-    public void setMailService(MailServiceImpl mailService) {
-        this.mailService = mailService;
-    }
-
-    public void setUserManagerService(JahiaUserManagerService userManagerService) {
-        this.userManagerService = userManagerService;
     }
 }

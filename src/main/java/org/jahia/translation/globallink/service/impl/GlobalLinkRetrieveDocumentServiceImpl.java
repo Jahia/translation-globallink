@@ -27,7 +27,7 @@ import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.*;
 
 /**
- * Document service to retrieve all translated documents from Global Link PD.
+ * Document service to retrieve all translated documents from Global Link.
  *
  * @author Rakesh.Kumar, WebitUp.
  * @author Prince.Arora, WebItUp.

@@ -1,8 +1,10 @@
 package org.jahia.translation.globallink.dto;
 
+import org.gs4tr.gcc.restclient.request.UploadFileRequest;
 import org.jahia.services.content.JCRNodeWrapper;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,15 +21,17 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
     private String sourceLanguage;
     private String[] desLanguages;
     private String uploadTicket;
-    private String submitTicket;
+    private Long submissionId;
     private boolean childIncluded;
-    //TODO BACKLOG-13965
-    //private List<Document> documents;
+    private List<UploadFileRequest> uploadFileRequests;
     private String fileFormat;
     private String requestId;
     private String documentpath;
     private boolean skipTranslated;
 
+    public GlobalLinkProjectRequestDTO(){
+        uploadFileRequests = new ArrayList<>();
+    }
     public JCRNodeWrapper getNodeWrapper() {
         return nodeWrapper;
     }
@@ -60,12 +64,12 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
         this.uploadTicket = uploadTicket;
     }
 
-    public String getSubmitTicket() {
-        return submitTicket;
+    public Long getSubmissionId() {
+        return submissionId;
     }
 
-    public void setSubmitTicket(String submitTicket) {
-        this.submitTicket = submitTicket;
+    public void setSubmissionId(Long submissionId) {
+        this.submissionId = submissionId;
     }
 
     public boolean isChildIncluded() {
@@ -76,13 +80,13 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
         this.childIncluded = childIncluded;
     }
 
-    /*public List<Document> getDocuments() {
-        return documents;
+    public List<UploadFileRequest> getUploadFileRequests() {
+        return uploadFileRequests;
     }
 
-    public void setDocuments(List<Document> documents) {
-        this.documents = documents;
-    }*/
+    public void setUploadFileRequests(List<UploadFileRequest> uploadFileRequests) {
+        this.uploadFileRequests = uploadFileRequests;
+    }
 
     public String getFileFormat() {
         return fileFormat;

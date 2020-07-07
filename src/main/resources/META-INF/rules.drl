@@ -14,7 +14,7 @@ global User user
 global Service service
 global Logger logger
 global JCRContentUtils jcrUtils
-#global GlobalLinkSubmissionService gblSubmissionService
+global GlobalLinkSubmissionService gblSubmissionService
 
 
 rule "Delete empty submission"
