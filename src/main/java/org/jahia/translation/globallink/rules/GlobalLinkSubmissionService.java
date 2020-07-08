@@ -27,7 +27,7 @@ import java.util.List;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_READY;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_IN_PRE_PROCESS;
 
 /**
  * Created by rincevent on 2017-01-18.

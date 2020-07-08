@@ -14,6 +14,7 @@ import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_BIGTEXT;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
@@ -93,18 +94,22 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
      * {@inheritDoc}
      */
     @Override
-    public JCRNodeIteratorWrapper getSubmissionNodeByDocumentTicket(String documentTicket, QueryManager queryManager)
-            throws GlobalLinkServiceException {
-        try {
-            String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.uploadTicket = '"
-                    + documentTicket + "' AND ISDESCENDANTNODE(gblProject, [/sites])";
-            Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
-            QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
-            return queryResult.getNodes();
-        } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
-            throw new GlobalLinkServiceException(ex.getMessage(), ex);
-        }
+    public JCRNodeIteratorWrapper getSubmissionNodeByContentId(String contentId, QueryManager queryManager){
+            return Optional.of(new StringBuilder())
+                    .map(stringBuilder -> stringBuilder
+                            .append("select * from [")
+                            .append(NODE_TYPE_PROJECT)
+                            .append("] as gblProject where gblProject.uploadTicket = '")
+                            .append(contentId)
+                            .append("' AND ISDESCENDANTNODE(gblProject, [/sites])"))
+                    .map(stringBuilder -> {
+                        try {
+                            Query jcrQuery = queryManager.createQuery(stringBuilder.toString(), Query.JCR_SQL2);
+                            return ((QueryResultWrapper) jcrQuery.execute()).getNodes();
+                        } catch (RepositoryException e) {
+                            throw new GlobalLinkServiceException(e.getMessage(), e);
+                        }
+                    }).orElse(null);
     }
 
     /**

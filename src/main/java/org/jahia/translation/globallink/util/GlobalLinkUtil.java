@@ -61,7 +61,13 @@ public class GlobalLinkUtil {
         GCConfig gcConfig = new GCConfig(config.getUrl(), config.getUsername(), config.getPassword());
         gcConfig.setUserAgent(config.getUserAgent());
         try {
-            return new GCExchange(gcConfig);
+            GCExchange gcExchange = new GCExchange(gcConfig);
+            gcExchange.getConnectors()
+                    .stream()
+                    .filter(connector -> connector.getConnectorName().equals(config.getConnectorName()))
+                    .findFirst()
+                    .ifPresent(connector -> gcExchange.setConnectorKey(connector.getConnectorKey()));
+            return gcExchange;
         } catch (Exception ex) {
             LOGGER.error("Error while generating GCExchange client: ", ex);
         }

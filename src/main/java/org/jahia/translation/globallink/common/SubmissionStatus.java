@@ -25,5 +25,5 @@ public class SubmissionStatus {
 
     public static final String STATUS_PROCESSED = "PROCESSED";
 
-    public static final String STATUS_READY = "READY";
+    public static final String STATUS_IN_PRE_PROCESS = "In Pre-process";
 }

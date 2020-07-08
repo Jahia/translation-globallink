@@ -46,15 +46,14 @@ public interface GlobalLinkQueryService {
     JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager) throws GlobalLinkServiceException;
 
     /**
-     * Find request submission node by given document ticket.
+     * Find request submission node by given document id.
      *
-     * @param documentTicket
+     * @param contentId
      * @param queryManager
      * @return
      * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getSubmissionNodeByDocumentTicket(String documentTicket, QueryManager queryManager)
-            throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getSubmissionNodeByContentId(String contentId, QueryManager queryManager);
 
     /**
      * Get list of all request nodes that has a given Reques Id.

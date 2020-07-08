@@ -120,13 +120,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      */
     private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
         GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
-        if (gcExchange != null) {
-            gcExchange.getConnectors()
-                    .stream()
-                    .filter(connector -> connector.getConnectorName().equals(config.getConnectorName()))
-                    .findFirst()
-                    .ifPresent(connector -> gcExchange.setConnectorKey(connector.getConnectorKey()));
-        }
         JCRNodeIteratorWrapper projects = this.gblQueryService.getGBLRequests(config.getSiteNode(),
                 this.sessionWrapper.getWorkspace().getQueryManager());
         if (gcExchange == null && mailService.isEnabled()) {
