@@ -13,9 +13,7 @@ public interface GlobalLinkSubmissionService {
 
     /**
      * Submitting new projects for global link translation under sites
-     *
-     * @return
      */
-    List<GlobalLinkConfigurationDTO> submitSiteProjects();
+    void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList);
 
 }

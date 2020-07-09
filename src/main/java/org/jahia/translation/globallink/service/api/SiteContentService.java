@@ -18,9 +18,8 @@ public interface SiteContentService {
      *
      * @param requestDTO
      * @param isSuccess
-     * @return
      */
-    boolean logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
+     void logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
                                    JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException;
 
     /**

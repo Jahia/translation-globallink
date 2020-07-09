@@ -18,45 +18,6 @@
 
     </bean>
 
-    <!--<bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
-        <property name="actionItem">
-            <bean class="org.jahia.ajax.gwt.client.widget.toolbar.action.NewContentActionItem">
-                <property name="nodeTypes" value="gblnt:globalLinkProject"/>
-                <property name="parentTypes" value="jnt:folder,jnt:file"/>
-            </bean>
-        </property>
-        <property name="title" value="GlobalLink Translation" />
-        <property name="icon" value="/modules/jahia-translation-globallink/img/jnt_globalLinkProject.png"/>
-        <property name="parent" value="filemanager.contextMenu"/>
-        <property name="positionBefore" value="Toolbar.Item.Publish"/>
-    </bean>
-
-    <bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
-        <property name="actionItem">
-            <bean class="org.jahia.ajax.gwt.client.widget.toolbar.action.NewContentActionItem">
-                <property name="nodeTypes" value="gblnt:globalLinkProject"/>
-                <property name="parentTypes" value="jnt:folder"/>
-            </bean>
-        </property>
-        <property name="title" value="GlobalLink Translation" />
-        <property name="icon" value="/modules/jahia-translation-globallink/img/jnt_globalLinkProject.png"/>
-        <property name="parent" value="editmode.tabs[3].treeContextMenu"/>
-        <property name="positionBefore" value="Toolbar.Item.PasteReference"/>
-    </bean>
-
-    <bean class="org.jahia.services.uicomponents.bean.toolbar.Item">
-        <property name="actionItem">
-            <bean class="org.jahia.ajax.gwt.client.widget.toolbar.action.NewContentActionItem">
-                <property name="nodeTypes" value="gblnt:globalLinkProject"/>
-                <property name="parentTypes" value="jnt:file"/>
-            </bean>
-        </property>
-        <property name="title" value="GlobalLink Translation" />
-        <property name="icon" value="/modules/jahia-translation-globallink/img/jnt_globalLinkProject.png"/>
-        <property name="parent" value="editmode.tabs[3].tableContextMenu"/>
-        <property name="positionBefore" value="Toolbar.Item.PasteReference"/>
-    </bean>-->
-
 	<bean id="globalLinkQueryService" class="org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl" />
 
     <bean id="submissionService" class="org.jahia.translation.globallink.service.impl.GlobalLinkSubmissionServiceImpl">

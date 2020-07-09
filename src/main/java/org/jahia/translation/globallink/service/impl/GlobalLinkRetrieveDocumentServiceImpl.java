@@ -49,7 +49,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     /**
      * {@inheritDoc}
      */
-    @Override public List<GlobalLinkConfigurationDTO> retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList) {
+    @Override public void retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
             LOGGER.info("====  Initializing Retrieve process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
@@ -59,7 +59,6 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         } catch (Exception ex) {
             LOGGER.error("Exception while starting document retrieve process -> ", ex);
         }
-        return configList;
     }
 
     /**

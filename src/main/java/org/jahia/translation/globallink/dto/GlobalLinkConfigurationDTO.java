@@ -115,7 +115,7 @@ public class GlobalLinkConfigurationDTO implements Serializable {
     }
 
     public String toString() {
-        return "Connector name -> " + this.connectorName + " For User -> " + this.username +
-                " With User Agent -> " + this.userAgent + " And URL -> " + this.url;
+        return "Connector name -> " + this.connectorName + " For User -> " + this.username + " With User Agent -> " + this.userAgent
+                + " And URL -> " + this.url;
     }
 }

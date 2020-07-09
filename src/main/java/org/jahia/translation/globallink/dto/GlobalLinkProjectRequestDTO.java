@@ -29,9 +29,10 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
     private String documentpath;
     private boolean skipTranslated;
 
-    public GlobalLinkProjectRequestDTO(){
+    public GlobalLinkProjectRequestDTO() {
         uploadFileRequests = new ArrayList<>();
     }
+
     public JCRNodeWrapper getNodeWrapper() {
         return nodeWrapper;
     }

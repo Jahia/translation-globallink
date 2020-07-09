@@ -25,5 +25,6 @@ public class SubmissionStatus {
     public static final String STATUS_CONTENT_ERROR = "request.content.error";
 
     public static final String STATUS_PRE_PROCESS = "Pre-process";
+
     public static final String STATUS_STARTED = "Started";
 }
