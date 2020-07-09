@@ -16,7 +16,6 @@ import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl;
-import org.jahia.translation.globallink.service.impl.GlobalLinkSubmissionServiceImpl;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CA
  * Created by rincevent on 2017-01-18.
  */
 public class GlobalLinkSubmissionService {
-    private GlobalLinkSubmissionServiceImpl submissionService;
     private GlobalLinkQueryServiceImpl queryService;
     private SiteContentService contentService;
     private MailService mailService;
@@ -43,18 +41,14 @@ public class GlobalLinkSubmissionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionService.class);
 
-    public void setSubmissionService(GlobalLinkSubmissionServiceImpl submissionService) {
-        this.submissionService = submissionService;
-    }
-
     public void removeEmptySubmission(AddedNodeFact addedNodeFact, KnowledgeHelper drools) {
 
-        List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
+        JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
+        List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(queryService.getAllSites(rootSession.getWorkspace().getQueryManager()));
         JCRNodeWrapper node = addedNodeFact.getNode();
-        for (GlobalLinkConfigurationDTO config : globalLinkConfigurationDTOS) {
+        for (GlobalLinkConfigurationDTO config : configList) {
 
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
-                JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
                 JCRNodeIteratorWrapper submittedRequests = queryService.getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
                 if (gcExchange != null) {
