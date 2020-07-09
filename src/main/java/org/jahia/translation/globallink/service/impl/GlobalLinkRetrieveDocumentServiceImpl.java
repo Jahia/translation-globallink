@@ -130,7 +130,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
 
     private void processTask(GCTask task, GCExchange gcExchange, GlobalLinkConfigurationDTO config) {
         try {
-            LOGGER.info("Submission: {} - Job: {} - Task: {}", task.getSubmissionId(), task.getJobId(), task.getTaskId());
+            LOGGER.info("Submission: " + task.getSubmissionId() + " - Job: " + task.getJobId() + " - Task: " + task.getTaskId());
             JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
                     getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
             this.contentService.unLockNode(requestNode.getParent(), this.sessionWrapper);
