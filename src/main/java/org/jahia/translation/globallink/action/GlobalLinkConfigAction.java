@@ -16,6 +16,7 @@ import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
+import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.json.JSONObject;
@@ -172,13 +173,7 @@ public class GlobalLinkConfigAction extends Action {
             GCExchange gcExchange = Optional.of(configuration).map(GlobalLinkUtil::getGlobalLinkClient).orElse(null);
 
             if (gcExchange != null) {
-                Connector jahiaConnector = gcExchange.getConnectors().stream()
-                        .filter(connector -> connector.getConnectorName().equals(configuration.getConnectorName())).findFirst()
-                        .orElse(null);
                 try {
-                    Optional.ofNullable(jahiaConnector)
-                            .ifPresent(connector -> gcExchange.setConnectorKey(jahiaConnector.getConnectorKey()));
-
                     Map<String, Set<String>> availableLanguageMapping = getAvailableLanguageMapping(gcExchange.getConnectorsConfig());
 
                     availableLanguageMapping.forEach((key, value) -> {
@@ -193,7 +188,7 @@ public class GlobalLinkConfigAction extends Action {
                             Set<String> targetLanguages = availableLanguageMapping.get(key);
                             sourceNode.setProperty("targetLanguages", targetLanguages.toArray(new String[targetLanguages.size()]));
                         } catch (RepositoryException e) {
-                            throw new RuntimeException(e);
+                            throw new GlobalLinkServiceException("Error while saving language mapping", e);
                         }
                     });
 

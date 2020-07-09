@@ -2,10 +2,15 @@ package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.lang.StringUtils;
 import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.GCTask;
+import org.gs4tr.gcc.restclient.model.Status;
+import org.gs4tr.gcc.restclient.model.SubmissionWordCountData;
+import org.gs4tr.gcc.restclient.model.TaskStatus;
+import org.gs4tr.gcc.restclient.operation.Tasks.TasksResponseData;
+import org.gs4tr.gcc.restclient.request.TaskListRequest;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.mail.MailService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.GlobalLinkRetrieveDocumentService;
@@ -19,15 +24,14 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import java.io.File;
 import java.nio.file.FileSystems;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.*;
 
 /**
- * Document service to retrieve all translated documents from Global Link PD.
+ * Document service to retrieve all translated documents from Global Link.
  *
  * @author Rakesh.Kumar, WebitUp.
  * @author Prince.Arora, WebItUp.
@@ -42,13 +46,10 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
 
     private GlobalLinkQueryService queryService;
 
-    private MailService mailService;
-
     /**
      * {@inheritDoc}
      */
-    @Override
-    public List<GlobalLinkConfigurationDTO> retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList) {
+    @Override public void retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
             LOGGER.info("====  Initializing Retrieve process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
@@ -58,104 +59,109 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         } catch (Exception ex) {
             LOGGER.error("Exception while starting document retrieve process -> ", ex);
         }
-        return configList;
     }
 
     /**
-     * Retrieve completed documents from Global link PD
+     * Retrieve all documents and process them according to their status
      *
-     * @param config
+     * @param config config for the connection
      */
     private void retrieveDocuments(GlobalLinkConfigurationDTO config) {
-        JCRNodeIteratorWrapper submittedRequests = this.queryService.getSubmittedRequests(config.getSiteNode().getPath(),
-                this.sessionWrapper.getWorkspace().getQueryManager());
+        JCRNodeIteratorWrapper submittedRequests = this.queryService
+                .getSubmittedRequests(config.getSiteNode().getPath(), this.sessionWrapper.getWorkspace().getQueryManager());
 
-        submittedRequests.forEach(request -> processRequestForRetrieval(request, GlobalLinkUtil.getGlobalLinkClient(config), config));
+        submittedRequests.forEach(request -> {
+            try {
+                processExistingRequests(request, GlobalLinkUtil.getGlobalLinkClient(config), config);
+            } catch (RepositoryException e) {
+                LOGGER.error("Error while retrieving tasks: ", e);
+            }
+        });
     }
 
-    /**
-     * Process a request for retrieval of all the completed targets and
-     * translated documents.
-     *
-     * @param requestNode Noe containing the request data
-     * @param gcExchange
-     * @param config
-     */
-    private void processRequestForRetrieval(JCRNodeWrapper requestNode, GCExchange gcExchange,
-                                            GlobalLinkConfigurationDTO config) {
-        //TODO BACKLOG-13965
-       /* String submissionTicket = requestNode.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
-        if (!StringUtils.isEmpty(submissionTicket)) {
-            Target[] targets = glExchange.getCompletedTargets(submissionTicket, 100);
-            List<Target> completedTargets = new ArrayList();
-            if (targets.length > 0) {
-                for (Target target : targets) {
+    private void processExistingRequests(JCRNodeWrapper requestNode, GCExchange gcExchange, GlobalLinkConfigurationDTO config)
+            throws RepositoryException {
+        processCompletedTranslations(requestNode, gcExchange, config);
+        processCancelledTranslations(requestNode, gcExchange);
+        processForOtherStatus(requestNode, gcExchange);
+    }
 
-                    boolean status = processTarget(target, glExchange, config);
-                    if (status) {
-                        completedTargets.add(target);
-                    }
+    private void processCompletedTranslations(JCRNodeWrapper requestNode, GCExchange gcExchange, GlobalLinkConfigurationDTO config)
+            throws RepositoryException {
+        TasksResponseData tasksResponseData = getTasksListByStatus(requestNode, gcExchange, TaskStatus.Completed);
+        tasksResponseData.getTasks().forEach(task -> processTask(task, gcExchange, config));
+    }
+
+    private void processCancelledTranslations(JCRNodeWrapper requestNode, GCExchange gcExchange) throws RepositoryException {
+        TasksResponseData tasksResponseData = getTasksListByStatus(requestNode, gcExchange, TaskStatus.Cancelled);
+        tasksResponseData.getTasks().forEach(task -> {
+            try {
+                if (requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(task.getContentId())) {
+                    this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
                 }
-            } else {
-                targets = glExchange.getCancelledTargets(submissionTicket, 100);
-                if (targets.length > 0) {
-                    for (Target target : targets) {
-                        try {
-                            if (requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(target.getDocumentTicket())) {
-                                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
-                            }
-                        } catch (RepositoryException e) {
-                            LOGGER.error("Error cancelling submission - ", e);
-                        }
-                    }
-                } else {
-                    try {
-                        String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
-                        if (submissionStatus == null) {
-                            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
-                        } else if (submissionStatus.equals(STATUS_READY)) {
-                            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
-                        }
-                    } catch (Exception e) {
-                        LOGGER.error("Error retrieving translated document - ", e);
-                    }
-                }
+            } catch (RepositoryException e) {
+                LOGGER.error("Error cancelling submission - ", e);
             }
+        });
+    }
+
+    private TasksResponseData getTasksListByStatus(JCRNodeWrapper requestNode, GCExchange gcExchange, TaskStatus completed)
+            throws RepositoryException {
+        TaskListRequest taskListRequest = new TaskListRequest();
+        taskListRequest.setSubmissionId(requestNode.getProperty(GBL_PROJECT_SUB_TICKET).getLong());
+        List<TaskStatus> tasks = Collections.singletonList(completed);
+        taskListRequest.setTaskStatuses(tasks.toArray(new TaskStatus[0]));
+        taskListRequest.setPageSize(100L);
+        return gcExchange.getTasksList(taskListRequest);
+    }
+
+    private void processForOtherStatus(JCRNodeWrapper requestNode, GCExchange gcExchange) {
+        try {
+            Status submissionStatus = gcExchange.getSubmissionStatus(requestNode.getProperty(GBL_PROJECT_SUB_TICKET).getLong());
+            if (submissionStatus == null) {
+                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
+            } else if (submissionStatus.getStatusName().equals(STATUS_PRE_PROCESS)) {
+                this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving translated document - ", e);
         }
     }
 
-
-    private boolean processTarget(Target target, GLExchange glExchange, GlobalLinkConfigurationDTO config) {
+    private void processTask(GCTask task, GCExchange gcExchange, GlobalLinkConfigurationDTO config) {
         try {
-            LOGGER.info("Ticket: {}", target.getTicket());
+            LOGGER.info("Submission: {} - Job: {} - Task: {}", task.getSubmissionId(), task.getJobId(), task.getTaskId());
             JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
-                    getSubmissionNodeByDocumentTicket(target.getDocumentTicket(),
-                            this.sessionWrapper.getWorkspace().getQueryManager()).next();
+                    getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
             this.contentService.unLockNode(requestNode.getParent(), this.sessionWrapper);
-            String docPath = "";
+            String docPath;
             if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
-                docPath = config.getDocumentPath() + File.separator + requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID)
-                        + File.separator + TRANSLATED_PATH;
+                docPath =
+                        config.getDocumentPath() + File.separator + requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID) + File.separator
+                                + TRANSLATED_PATH;
             } else {
-                docPath = DOCUMENT_PATH + File.separator + requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID)
-                        + File.separator + TRANSLATED_PATH;
+                docPath = DOCUMENT_PATH + File.separator + requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID) + File.separator
+                        + TRANSLATED_PATH;
             }
             IOUtil.createDirectories(FileSystems.getDefault().getPath(docPath));
-            String fileName = target.getTargetLocale() + "_" + StringUtils.substringAfterLast(target.getDocumentName(), "_");
+            String fileName = task.getTargetLocale().getLocaleDisplayName() + "_" + StringUtils.substringAfterLast(task.getName(), "_");
             String filePath = docPath + File.separator + fileName;
-            if (IOUtil.createFile(target.getData(glExchange), filePath)) {
-                glExchange.sendDownloadConfirmation(target.getTicket());
+            if (IOUtil.createFile(gcExchange.downloadTask(task.getTaskId()), filePath)) {
+                gcExchange.confirmTask(task.getTaskId());
             }
             this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_RETRIEVED);
-            String targetStatus = target.getTargetLocale() + "_" + target.getTicket() + "_" + target.getWordCount().getTotal();
-            this.contentService.addTargetTicketsInStatus(requestNode, targetStatus, this.sessionWrapper);
-            return true;
+
+            List<SubmissionWordCountData> submissionWordCountDataList = gcExchange.getSubmissionWordCount(task.getSubmissionId());
+            submissionWordCountDataList.stream()
+                    .filter(submissionWordCountData -> submissionWordCountData.getTargetLocale().equals(task.getTargetLocale()))
+                    .flatMap(submissionWordCountData -> submissionWordCountData.getWordcountSummary().stream())
+                    .filter(wordCountSummary -> wordCountSummary.getKey().equals("total")).findFirst().ifPresent(wordCountSummary -> {
+                String targetStatus = task.getTargetLocale() + "_" + task.getTaskId() + "_" + wordCountSummary.getCount();
+                this.contentService.addTargetTicketsInStatus(requestNode, targetStatus, this.sessionWrapper);
+            });
         } catch (Exception ex) {
             LOGGER.error("Error retrieving translated document - ", ex);
-            return false;
         }
-    }
-    */
     }
 
     public void setContentService(SiteContentService contentService) {

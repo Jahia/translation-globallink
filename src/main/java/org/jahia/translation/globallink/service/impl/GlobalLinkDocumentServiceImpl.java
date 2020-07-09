@@ -1,7 +1,9 @@
 package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.lang.StringUtils;
-import org.jahia.services.content.*;
+import org.jahia.services.content.JCRNodeIteratorWrapper;
+import org.jahia.services.content.JCRNodeWrapper;
+import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.nodetypes.ExtendedPropertyDefinition;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -17,7 +19,11 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.jcr.*;
+import javax.jcr.Property;
+import javax.jcr.PropertyIterator;
+import javax.jcr.PropertyType;
+import javax.jcr.RepositoryException;
+import javax.jcr.Value;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -29,7 +35,6 @@ import javax.xml.transform.stream.StreamResult;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
@@ -51,13 +56,12 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      * {@inheritDoc}
      */
     @Override
-    public boolean saveDocument(Document document, String path, String fileName) throws GlobalLinkServiceException {
+    public boolean saveDocument(Document document, String path, String fileName) {
         try {
             IOUtil.createDirectories(FileSystems.getDefault().getPath(path));
             String documentPath = path + File.separator + fileName;
             return IOUtil.createFile(documentPath);
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -68,7 +72,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
     @Override
     public boolean createDocumentForProject(GlobalLinkProjectRequestDTO project, JCRNodeWrapper pageNode,
                                             JCRNodeWrapper requestNode, List<String> componentList,
-                                            JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+                                            JCRSessionWrapper sessionWrapper){
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             docFactory.setValidating(false);
@@ -95,7 +99,6 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
             }
             return false;
         } catch (ParserConfigurationException | TransformerException | DOMException ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -104,13 +107,12 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      * {@inheritDoc}
      */
     @Override
-    public NodeList getTranslatedContentList(File documentFile) throws GlobalLinkServiceException {
+    public NodeList getTranslatedContentList(File documentFile) {
         try {
             DocumentBuilder documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document document = documentBuilder.parse(documentFile);
             return document.getElementsByTagName(DOCUMENT_CONTENT_NODE);
         } catch (ParserConfigurationException | SAXException | IOException ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -145,16 +147,16 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                             Property property = (Property) properties.next();
                             try {
                                 ExtendedPropertyDefinition propertyDefinition =
-                                        nodeWrapper.getApplicablePropertyDefinition(((Property) property).getName());
+                                        nodeWrapper.getApplicablePropertyDefinition(property.getName());
                                 if (propertyDefinition != null && propertyDefinition.isInternationalized() && !propertyDefinition.isProtected() && propertyDefinition.getRequiredType() == PropertyType.STRING) {
-                                    String propertyName = ((Property) property).getName();
+                                    String propertyName = property.getName();
                                     if (propertyName.contains(":")) {
                                         // change by cedric
                                         propertyName = propertyName.replace(":", "_");
                                     }
                                     Element propertyElement = document.createElement(propertyName);
                                     if (propertyDefinition.isMultiple()) {
-                                        Value[] values = ((Property) property).getValues();
+                                        Value[] values = property.getValues();
                                         for (Value value : values) {
                                             try {
                                                 Element textElement = document.createElement(DOCUMENT_CONTENT_PROP_TEXT);
@@ -168,7 +170,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                     } else {
                                         Element textElement = document.createElement(DOCUMENT_CONTENT_PROP_TEXT);
                                         textElement.setAttribute(DOCUMENT_CONTENT_PROP_TRAS, "yes");
-                                        textElement.setTextContent(((Property) property).getValue().getString());
+                                        textElement.setTextContent(property.getValue().getString());
                                         propertyElement.appendChild(textElement);
                                     }
                                     contentElement.appendChild(propertyElement);

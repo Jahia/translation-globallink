@@ -16,9 +16,8 @@ public interface GlobalLinkRetrieveDocumentService {
     /**
      * Retrieving documents for all completed targets.
      *
-     * @return
      * @throws GlobalLinkServiceException
      */
-    List<GlobalLinkConfigurationDTO> retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList);
+    void retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList);
 
 }

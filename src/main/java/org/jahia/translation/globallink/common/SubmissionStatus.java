@@ -7,6 +7,9 @@ package org.jahia.translation.globallink.common;
  */
 public class SubmissionStatus {
 
+    private SubmissionStatus() {
+    }
+
     public static final String STATUS_SUBMITTED = "request.submitted";
 
     public static final String STATUS_RETRIEVED = "request.retrieved";
@@ -21,9 +24,7 @@ public class SubmissionStatus {
 
     public static final String STATUS_CONTENT_ERROR = "request.content.error";
 
-    public static final String STATUS_DELIVERED = "DELIVERED";
+    public static final String STATUS_PRE_PROCESS = "Pre-process";
 
-    public static final String STATUS_PROCESSED = "PROCESSED";
-
-    public static final String STATUS_READY = "READY";
+    public static final String STATUS_STARTED = "Started";
 }

@@ -1,7 +1,6 @@
 package org.jahia.translation.globallink.service.api;
 
 import org.jahia.services.content.JCRNodeIteratorWrapper;
-import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 
@@ -32,9 +31,8 @@ public interface GlobalLinkQueryService {
      *
      * @param queryManager
      * @return
-     * @throws GlobalLinkServiceException
      */
-    List<JCRSiteNode> getAllSites(QueryManager queryManager) throws GlobalLinkServiceException;
+    List<JCRSiteNode> getAllSites(QueryManager queryManager);
 
     /**
      * Get {@link JCRNodeIteratorWrapper} for all Global link translation projects under a given site node
@@ -43,18 +41,16 @@ public interface GlobalLinkQueryService {
      * @return
      * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager) throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getGBLRequests(JCRSiteNode siteNode, QueryManager queryManager);
 
     /**
-     * Find request submission node by given document ticket.
+     * Find request submission node by given document id.
      *
-     * @param documentTicket
+     * @param contentId
      * @param queryManager
      * @return
-     * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getSubmissionNodeByDocumentTicket(String documentTicket, QueryManager queryManager)
-            throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getSubmissionNodeByContentId(String contentId, QueryManager queryManager);
 
     /**
      * Get list of all request nodes that has a given Reques Id.
@@ -62,9 +58,8 @@ public interface GlobalLinkQueryService {
      * @param requestId
      * @param queryManager
      * @return
-     * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getRequestNodeList(String requestId, QueryManager queryManager) throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getRequestNodeList(String requestId, QueryManager queryManager);
 
     /**
      * Get all the requests that has status as submitted.
@@ -72,9 +67,8 @@ public interface GlobalLinkQueryService {
      * @param path
      * @param queryManager
      * @return
-     * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager) throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager);
 
     /**
      * Get all submission requests that in retrieved state.
@@ -82,7 +76,6 @@ public interface GlobalLinkQueryService {
      * @param path
      * @param queryManager
      * @return
-     * @throws GlobalLinkServiceException
      */
-    JCRNodeIteratorWrapper getRetrievedRequests(String path, QueryManager queryManager) throws GlobalLinkServiceException;
+    JCRNodeIteratorWrapper getRetrievedRequests(String path, QueryManager queryManager);
 }

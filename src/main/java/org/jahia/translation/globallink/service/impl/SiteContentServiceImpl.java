@@ -33,14 +33,14 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public boolean logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
-                                          JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+    public void logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
+                                          JCRSessionWrapper sessionWrapper){
         try {
             LOGGER.info("Creating status node");
             JCRNodeWrapper statusNode = requestDTO.getNodeWrapper();
             if (isSuccess) {
                 statusNode.setProperty(GBL_SUBMISSION_STATE, STATUS_SUBMITTED);
-                statusNode.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmitTicket());
+                statusNode.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmissionId());
                 statusNode.setProperty(GBL_PROJECT_UPLOAD_TICKET, requestDTO.getUploadTicket());
                 if (requestDTO.isChildIncluded()) {
                     JCRNodeIteratorWrapper nodeWrapperList = this.queryService.getRequestNodeList(requestDTO.getRequestId(),
@@ -48,7 +48,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                     while (nodeWrapperList.hasNext()) {
                         JCRNodeWrapper nodeWrapper = (JCRNodeWrapper) nodeWrapperList.next();
                         try {
-                            nodeWrapper.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmitTicket());
+                            nodeWrapper.setProperty(GBL_PROJECT_SUB_TICKET, requestDTO.getSubmissionId());
                             nodeWrapper.setProperty(GBL_SUBMISSION_STATE, STATUS_SUBMITTED);
                         } catch (RepositoryException re) {
                             LOGGER.error("Exception while adding submission ticket for Child Page -> ", re);
@@ -57,9 +57,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                 }
             }
             sessionWrapper.save();
-            return true;
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -68,7 +66,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public boolean lockNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+    public boolean lockNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) {
         try {
             if (!nodeWrapper.isLocked() && nodeWrapper.isLockable()) {
                 nodeWrapper.lock(false, true);
@@ -77,12 +75,11 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             return false;
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
 
-    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper){
         try {
             if (!nodeWrapper.isLocked() && nodeWrapper.isLockable()) {
                 nodeWrapper.lockAndStoreToken("translation"," globalLink ");
@@ -91,7 +88,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             return false;
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -99,7 +95,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public boolean unLockNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) throws GlobalLinkServiceException {
+    public boolean unLockNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) {
         try {
             if (nodeWrapper.isLocked()) {
                 nodeWrapper.unlock();
@@ -108,7 +104,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             return false;
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -117,8 +112,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void checkInTranslatedContent(NodeList contentNodes, JCRSessionWrapper sessionWrapper, String locale, String sourceLocale)
-            throws GlobalLinkServiceException {
+    public void checkInTranslatedContent(NodeList contentNodes, JCRSessionWrapper sessionWrapper, String locale, String sourceLocale) {
         try {
             for (int index = 0; index < contentNodes.getLength(); index++) {
                 Node contentNode = contentNodes.item(index);
@@ -130,7 +124,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             sessionWrapper.save();
         } catch (RepositoryException ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -139,8 +132,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addTargetTicketsInStatus(JCRNodeWrapper projectNode, String target, JCRSessionWrapper sessionWrapper)
-            throws GlobalLinkServiceException {
+    public void addTargetTicketsInStatus(JCRNodeWrapper projectNode, String target, JCRSessionWrapper sessionWrapper) {
         try {
             if (projectNode.hasProperty(GBL_PROJECT_TARGET) &&
                     !projectNode.getPropertyAsString(GBL_PROJECT_TARGET).equals("")) {
@@ -151,7 +143,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             }
             sessionWrapper.save();
         } catch (RepositoryException ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -160,15 +151,13 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status)
-            throws GlobalLinkServiceException {
+    public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status) {
         try {
             if(!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
                 nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
                 sessionWrapper.save();
             }
         } catch (RepositoryException ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -178,7 +167,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      */
     @Override
     public JCRNodeWrapper addGlobalLinkRequestNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper,
-                                                   GlobalLinkProjectRequestDTO requestDTO) throws GlobalLinkServiceException {
+                                                   GlobalLinkProjectRequestDTO requestDTO) {
         try {
             if (nodeWrapper.hasNode(NODE_NAME_GLOBAL_LINK)) {
                 nodeWrapper.getNode(NODE_NAME_GLOBAL_LINK).remove();
@@ -192,7 +181,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             sessionWrapper.save();
             return requestNode;
         } catch (RepositoryException re) {
-            LOGGER.error("Service Exception -> ", re);
             throw new GlobalLinkServiceException(re.getMessage(), re);
         }
     }
@@ -201,13 +189,11 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addUploadTicketForRequest(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String uploadTicket)
-            throws GlobalLinkServiceException {
+    public void addUploadTicketForRequest(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String uploadTicket) {
         try {
             requestNode.setProperty(GBL_PROJECT_UPLOAD_TICKET, uploadTicket);
             sessionWrapper.save();
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -216,13 +202,11 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId)
-            throws GlobalLinkServiceException {
+    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId){
         try {
             requestNode.setProperty(GBL_PROJECT_REQUEST_ID, requestId);
             sessionWrapper.save();
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -231,8 +215,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addTransStateForContentNode(JCRNodeWrapper translationNode, JCRSessionWrapper sessionWrapper)
-            throws GlobalLinkServiceException {
+    public void addTransStateForContentNode(JCRNodeWrapper translationNode, JCRSessionWrapper sessionWrapper) {
         try {
             if (translationNode.isLocked()) {
                 translationNode.unlock("translation"," globalLink ");
@@ -240,7 +223,6 @@ public class SiteContentServiceImpl implements SiteContentService {
             translationNode.setProperty(NODE_NAME_TRANS_PROP, true);
             sessionWrapper.save();
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -249,26 +231,23 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addContentCount(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, int count)
-            throws GlobalLinkServiceException {
+    public void addContentCount(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, int count) {
         try {
             requestNode.setProperty(GBL_PROJECT_CONTENT_COUNT, count);
             sessionWrapper.save();
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    public void addTranslationRequestError(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String message) throws GlobalLinkServiceException {
+    public void addTranslationRequestError(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String message) {
         try {
             if (!requestNode.hasProperty(GBL_PROJECT_ERROR)) {
                 requestNode.setProperty(GBL_PROJECT_ERROR, message);
                 sessionWrapper.save();
             }
         } catch (Exception ex) {
-            LOGGER.error("Service Exception -> ", ex);
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
@@ -297,6 +276,7 @@ public class SiteContentServiceImpl implements SiteContentService {
             translationNode.setProperty(NODE_PROP_LANGUAGE, locale);
         }
         NodeList nodeList = element.getChildNodes();
+
         if (nodeList != null) {
             for (int index = 0; index < nodeList.getLength(); index++) {
                 Node currentNode = nodeList.item(index);

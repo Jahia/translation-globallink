@@ -7,9 +7,10 @@ package org.jahia.translation.globallink.common;
  */
 public class GlobalLinkConstants {
 
-    public static final String JCR_DEFAULT_WS = "default";
+    private GlobalLinkConstants() {
+    }
 
-    public static final String JCR_LIVE_WS = "live";
+    public static final String JCR_DEFAULT_WS = "default";
 
     public static final String GBL_MIXIN_TYPE = "gblmix:globalLinkBaseSettings";
 
@@ -79,8 +80,6 @@ public class GlobalLinkConstants {
 
     public static final String NODE_TRANLSATE_TYPE = "jnt:translation";
 
-    public static final String NODE_MIXIN_TITLE = "mix:title";
-
     public static final String NODE_PROP_LANGUAGE = "jcr:language";
 
     public static final String DOCUMENT_PATH = System.getProperty("java.io.tmpdir") + "/gbl";
@@ -95,5 +94,4 @@ public class GlobalLinkConstants {
 
     public static final String FILE_EXT_XML = ".xml";
 
-    public static final String NODE_TYPE_CONTENTLIST = "jnt:contentList";
 }
