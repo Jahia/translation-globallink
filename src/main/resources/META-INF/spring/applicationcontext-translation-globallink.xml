@@ -100,7 +100,6 @@
 
 
     <bean class="org.jahia.translation.globallink.rules.GlobalLinkSubmissionService" name="globalLinkSubmissionService">
-        <property name="submissionService" ref="submissionService"/>
         <property name="queryService" ref="globalLinkQueryService"/>
         <property name="contentService" ref="contentService"/>
         <property name="mailService" ref="MailService"/>
