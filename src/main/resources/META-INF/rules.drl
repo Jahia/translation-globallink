@@ -23,7 +23,7 @@ rule "Delete empty submission"
         The type jmix:markedForDeletionRoot has been assigned to a node
     then
 
-#>       gblSubmissionService.removeEmptySubmission(node, drools);
+>       gblSubmissionService.removeEmptySubmission(node, drools);
 end
 
 rule "Notify user on status change"
@@ -32,5 +32,5 @@ rule "Notify user on status change"
         A property gblSubmitState has been set on a node
         - the node has the type gblnt:globalLinkProject
     then
-#>       gblSubmissionService.sendNotification(node, drools);
+>       gblSubmissionService.sendNotification(node);
 end

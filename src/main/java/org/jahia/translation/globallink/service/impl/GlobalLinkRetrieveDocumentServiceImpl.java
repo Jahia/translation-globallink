@@ -121,7 +121,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             Status submissionStatus = gcExchange.getSubmissionStatus(requestNode.getProperty(GBL_PROJECT_SUB_TICKET).getLong());
             if (submissionStatus == null) {
                 this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_DELETED);
-            } else if (submissionStatus.getStatusName().equals(STATUS_IN_PRE_PROCESS)) {
+            } else if (submissionStatus.getStatusName().equals(STATUS_PRE_PROCESS)) {
                 this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_SUBMITTED);
             }
         } catch (Exception e) {

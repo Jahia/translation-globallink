@@ -2,6 +2,8 @@ package org.jahia.translation.globallink.rules;
 
 import org.apache.commons.lang.StringUtils;
 import org.drools.core.spi.KnowledgeHelper;
+import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.Status;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -26,8 +28,8 @@ import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_STARTED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_IN_PRE_PROCESS;
 
 /**
  * Created by rincevent on 2017-01-18.
@@ -39,42 +41,42 @@ public class GlobalLinkSubmissionService {
     private MailService mailService;
     private JahiaUserManagerService userManagerService;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionService.class);
 
     public void setSubmissionService(GlobalLinkSubmissionServiceImpl submissionService) {
         this.submissionService = submissionService;
     }
 
     public void removeEmptySubmission(AddedNodeFact addedNodeFact, KnowledgeHelper drools) {
-        //TODO BACKLOG-13965
-       /* List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
+
+        List<GlobalLinkConfigurationDTO> globalLinkConfigurationDTOS = submissionService.submitSiteProjects();
         JCRNodeWrapper node = addedNodeFact.getNode();
         for (GlobalLinkConfigurationDTO config : globalLinkConfigurationDTOS) {
 
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
                 JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
                 JCRNodeIteratorWrapper submittedRequests = queryService.getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
-                GLExchange glExchange = GlobalLinkUtil.getGLExchangeClient(config);
-                if (glExchange != null) {
+                GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
+                if (gcExchange != null) {
                     for (JCRNodeWrapper request : submittedRequests) {
                         try {
-                            String submissionTicket = request.getPropertyAsString(GBL_PROJECT_SUB_TICKET);
-                            String submissionStatus = glExchange.getSubmissionStatus(submissionTicket);
-                            if (submissionStatus.equals(STATUS_READY)) {
-                                glExchange.cancelSubmission(submissionTicket, "Content has been deleted on " + config.getSiteNode().getServerName());
+                            Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
+                            Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
+                            if (submissionStatus.getStatusName().equals(STATUS_STARTED)) {
+                                gcExchange.cancelSubmission(submissionId);
                                 contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
                             }
                             drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                         } catch (Exception e) {
-                            e.printStackTrace();
+                           LOGGER.error("Error while releting translation", e);
                         }
                     }
                 }
             }
-        }*/
+        }
     }
 
-    public void sendNotification(AbstractNodeFact fact, KnowledgeHelper drools) {
+    public void sendNotification(AbstractNodeFact fact) {
         if (mailService.isEnabled()) {
             JCRNodeWrapper node = fact.getNode();
             try {
