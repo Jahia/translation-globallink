@@ -27,8 +27,8 @@ import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
-import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_STARTED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
+import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATE;
 
 /**
  * Created by rincevent on 2017-01-18.
@@ -44,25 +44,27 @@ public class GlobalLinkSubmissionService {
     public void removeEmptySubmission(AddedNodeFact addedNodeFact, KnowledgeHelper drools) {
 
         JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
-        List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(queryService.getAllSites(rootSession.getWorkspace().getQueryManager()));
+        List<GlobalLinkConfigurationDTO> configList = JCRUtil
+                .getConfigurationList(queryService.getAllSites(rootSession.getWorkspace().getQueryManager()));
         JCRNodeWrapper node = addedNodeFact.getNode();
         for (GlobalLinkConfigurationDTO config : configList) {
 
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
-                JCRNodeIteratorWrapper submittedRequests = queryService.getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
+                JCRNodeIteratorWrapper submittedRequests = queryService
+                        .getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
                 if (gcExchange != null) {
                     for (JCRNodeWrapper request : submittedRequests) {
                         try {
                             Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
                             Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
-                            if (submissionStatus.getStatusName().equals(STATUS_STARTED)) {
+                            if (submissionStatus.getStatusName().equals(STATUS_TRANSLATE)) {
                                 gcExchange.cancelSubmission(submissionId);
                                 contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
                             }
                             drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                         } catch (Exception e) {
-                           LOGGER.error("Error while releting translation", e);
+                            LOGGER.error("Error while releting translation", e);
                         }
                     }
                 }
@@ -78,11 +80,9 @@ public class GlobalLinkSubmissionService {
                 if (jcrUserNode.hasProperty("j:email")) {
                     MessageFormat messageFormat = new MessageFormat("Your translation submission {0} has changed status to {1}");
                     String name = node.getProperty("name").getString();
-                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
-                            messageFormat.format(new Object[]{
-                                    name,
-                                    StringUtils.substringAfterLast(node.getProperty("gblSubmitState").getString(), ".")
-                            }));
+                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null,
+                            "Satus Update on your translation request " + name, messageFormat.format(new Object[] { name,
+                                    StringUtils.substringAfterLast(node.getProperty("gblSubmitState").getString(), ".") }));
                 }
 
             } catch (RepositoryException e) {
