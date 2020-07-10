@@ -26,5 +26,6 @@ public class SubmissionStatus {
 
     public static final String STATUS_PRE_PROCESS = "Pre-process";
 
-    public static final String STATUS_STARTED = "Started";
+    public static final String STATUS_TRANSLATE = "Translate";
+
 }
