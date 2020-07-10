@@ -144,7 +144,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
                         + TRANSLATED_PATH;
             }
             IOUtil.createDirectories(FileSystems.getDefault().getPath(docPath));
-            String fileName = task.getTargetLocale().getLocaleDisplayName() + "_" + StringUtils.substringAfterLast(task.getName(), "_");
+            String fileName = task.getTargetLocale().getLocale() + "_" + StringUtils.substringAfterLast(task.getName(), "_");
             String filePath = docPath + File.separator + fileName;
             if (IOUtil.createFile(gcExchange.downloadTask(task.getTaskId()), filePath)) {
                 gcExchange.confirmTask(task.getTaskId());
