@@ -1,6 +1,7 @@
 {
   "label" : {
     "settings": "GlobalLink - Einstellungen",
-    "requests": "GlobalLink - Anfragen"
+    "requests": "GlobalLink - Anfragen",
+    "requestATranslation": "Eine Übersetzung anfordern"
   }
 }
