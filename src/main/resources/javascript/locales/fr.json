@@ -1,7 +1,6 @@
 {
   "label" : {
-    "title": "Global Link Translation",
-    "settings": "Paramètres de traduction GlobalLink",
-    "requests": "Demande de Global Link"
+    "settings": "Configuration GlobalLink",
+    "requests": "Requêtes GlobalLink"
   }
 }
