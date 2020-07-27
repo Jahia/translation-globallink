@@ -32,7 +32,7 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
         try {
             JCRNodeWrapper nodeWrapper = (JCRNodeWrapper) map.get("contextParent");
             JCRSiteNode resolveSite = nodeWrapper.getResolveSite();
-            if (list != null) {
+            if (list != null && !list.isEmpty()) {
                 if (resolveSite.isNodeType(GlobalLinkConstants.GBL_MIXIN_TYPE) && resolveSite.getProperty(GlobalLinkConstants.GBL_PROPERTY_ENABLE).getBoolean()) {
                     Value[] mappings = resolveSite.getProperty("j:languageMappings").getValues();
                     for (ChoiceListValue choiceListValue : list) {
