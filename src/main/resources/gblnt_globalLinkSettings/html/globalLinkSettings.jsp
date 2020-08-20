@@ -233,6 +233,7 @@
                                 <input type="text" class="form-control" placeholder="John Doe" required
                                        id="gblUsername" name="j:globalLinkUsername"
                                        value="${site.properties['j:globalLinkUsername'].string}">
+                                <p><fmt:message key="gbl.settings.username.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -244,6 +245,7 @@
                                 <input type="password" class="form-control" placeholder="**********" required
                                        id="gblPassword" name="j:globalLinkPassword"
                                        value="${site.properties['j:globalLinkPassword'].string}">
+                                <p><fmt:message key="gbl.settings.password.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -253,8 +255,9 @@
                             </div>
                             <div class="col-md-9">
                                 <input type="text" class="form-control"
-                                       placeholder="https://example.com" required id="gblUrl"
+                                       placeholder="https://connect.translations.com/api/v2/" required id="gblUrl"
                                        name="j:globalLinkUrl" value="${site.properties['j:globalLinkUrl'].string}">
+                                <p><fmt:message key="gbl.settings.url.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -277,6 +280,7 @@
                                 <input type="text" class="form-control" placeholder="FS Jahia" required
                                        id="gblProject" name="j:globalLinkConnectorName"
                                        value="${site.properties['j:globalLinkConnectorName'].string}">
+                                <p><fmt:message key="gbl.settings.connectorName.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -290,6 +294,7 @@
                                 <input type="text" class="form-control" placeholder="Jahia" required
                                        id="gblSubmissionPrefix" name="j:globalLinkSubmissionPrefix"
                                        value="${site.properties['j:globalLinkSubmissionPrefix'].string}">
+                                <p><fmt:message key="gbl.settings.submissionprefix.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -301,6 +306,7 @@
                                 <input type="text" class="form-control" placeholder="Jahia_XML" required
                                        id="fileFormat" name="j:globalLinkfileFormat"
                                        value="${site.properties['j:globalLinkfileFormat'].string}">
+                                <p><fmt:message key="gbl.settings.fileformat.detail"/></p>
                             </div>
                         </fieldset>
 
@@ -323,7 +329,7 @@
                                         key="gbl.settings.submissioninterval"/></label>
                             </div>
                             <div class="col-md-9">
-                                <input type="text" class="form-control" placeholder="5" required
+                                <input type="text" class="form-control" placeholder="2" required
                                        id="globalLinkInterval" name="j:globalLinkInterval"
                                        value="${site.properties['j:globalLinkInterval'].long}">
                                 <p><fmt:message key="gbl.settings.submissioninterval.detail"/></p>
