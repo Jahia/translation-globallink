@@ -13,7 +13,8 @@ import org.jahia.services.render.URLResolver;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
 import org.joda.time.format.ISODateTimeFormat;
-import org.json.JSONObject;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -30,9 +31,11 @@ import static javax.servlet.http.HttpServletResponse.SC_OK;
 /**
  * Created by rincevent on 2017-01-26.
  */
+@Component(service = Action.class, immediate = true)
 public class GlobalLinkSubmissionCleanAction extends Action {
     JCRTemplate jcrTemplate;
 
+    @Reference
     public void setJcrTemplate(JCRTemplate jcrTemplate) {
         this.jcrTemplate = jcrTemplate;
     }

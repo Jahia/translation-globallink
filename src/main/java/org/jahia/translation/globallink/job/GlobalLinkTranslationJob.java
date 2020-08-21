@@ -1,7 +1,7 @@
 package org.jahia.translation.globallink.job;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.jahia.services.SpringContextSingleton;
+import org.jahia.osgi.BundleUtils;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.scheduler.BackgroundJob;
@@ -28,25 +28,21 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkTranslationJob.class);
 
-    private GlobalLinkQueryService gblQueryService;
-
-    public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
-        this.gblQueryService = gblQueryService;
-    }
-
     @Override public void executeJahiaJob(JobExecutionContext context) throws Exception {
         LOGGER.info("Inside GBL Translation background Job Execution");
         JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
-        List<JCRSiteNode> sites = ((GlobalLinkQueryService) SpringContextSingleton.getBean("globalLinkQueryService"))
-                .getAllSites(sessionWrapper.getWorkspace().getQueryManager());
+
+        GlobalLinkQueryService globalLinkQueryService = BundleUtils.getOsgiService(GlobalLinkQueryService.class, null);
+        GlobalLinkSubmissionService globalLinkSubmissionService = BundleUtils.getOsgiService(GlobalLinkSubmissionService.class, null);
+        GlobalLinkRetrieveDocumentService globalLinkRetrieveDocumentService = BundleUtils.getOsgiService(GlobalLinkRetrieveDocumentService.class, null);
+        GlobalLinkTranslatedContentProcessService globalLinkTranslatedContentProcessService = BundleUtils.getOsgiService(GlobalLinkTranslatedContentProcessService.class, null);
+
+        List<JCRSiteNode> sites = globalLinkQueryService.getAllSites(sessionWrapper.getWorkspace().getQueryManager());
         List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(sites);
         if (CollectionUtils.isNotEmpty(configList)) {
-            ((GlobalLinkSubmissionService) SpringContextSingleton.getBean("submissionService")).submitSiteProjects(configList);
-            ((GlobalLinkRetrieveDocumentService) SpringContextSingleton.getBean("retrieveDocumentService"))
-                    .retrieveCompletedProjects(configList);
-            ((GlobalLinkTranslatedContentProcessService) SpringContextSingleton.getBean("translatedContentProcessService"))
-                    .processTranslatedContent(configList);
+            globalLinkSubmissionService.submitSiteProjects(configList);
+            globalLinkRetrieveDocumentService.retrieveCompletedProjects(configList);
+            globalLinkTranslatedContentProcessService.processTranslatedContent(configList);
         }
     }
-
 }

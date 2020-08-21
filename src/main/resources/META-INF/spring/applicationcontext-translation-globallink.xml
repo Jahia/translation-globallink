@@ -23,7 +23,6 @@
         <property name="icon" value="/modules/jahia-translation-globallink/img/module_GlobalLink.png"/>
         <property name="parent" value="editmode.tabs[0].treeContextMenu"/>
         <property name="positionBefore" value="Toolbar.Item.Publish"/>
-
     </bean>
 
 	<bean id="globalLinkQueryService" class="org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl" />
@@ -104,29 +103,5 @@
             </list>
         </property>
         <property name="parent" ref="editmode"/>
-    </bean>
-
-
-    <bean class="org.jahia.translation.globallink.rules.GlobalLinkSubmissionService" name="globalLinkSubmissionService">
-        <property name="queryService" ref="globalLinkQueryService"/>
-        <property name="contentService" ref="contentService"/>
-        <property name="mailService" ref="MailService"/>
-        <property name="userManagerService" ref="JahiaUserManagerService"/>
-    </bean>
-
-    <bean class="org.jahia.services.content.rules.ModuleGlobalObject">
-        <property name="globalRulesObject">
-            <map>
-                <entry key="gblSubmissionService" value-ref="globalLinkSubmissionService"/>
-            </map>
-        </property>
-    </bean>
-
-    <bean class="org.jahia.services.content.decorator.validation.JCRNodeValidatorDefinition">
-        <property name="validators">
-            <map>
-                <entry key="gblnt:globalLinkProject" value="org.jahia.translation.globallink.validation.ProjectNodeValidator"/>
-            </map>
-        </property>
     </bean>
 </beans>

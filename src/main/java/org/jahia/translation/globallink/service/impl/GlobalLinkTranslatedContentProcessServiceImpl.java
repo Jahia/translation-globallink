@@ -4,19 +4,18 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.JCRValueWrapper;
 import org.jahia.services.content.decorator.JCRUserNode;
+import org.jahia.services.mail.MailService;
 import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
-import org.jahia.translation.globallink.service.api.GlobalLinkDocumentService;
-import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
-import org.jahia.translation.globallink.service.api.GlobalLinkTranslatedContentProcessService;
-import org.jahia.translation.globallink.service.api.SiteContentService;
+import org.jahia.translation.globallink.service.api.*;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.IOUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.NodeList;
@@ -39,6 +38,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TR
  * @author Prince.Arora, WebItUp.
  * @author Aashish.Kocchar, WebitUp.
  */
+@Component(service = GlobalLinkTranslatedContentProcessService.class, immediate = true)
 public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLinkTranslatedContentProcessService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkTranslatedContentProcessServiceImpl.class);
@@ -50,7 +50,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private JCRSessionWrapper sessionWrapper;
 
     private SiteContentService contentService;
-    private MailServiceImpl mailService;
+    private MailService mailService;
     private JahiaUserManagerService userManagerService;
 
     /**
@@ -154,22 +154,27 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
         }
     }
 
+    @Reference
     public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
         this.gblQueryService = gblQueryService;
     }
 
+    @Reference
     public void setDocumentService(GlobalLinkDocumentService documentService) {
         this.documentService = documentService;
     }
 
+    @Reference
     public void setContentService(SiteContentService contentService) {
         this.contentService = contentService;
     }
 
-    public void setMailService(MailServiceImpl mailService) {
+    @Reference
+    public void setMailService(MailService mailService) {
         this.mailService = mailService;
     }
 
+    @Reference
     public void setUserManagerService(JahiaUserManagerService userManagerService) {
         this.userManagerService = userManagerService;
     }
