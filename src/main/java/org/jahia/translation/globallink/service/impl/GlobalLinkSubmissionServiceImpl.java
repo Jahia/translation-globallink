@@ -11,6 +11,7 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
+import org.jahia.services.mail.MailService;
 import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
@@ -22,6 +23,8 @@ import org.jahia.translation.globallink.service.api.GlobalLinkSubmissionService;
 import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +48,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO
  *
  * @author Rakesh.Kumar, WebitUp.
  */
+@Component(service = GlobalLinkSubmissionService.class, immediate = true)
 public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionServiceImpl.class);
@@ -59,25 +63,30 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private JCRSessionWrapper sessionWrapper;
 
     private SiteContentService contentService;
-    private MailServiceImpl mailService;
+    private MailService mailService;
     private JahiaUserManagerService userManagerService;
 
-    public void setMailService(MailServiceImpl mailService) {
+    @Reference
+    public void setMailService(MailService mailService) {
         this.mailService = mailService;
     }
 
+    @Reference
     public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
         this.gblQueryService = gblQueryService;
     }
 
+    @Reference
     public void setDocumentService(GlobalLinkDocumentService documentService) {
         this.documentService = documentService;
     }
 
+    @Reference
     public void setContentService(SiteContentService contentService) {
         this.contentService = contentService;
     }
 
+    @Reference
     public void setUserManagerService(JahiaUserManagerService userManagerService) {
         this.userManagerService = userManagerService;
     }

@@ -62,6 +62,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
+                        <_dsannotations>*</_dsannotations>
                         <Embed-Dependency>gcc-restclient</Embed-Dependency>
                     </instructions>
                 </configuration>

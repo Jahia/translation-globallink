@@ -8,6 +8,7 @@ import org.jahia.services.content.nodetypes.initializers.ChoiceListValue;
 import org.jahia.services.content.nodetypes.initializers.ModuleChoiceListInitializer;
 import org.jahia.translation.globallink.common.GlobalLinkConstants;
 import org.jahia.utils.LanguageCodeConverters;
+import org.osgi.service.component.annotations.Component;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -16,6 +17,7 @@ import java.util.*;
 /**
  * Created by rincevent on 2016-07-21.
  */
+@Component(service = ModuleChoiceListInitializer.class, immediate = true)
 public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListInitializer {
     @Override
     public String getKey() {

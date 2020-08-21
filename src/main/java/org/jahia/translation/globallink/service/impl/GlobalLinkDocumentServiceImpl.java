@@ -11,6 +11,8 @@ import org.jahia.translation.globallink.service.api.GlobalLinkDocumentService;
 import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.IOUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DOMException;
@@ -44,6 +46,7 @@ import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
  *
  * @author Prince.Arora, WebItUp.
  */
+@Component(service = GlobalLinkDocumentService.class, immediate = true)
 public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkDocumentServiceImpl.class);
@@ -203,6 +206,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
         }
     }
 
+    @Reference
     public void setContentService(SiteContentService contentService) {
         this.contentService = contentService;
     }
