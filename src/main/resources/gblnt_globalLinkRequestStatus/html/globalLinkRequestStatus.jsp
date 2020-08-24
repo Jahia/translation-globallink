@@ -61,6 +61,7 @@
                 <th><fmt:message key="request.tickets"/></th>
                 <th data-orderable="false" class="text-left"><fmt:message key="request.target"/></th>
                 <th><fmt:message key="request.status"/></th>
+                <th><fmt:message key="request.details"/></th>
             </tr>
             </thead>
             <tbody>
@@ -128,6 +129,12 @@
                                         <fmt:message key="request.created"/>
                                     </c:otherwise>
                                 </c:choose>
+                            </td>
+                            <td>
+                                <button type="submit"
+                                        onclick="window.top.CE_API.edit('${gblRequest.identifier}', '${site.name}',
+                                                '${renderContext.UILocale.language}','${renderContext.UILocale.language}');"
+                                        class="btn btn-primary btn-sm"><fmt:message key='request.details.view'/></button>
                             </td>
                         </tr>
                     </c:otherwise>
