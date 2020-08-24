@@ -39,7 +39,8 @@ public class GlobalLinkSubmissionService {
     private final MailService mailService;
     private final JahiaUserManagerService userManagerService;
 
-    public GlobalLinkSubmissionService(GlobalLinkQueryService queryService, SiteContentService contentService, MailService mailService, JahiaUserManagerService userManagerService) {
+    public GlobalLinkSubmissionService(GlobalLinkQueryService queryService, SiteContentService contentService, MailService mailService,
+            JahiaUserManagerService userManagerService) {
         this.queryService = queryService;
         this.contentService = contentService;
         this.mailService = mailService;
@@ -95,6 +96,17 @@ public class GlobalLinkSubmissionService {
             } catch (RepositoryException e) {
                 LOGGER.debug("Accessing property on a deleted node");
             }
+        }
+    }
+
+    public void lockTranslationNode(AddedNodeFact nodeFact) {
+        try {
+            JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
+            JCRNodeWrapper node = rootSession.getNode(nodeFact.getPath());
+            node.lockAndStoreToken("infiniteTranslationLock");
+            rootSession.save();
+        } catch (RepositoryException e) {
+            LOGGER.error("Fail while adding lock infiniteTranslationLock");
         }
     }
 }
