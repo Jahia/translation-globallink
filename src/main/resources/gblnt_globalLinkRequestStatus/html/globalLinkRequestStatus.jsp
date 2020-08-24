@@ -56,6 +56,7 @@
                 <th><fmt:message key="request.page"/></th>
                 <th><fmt:message key="request.date"/></th>
                 <th><fmt:message key="request.date.submitted"/></th>
+                <th><fmt:message key="request.submitter"/></th>
                 <th class="nowrap text-center" data-orderable="false"><fmt:message key="request.language"/></th>
                 <th><fmt:message key="request.tickets"/></th>
                 <th data-orderable="false" class="text-left"><fmt:message key="request.target"/></th>
@@ -68,7 +69,8 @@
                     <c:when test="${gblRequest.properties['skipTranslated'].boolean && gblRequest.properties['gblContentCount'].long == 0}">
                     </c:when>
                     <c:otherwise>
-                        <tr><td data-order="${gblRequest.properties['submissionTicket'].string}"><small title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small></td>
+                        <tr>
+                            <td data-order="${gblRequest.properties['submissionTicket'].string}"><small title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small></td>
                             <td>
                                 <a href="<c:url value="${url.baseEdit}${gblRequest.parent.path}.html"/>"
                                    target="_blank">
@@ -79,6 +81,7 @@
                                                 value="${gblRequest.properties['dueDate'].time}"/></td>
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
                                                 value="${gblRequest.properties['jcr:created'].time}"/></td>
+                            <td>${gblRequest.properties['jcr:createdBy'].string}</td>
                             <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), renderContext.UILocale)}&nbsp;->&nbsp;
                                 <ul class="list-unstyled">
                                         <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
