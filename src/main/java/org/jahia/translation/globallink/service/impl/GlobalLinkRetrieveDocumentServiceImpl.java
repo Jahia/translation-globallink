@@ -18,6 +18,8 @@ import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.IOUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.*;
  * @author Rakesh.Kumar, WebitUp.
  * @author Prince.Arora, WebItUp.
  */
+@Component(service = GlobalLinkRetrieveDocumentService.class, immediate = true)
 public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieveDocumentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkRetrieveDocumentServiceImpl.class);
@@ -164,10 +167,12 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         }
     }
 
+    @Reference
     public void setContentService(SiteContentService contentService) {
         this.contentService = contentService;
     }
 
+    @Reference
     public void setQueryService(GlobalLinkQueryService queryService) {
         this.queryService = queryService;
     }

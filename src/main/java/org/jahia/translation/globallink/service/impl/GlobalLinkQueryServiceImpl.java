@@ -6,6 +6,7 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.query.QueryResultWrapper;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
+import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.*;
  * @author Aashish.Kocchar, WebitUp.
  * @author Mate.Ezgeta, Jahia.
  */
+@Component(service = GlobalLinkQueryService.class, immediate = true)
 public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkQueryServiceImpl.class);

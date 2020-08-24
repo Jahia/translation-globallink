@@ -23,65 +23,7 @@
         <property name="icon" value="/modules/jahia-translation-globallink/img/module_GlobalLink.png"/>
         <property name="parent" value="editmode.tabs[0].treeContextMenu"/>
         <property name="positionBefore" value="Toolbar.Item.Publish"/>
-
     </bean>
-
-	<bean id="globalLinkQueryService" class="org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl" />
-
-    <bean id="submissionService" class="org.jahia.translation.globallink.service.impl.GlobalLinkSubmissionServiceImpl">
-    	<property name="gblQueryService" ref="globalLinkQueryService"/>
-    	<property name="documentService" ref="documentService"/>
-    	<property name="contentService" ref="contentService"/>
-        <property name="mailService" ref="MailService"/>
-        <property name="userManagerService" ref="JahiaUserManagerService"/>
-    </bean>
-
-    <bean id="retrieveDocumentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkRetrieveDocumentServiceImpl">
-    	<property name="contentService" ref="contentService"/>
-        <property name="queryService" ref="globalLinkQueryService"/>
-    </bean>
-
-    <bean id="translatedContentProcessService" class="org.jahia.translation.globallink.service.impl.GlobalLinkTranslatedContentProcessServiceImpl">
-    	<property name="gblQueryService" ref="globalLinkQueryService"/>
-    	<property name="documentService" ref="documentService"/>
-    	<property name="contentService" ref="contentService"/>
-        <property name="mailService" ref="MailService"/>
-        <property name="userManagerService" ref="JahiaUserManagerService"/>
-    </bean>
-
-    <bean id="documentService" class="org.jahia.translation.globallink.service.impl.GlobalLinkDocumentServiceImpl">
-        <property name="contentService" ref="contentService"/>
-    </bean>
-
-    <bean id="contentService" class="org.jahia.translation.globallink.service.impl.SiteContentServiceImpl">
-        <property name="queryService" ref="globalLinkQueryService"/>
-    </bean>
-
-    <bean class="org.jahia.translation.globallink.action.GlobalLinkConfigAction">
-        <property name="requiredMethods" value="POST"/>
-    </bean>
-    <bean class="org.jahia.translation.globallink.action.GlobalLinkSubmissionCleanAction">
-        <property name="jcrTemplate" ref="jcrTemplate"/>
-        <property name="requiredMethods" value="POST"/>
-    </bean>
-
-    <bean parent="jobSchedulingBean">
-        <property name="ramJob" value="true"/>
-        <property name="jobDetail">
-            <bean class="org.springframework.scheduling.quartz.JobDetailBean">
-                <property name="name" value="translationJob" />
-                <property name="jobClass" value="org.jahia.translation.globallink.job.GlobalLinkTranslationJob" />
-            </bean>
-        </property>
-        <property name="trigger">
-            <bean class="org.quartz.CronTrigger">
-                <property name="name" value="TranslationJobTrigger"/>
-                <property name="cronExpression" value="15 0/1 * * * ?"/>
-            </bean>
-        </property>
-    </bean>
-
-    <bean class="org.jahia.translation.globallink.choicelist.DisplayLocaleNameChoicelistInitializer"/>
 
     <bean class="org.jahia.services.uicomponents.bean.editmode.EngineConfiguration">
         <property name="key" value="gblnt:globalLinkProject"/>
@@ -106,29 +48,5 @@
             </list>
         </property>
         <property name="parent" ref="editmode"/>
-    </bean>
-
-
-    <bean class="org.jahia.translation.globallink.rules.GlobalLinkSubmissionService" name="globalLinkSubmissionService">
-        <property name="queryService" ref="globalLinkQueryService"/>
-        <property name="contentService" ref="contentService"/>
-        <property name="mailService" ref="MailService"/>
-        <property name="userManagerService" ref="JahiaUserManagerService"/>
-    </bean>
-
-    <bean class="org.jahia.services.content.rules.ModuleGlobalObject">
-        <property name="globalRulesObject">
-            <map>
-                <entry key="gblSubmissionService" value-ref="globalLinkSubmissionService"/>
-            </map>
-        </property>
-    </bean>
-
-    <bean class="org.jahia.services.content.decorator.validation.JCRNodeValidatorDefinition">
-        <property name="validators">
-            <map>
-                <entry key="gblnt:globalLinkProject" value="org.jahia.translation.globallink.validation.ProjectNodeValidator"/>
-            </map>
-        </property>
     </bean>
 </beans>

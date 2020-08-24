@@ -14,8 +14,8 @@ import org.jahia.services.content.rules.DeletedNodeFact;
 import org.jahia.services.mail.MailService;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
+import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.SiteContentService;
-import org.jahia.translation.globallink.service.impl.GlobalLinkQueryServiceImpl;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.slf4j.Logger;
@@ -34,10 +34,17 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TR
  * Created by rincevent on 2017-01-18.
  */
 public class GlobalLinkSubmissionService {
-    private GlobalLinkQueryServiceImpl queryService;
-    private SiteContentService contentService;
-    private MailService mailService;
-    private JahiaUserManagerService userManagerService;
+    private final GlobalLinkQueryService queryService;
+    private final SiteContentService contentService;
+    private final MailService mailService;
+    private final JahiaUserManagerService userManagerService;
+
+    public GlobalLinkSubmissionService(GlobalLinkQueryService queryService, SiteContentService contentService, MailService mailService, JahiaUserManagerService userManagerService) {
+        this.queryService = queryService;
+        this.contentService = contentService;
+        this.mailService = mailService;
+        this.userManagerService = userManagerService;
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionService.class);
 
@@ -89,21 +96,5 @@ public class GlobalLinkSubmissionService {
                 LOGGER.debug("Accessing property on a deleted node");
             }
         }
-    }
-
-    public void setQueryService(GlobalLinkQueryServiceImpl queryService) {
-        this.queryService = queryService;
-    }
-
-    public void setContentService(SiteContentService contentService) {
-        this.contentService = contentService;
-    }
-
-    public void setMailService(MailService mailService) {
-        this.mailService = mailService;
-    }
-
-    public void setUserManagerService(JahiaUserManagerService userManagerService) {
-        this.userManagerService = userManagerService;
     }
 }

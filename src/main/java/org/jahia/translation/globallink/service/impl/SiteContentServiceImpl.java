@@ -7,6 +7,8 @@ import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.SiteContentService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
@@ -23,6 +25,7 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SU
  *
  * @author Prince.Arora, WebItUp.
  */
+@Component(service = SiteContentService.class, immediate = true)
 public class SiteContentServiceImpl implements SiteContentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SiteContentServiceImpl.class);
@@ -302,6 +305,7 @@ public class SiteContentServiceImpl implements SiteContentService {
                 sessionWrapper);
     }
 
+    @Reference
     public void setQueryService(GlobalLinkQueryService queryService) {
         this.queryService = queryService;
     }

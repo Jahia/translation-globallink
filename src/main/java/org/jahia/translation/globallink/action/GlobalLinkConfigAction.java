@@ -2,7 +2,6 @@ package org.jahia.translation.globallink.action;
 
 import org.apache.commons.lang.StringUtils;
 import org.gs4tr.gcc.restclient.GCExchange;
-import org.gs4tr.gcc.restclient.model.Connector;
 import org.gs4tr.gcc.restclient.model.LanguageDirection;
 import org.gs4tr.gcc.restclient.model.LocaleConfig;
 import org.gs4tr.gcc.restclient.operation.ConnectorsConfig.ConnectorsConfigResponseData;
@@ -20,6 +19,7 @@ import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.json.JSONObject;
+import org.osgi.service.component.annotations.Component;
 import org.quartz.CronTrigger;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
@@ -47,9 +47,14 @@ import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
  *
  * @author Aashish.Kocchar, WebitUp
  */
+@Component(service = Action.class, immediate = true)
 public class GlobalLinkConfigAction extends Action {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkConfigAction.class);
+
+    public GlobalLinkConfigAction() {
+        this.setRequiredMethods("POST");
+    }
 
     /**
      * Saves the GlobalLink configurations to the site node.
