@@ -79,7 +79,7 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
             String[] locales = s1.split("###");
             // Render the locale object in the current user language
             ChoiceListValue value = new ChoiceListValue();
-            value.setDisplayName(LanguageCodeConverters.getLocaleFromCode(locales[0]).getDisplayName(userLocale)+" <---> "+Locale.forLanguageTag(locales[1]).getDisplayName(userLocale));
+            value.setDisplayName(LanguageCodeConverters.getLocaleFromCode(locales[0]).getDisplayName(userLocale)+"/"+Locale.forLanguageTag(locales[1]).getDisplayName(userLocale));
             value.setStringValue(s1);
             results.add(value);
         }
