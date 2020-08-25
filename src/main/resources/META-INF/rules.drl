@@ -34,3 +34,13 @@ rule "Notify user on status change"
     then
 >       gblSubmissionService.sendNotification(node);
 end
+
+rule "Automatically lock node on creation"
+    salience 50
+    when
+        A new node is created
+        - the node has the type gblnt:globalLinkProject
+    then
+
+>       gblSubmissionService.lockTranslationNode(node);
+end
