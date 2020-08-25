@@ -1,8 +1,11 @@
 package org.jahia.translation.globallink.service.impl;
 
+import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.content.decorator.JCRSiteNode;
+import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
@@ -16,6 +19,9 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.jcr.RepositoryException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
@@ -37,7 +43,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      */
     @Override
     public void logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
-                                          JCRSessionWrapper sessionWrapper){
+                                       JCRSessionWrapper sessionWrapper) {
         try {
             LOGGER.info("Creating status node");
             JCRNodeWrapper statusNode = requestDTO.getNodeWrapper();
@@ -82,10 +88,10 @@ public class SiteContentServiceImpl implements SiteContentService {
         }
     }
 
-    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper){
+    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) {
         try {
             if (!nodeWrapper.isLocked() && nodeWrapper.isLockable()) {
-                nodeWrapper.lockAndStoreToken("translation"," globalLink ");
+                nodeWrapper.lockAndStoreToken("translation", " globalLink ");
                 sessionWrapper.save();
                 return true;
             }
@@ -94,6 +100,7 @@ public class SiteContentServiceImpl implements SiteContentService {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -156,7 +163,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     @Override
     public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status) {
         try {
-            if(!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
+            if (!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
                 nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
                 sessionWrapper.save();
             }
@@ -205,7 +212,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId){
+    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId) {
         try {
             requestNode.setProperty(GBL_PROJECT_REQUEST_ID, requestId);
             sessionWrapper.save();
@@ -221,7 +228,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     public void addTransStateForContentNode(JCRNodeWrapper translationNode, JCRSessionWrapper sessionWrapper) {
         try {
             if (translationNode.isLocked()) {
-                translationNode.unlock("translation"," globalLink ");
+                translationNode.unlock("translation", " globalLink ");
             }
             translationNode.setProperty(NODE_NAME_TRANS_PROP, true);
             sessionWrapper.save();
@@ -253,6 +260,26 @@ public class SiteContentServiceImpl implements SiteContentService {
         } catch (Exception ex) {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
+    }
+
+    @Override
+    public List<JCRNodeWrapper> initGBLNode(List<GlobalLinkConfigurationDTO> configList, JCRSessionWrapper sessionWrapper) {
+        List<JCRNodeWrapper> nodes = new ArrayList<>();
+
+        configList.forEach(config -> {
+            try {
+                JCRSiteNode site = config.getSiteNode();
+
+                JCRNodeWrapper node = JCRContentUtils.getOrAddPath(sessionWrapper, site, NODE_NAME_PROJECT_REQUESTS, NODE_TYPE_PROJECT_REQUESTS);
+                nodes.add(node);
+
+                sessionWrapper.save();
+            } catch (RepositoryException e) {
+                throw new GlobalLinkServiceException(e.getMessage(), e);
+            }
+        });
+
+        return nodes;
     }
 
     /**

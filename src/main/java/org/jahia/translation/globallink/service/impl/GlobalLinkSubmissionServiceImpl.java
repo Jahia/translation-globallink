@@ -94,7 +94,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     /**
      * {@inheritDoc}
      */
-    @Override public void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList) {
+    @Override
+    public void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
             LOGGER.info("====  Initializing submission process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
@@ -168,11 +169,12 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
     private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
+        JCRNodeWrapper node = sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
 
-        if (this.documentService.createDocumentForProject(requestDTO, requestDTO.getNodeWrapper().getParent(), requestDTO.getNodeWrapper(),
+        if (this.documentService.createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(),
                 config.getComponentList(), sessionWrapper)) {
 
-            String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO, requestDTO.getNodeWrapper().getParent());
+            String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO, node);
 
             Optional.ofNullable(prepareGlobalLinkDocument(documentName, config.getFileFormat()))
                     .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
@@ -201,10 +203,14 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (!siteNode.getLanguages().contains(jahiaSourceLanguage)) {
                 throw new GlobalLinkServiceException("no source lang matching in site");
             }
-            JCRNodeWrapper parent = projectRootNode.getParent();
+            JCRNodeWrapper parent = sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
             String pageTitle;
             if (parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
-                pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getProperty("jcr:title").getString();
+                if (parent.getNode("j:translation_" + jahiaSourceLanguage).hasProperty("jcr:title")) {
+                    pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getPropertyAsString("jcr:title");
+                } else {
+                    pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getPropertyAsString("text");
+                }
             } else {
                 pageTitle = parent.getName();
             }
@@ -247,7 +253,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     }
 
     private List<String> uploadContentlist(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange, JCRNodeWrapper parent,
-            Date dueDate, String submissionName) {
+                                           Date dueDate, String submissionName) {
         List<UploadFileRequest> uploadFileRequests = requestDTO.getUploadFileRequests();
 
         List<String> contentIds = new ArrayList<>();
@@ -287,7 +293,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) && requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD)
                     .getBoolean()) {
                 requestDTO.setChildIncluded(true);
-                processChildPages(requestDTO, requestDTO.getNodeWrapper().getParent(), config);
+                processChildPages(requestDTO, sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH)), config);
             }
             if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
@@ -339,7 +345,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                                     + "so has not been submitted");
                     String name = node.getProperty("name").getString();
                     mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null,
-                            "Satus Update on your translation request " + name, messageFormat.format(new Object[] { name }));
+                            "Satus Update on your translation request " + name, messageFormat.format(new Object[]{name}));
                 }
             }
             requestNode.remove();

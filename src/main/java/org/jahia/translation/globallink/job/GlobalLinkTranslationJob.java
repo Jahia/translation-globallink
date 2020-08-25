@@ -6,10 +6,7 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.scheduler.BackgroundJob;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
-import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
-import org.jahia.translation.globallink.service.api.GlobalLinkRetrieveDocumentService;
-import org.jahia.translation.globallink.service.api.GlobalLinkSubmissionService;
-import org.jahia.translation.globallink.service.api.GlobalLinkTranslatedContentProcessService;
+import org.jahia.translation.globallink.service.api.*;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.quartz.JobExecutionContext;
 import org.slf4j.Logger;
@@ -28,7 +25,8 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkTranslationJob.class);
 
-    @Override public void executeJahiaJob(JobExecutionContext context) throws Exception {
+    @Override
+    public void executeJahiaJob(JobExecutionContext context) throws Exception {
         LOGGER.info("Inside GBL Translation background Job Execution");
         JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
 
@@ -36,6 +34,7 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
         GlobalLinkSubmissionService globalLinkSubmissionService = BundleUtils.getOsgiService(GlobalLinkSubmissionService.class, null);
         GlobalLinkRetrieveDocumentService globalLinkRetrieveDocumentService = BundleUtils.getOsgiService(GlobalLinkRetrieveDocumentService.class, null);
         GlobalLinkTranslatedContentProcessService globalLinkTranslatedContentProcessService = BundleUtils.getOsgiService(GlobalLinkTranslatedContentProcessService.class, null);
+        SiteContentService siteContentService = BundleUtils.getOsgiService(SiteContentService.class, null);
 
         List<JCRSiteNode> sites = globalLinkQueryService.getAllSites(sessionWrapper.getWorkspace().getQueryManager());
         List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(sites);
@@ -43,6 +42,7 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
             globalLinkSubmissionService.submitSiteProjects(configList);
             globalLinkRetrieveDocumentService.retrieveCompletedProjects(configList);
             globalLinkTranslatedContentProcessService.processTranslatedContent(configList);
+            siteContentService.initGBLNode(configList, sessionWrapper);
         }
     }
 }

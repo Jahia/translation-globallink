@@ -25,8 +25,7 @@ import javax.jcr.RepositoryException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATE;
 
@@ -107,6 +106,16 @@ public class GlobalLinkSubmissionService {
             rootSession.save();
         } catch (RepositoryException e) {
             LOGGER.error("Fail while adding lock infiniteTranslationLock");
+        }
+    }
+
+    public void setTargetNodePathProperty(AddedNodeFact addedNodeFact) {
+        try {
+            String pathParent = addedNodeFact.getParent().getPath();
+
+            addedNodeFact.getNode().setProperty(GBL_PROJECT_TARGET_NODE_PATH, pathParent);
+        } catch (RepositoryException e) {
+            LOGGER.debug("Could not set property", e);
         }
     }
 }

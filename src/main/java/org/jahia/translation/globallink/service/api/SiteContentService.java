@@ -2,9 +2,12 @@ package org.jahia.translation.globallink.service.api;
 
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.w3c.dom.NodeList;
+
+import java.util.List;
 
 /**
  * Operations for Site Content.
@@ -146,4 +149,6 @@ public interface SiteContentService {
 
     void addTranslationRequestError(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String message)
             throws GlobalLinkServiceException;
+
+    List<JCRNodeWrapper> initGBLNode(List<GlobalLinkConfigurationDTO> configList, JCRSessionWrapper sessionWrapper);
 }
