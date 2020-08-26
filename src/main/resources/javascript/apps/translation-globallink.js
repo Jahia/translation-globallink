@@ -22,8 +22,8 @@ window.jahia.uiExtender.registry.add('callback', 'translation-Globallink', {
             openEditor: true,
             buttonLabel: 'jahia-translation-globallink:label.requestATranslation',
             targets: ['contentActions:3.10'],
-            showOnNodeTypes: ['jnt:page'],
-            hideOnNodeTypes: ['jnt:contentFolder', 'jnt:content']
+            showOnNodeTypes: ['gblnt:globalLinkProjectRequests'],
+            targetPath: '/sites/' + window.contextJsParameters.site + '/global-link-project-requests'
         })
     ])
 });
@@ -40,6 +40,18 @@ window.jahia.uiExtender.registry.add('adminRoute', 'translation-globallink-setti
     iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-settings.html'
 });
 
+window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
+    targets: ['Text'],
+    onChange: (previousValue, currentValue, field, editorContext) => {
+        if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject') {
+            const context = window.jahia.uiExtender.registry.get('globalLinkContext', 'contextData');
+            const {setFieldValue, setFieldTouched} = editorContext.formik;
+
+            setFieldValue('targetNode', context.uuid, true);
+            setFieldTouched('targetNode', true);
+        }
+    }
+});
 
 window.jahia.uiExtender.registry.add('adminRoute', 'translation-globallink-requests', {
     targets: ['jcontent:23'],

@@ -28,7 +28,8 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkTranslationJob.class);
 
-    @Override public void executeJahiaJob(JobExecutionContext context) throws Exception {
+    @Override
+    public void executeJahiaJob(JobExecutionContext context) throws Exception {
         LOGGER.info("Inside GBL Translation background Job Execution");
         JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
 

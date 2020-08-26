@@ -37,7 +37,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      */
     @Override
     public void logProjectRequestInJcr(GlobalLinkProjectRequestDTO requestDTO, boolean isSuccess,
-                                          JCRSessionWrapper sessionWrapper){
+                                       JCRSessionWrapper sessionWrapper) {
         try {
             LOGGER.info("Creating status node");
             JCRNodeWrapper statusNode = requestDTO.getNodeWrapper();
@@ -82,10 +82,10 @@ public class SiteContentServiceImpl implements SiteContentService {
         }
     }
 
-    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper){
+    public boolean lockTranslationNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper) {
         try {
             if (!nodeWrapper.isLocked() && nodeWrapper.isLockable()) {
-                nodeWrapper.lockAndStoreToken("translation"," globalLink ");
+                nodeWrapper.lockAndStoreToken("translation", " globalLink ");
                 sessionWrapper.save();
                 return true;
             }
@@ -94,6 +94,7 @@ public class SiteContentServiceImpl implements SiteContentService {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
     }
+
     /**
      * {@inheritDoc}
      */
@@ -156,7 +157,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     @Override
     public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status) {
         try {
-            if(!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
+            if (!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
                 nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
                 sessionWrapper.save();
             }
@@ -205,7 +206,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId){
+    public void addRequestId(JCRNodeWrapper requestNode, JCRSessionWrapper sessionWrapper, String requestId) {
         try {
             requestNode.setProperty(GBL_PROJECT_REQUEST_ID, requestId);
             sessionWrapper.save();
@@ -221,7 +222,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     public void addTransStateForContentNode(JCRNodeWrapper translationNode, JCRSessionWrapper sessionWrapper) {
         try {
             if (translationNode.isLocked()) {
-                translationNode.unlock("translation"," globalLink ");
+                translationNode.unlock("translation", " globalLink ");
             }
             translationNode.setProperty(NODE_NAME_TRANS_PROP, true);
             sessionWrapper.save();

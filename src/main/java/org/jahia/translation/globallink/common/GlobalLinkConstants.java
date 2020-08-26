@@ -44,6 +44,8 @@ public class GlobalLinkConstants {
 
     public static final String GBL_PROJECT_TARGET_LANG = "targetLanguage";
 
+    public static final String GBL_PROJECT_TARGET_NODE = "targetNode";
+
     public static final String GBL_PROJECT_UPLOAD_TICKET = "uploadTicket";
 
     public static final String GBL_PROJECT_SUB_TICKET = "submissionTicket";
@@ -65,6 +67,10 @@ public class GlobalLinkConstants {
     public static final String NODE_TYPE_BIGTEXT = "jnt:bigText";
 
     public static final String NODE_TYPE_PROJECT = "gblnt:globalLinkProject";
+
+    public static final String NODE_TYPE_PROJECT_REQUESTS = "gblnt:globalLinkProjectRequests";
+
+    public static final String NODE_NAME_PROJECT_REQUESTS = "global-link-project-requests";
 
     public static final String DOCUMENT_ROOT_NODE = "page";
 
