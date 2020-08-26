@@ -25,6 +25,7 @@
 
 [gblnt:globalLinkProject] > jnt:content, jmix:nolive
  - name (string) indexed=no noqueryorder nofulltext
+ - targetNode (weakreference)
  - sourceLanguage (string, choicelist[nodes='$currentSite//*;gblnt:globalLinkSourceLanguage',displayLocaleName,sort]) mandatory
  - targetLanguage (string, choicelist[displayLocaleName,sort,dependentProperties='sourceLanguage']) multiple mandatory
  - includeChildPages (boolean)
@@ -45,3 +46,5 @@
 [gblnt:globalLinkSourceLanguage] > jnt:content, jmix:nolive
  - targetLanguages (string) multiple indexed=no
 
+[gblnt:globalLinkProjectRequests] > nt:base
+ + * (gblnt:globalLinkProject)
