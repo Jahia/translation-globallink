@@ -136,7 +136,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             LOGGER.info("Submission: {} - Job: {} - Task: {}", task.getSubmissionId(), task.getJobId(), task.getTaskId());
             JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
                     getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
-            this.contentService.unLockNode((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE), this.sessionWrapper);
+            this.contentService.unLockNode((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode(), this.sessionWrapper);
             String docPath;
             if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
                 docPath =

@@ -86,7 +86,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
         String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
         try {
-            JCRNodeWrapper node = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE);
+            JCRNodeWrapper node = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
 
             for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
                 String languageMapping = targetLanguages.getString();
@@ -117,7 +117,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      */
     private void processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
         try {
-            JCRNodeWrapper pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE);
+            JCRNodeWrapper pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
             this.contentService.lockNode(pageNode, this.sessionWrapper);
             String locale = StringUtils.substringBefore(language, "###");
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
@@ -138,7 +138,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
                 if (mailService.isEnabled()) {
                     JCRUserNode jcrUserNode = userManagerService.lookupUser(requestNode.getCreationUser(), requestNode.getSession());
                     if (jcrUserNode.hasProperty("j:email")) {
-                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " +  ((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE)).getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
+                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " +  ((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode()).getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
                         String name = requestNode.getProperty("name").getString();
                         mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
                                 messageFormat.format(new Object[]{

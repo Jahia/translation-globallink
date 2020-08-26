@@ -168,7 +168,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
     private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
-        JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE);
+        JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
 
         if (this.documentService.createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(),
                 config.getComponentList(), sessionWrapper)) {
@@ -202,7 +202,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (!siteNode.getLanguages().contains(jahiaSourceLanguage)) {
                 throw new GlobalLinkServiceException("no source lang matching in site");
             }
-            JCRNodeWrapper parent = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE);
+            JCRNodeWrapper parent = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
             String pageTitle;
             if (parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
                 if (parent.getNode("j:translation_" + jahiaSourceLanguage).hasProperty("jcr:title")) {
@@ -292,7 +292,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) && requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD)
                     .getBoolean()) {
                 requestDTO.setChildIncluded(true);
-                processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE), config);
+                processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode(), config);
             }
             if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
