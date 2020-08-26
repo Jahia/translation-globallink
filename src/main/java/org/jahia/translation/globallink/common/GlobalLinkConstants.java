@@ -44,7 +44,7 @@ public class GlobalLinkConstants {
 
     public static final String GBL_PROJECT_TARGET_LANG = "targetLanguage";
 
-    public static final String GBL_PROJECT_TARGET_NODE_PATH = "targetNodePath";
+    public static final String GBL_PROJECT_TARGET_NODE = "targetNode";
 
     public static final String GBL_PROJECT_UPLOAD_TICKET = "uploadTicket";
 

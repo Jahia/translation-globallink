@@ -8,6 +8,7 @@ import org.gs4tr.gcc.restclient.operation.ConnectorsConfig.ConnectorsConfigRespo
 import org.jahia.bin.Action;
 import org.jahia.bin.ActionResult;
 import org.jahia.registries.ServicesRegistry;
+import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
@@ -83,6 +84,9 @@ public class GlobalLinkConfigAction extends Action {
     private void saveGlobalLinkConfigs(HttpServletRequest request, RenderContext renderContext, JCRSessionWrapper sessionWrapper)
             throws RepositoryException {
         JCRSiteNode siteNode = renderContext.getSite();
+
+        initGBLNode(siteNode, sessionWrapper);
+
         LOGGER.info("Saving configuration for Site: {}", siteNode.getTitle());
         if (!Arrays.asList(siteNode.getMixinNodeTypes()).contains(GBL_MIXIN_TYPE)) {
             siteNode.addMixin(GBL_MIXIN_TYPE);
@@ -224,5 +228,16 @@ public class GlobalLinkConfigAction extends Action {
                     Collectors.mapping(LanguageDirection::getTargetLocale, Collectors.toSet())));
         }
         return Collections.emptyMap();
+    }
+
+    private JCRNodeWrapper initGBLNode(JCRSiteNode siteNode, JCRSessionWrapper sessionWrapper) {
+        try {
+            JCRNodeWrapper node = JCRContentUtils.getOrAddPath(sessionWrapper, siteNode, NODE_NAME_PROJECT_REQUESTS, NODE_TYPE_PROJECT_REQUESTS);
+            sessionWrapper.save();
+
+            return node;
+        } catch (RepositoryException e) {
+            throw new GlobalLinkServiceException(e.getMessage(), e);
+        }
     }
 }

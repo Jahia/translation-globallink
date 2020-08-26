@@ -45,11 +45,11 @@ rule "Automatically lock node on creation"
 >       gblSubmissionService.lockTranslationNode(node);
 end
 
-rule "Set target node path to translation node property"
+rule "Set target node to translation node property"
     when
         A new node is created
         - the node has the type gblnt:globalLinkProject
         - the parent has the type jnt:page
     then
->       gblSubmissionService.setTargetNodePathProperty(node);
+>       gblSubmissionService.setTargetNodeProperty(node);
 end

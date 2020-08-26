@@ -1,11 +1,8 @@
 package org.jahia.translation.globallink.service.impl;
 
-import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.decorator.JCRSiteNode;
-import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
@@ -19,9 +16,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import javax.jcr.RepositoryException;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
@@ -260,26 +254,6 @@ public class SiteContentServiceImpl implements SiteContentService {
         } catch (Exception ex) {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
-    }
-
-    @Override
-    public List<JCRNodeWrapper> initGBLNode(List<GlobalLinkConfigurationDTO> configList, JCRSessionWrapper sessionWrapper) {
-        List<JCRNodeWrapper> nodes = new ArrayList<>();
-
-        configList.forEach(config -> {
-            try {
-                JCRSiteNode site = config.getSiteNode();
-
-                JCRNodeWrapper node = JCRContentUtils.getOrAddPath(sessionWrapper, site, NODE_NAME_PROJECT_REQUESTS, NODE_TYPE_PROJECT_REQUESTS);
-                nodes.add(node);
-
-                sessionWrapper.save();
-            } catch (RepositoryException e) {
-                throw new GlobalLinkServiceException(e.getMessage(), e);
-            }
-        });
-
-        return nodes;
     }
 
     /**

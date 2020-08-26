@@ -25,7 +25,9 @@ import javax.jcr.RepositoryException;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_NODE;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATE;
 
@@ -109,13 +111,13 @@ public class GlobalLinkSubmissionService {
         }
     }
 
-    public void setTargetNodePathProperty(AddedNodeFact addedNodeFact) {
+    public void setTargetNodeProperty(AddedNodeFact addedNodeFact) {
         try {
-            String pathParent = addedNodeFact.getParent().getPath();
+            String nodeIdentifier = addedNodeFact.getParent().getIdentifier();
 
-            addedNodeFact.getNode().setProperty(GBL_PROJECT_TARGET_NODE_PATH, pathParent);
+            addedNodeFact.getNode().setProperty(GBL_PROJECT_TARGET_NODE, nodeIdentifier);
         } catch (RepositoryException e) {
-            LOGGER.debug("Could not set property", e);
+            throw new RuntimeException("Could not set target node path property", e);
         }
     }
 }

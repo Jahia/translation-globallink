@@ -6,7 +6,6 @@ import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailService;
-import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -87,7 +86,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
         String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
         try {
-            JCRNodeWrapper node = sessionWrapper.getNode(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
+            JCRNodeWrapper node = sessionWrapper.getNodeByUUID(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE));
 
             for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
                 String languageMapping = targetLanguages.getString();
@@ -118,7 +117,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      */
     private void processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
         try {
-            JCRNodeWrapper pageNode = sessionWrapper.getNode(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
+            JCRNodeWrapper pageNode = sessionWrapper.getNodeByUUID(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE));
             this.contentService.lockNode(pageNode, this.sessionWrapper);
             String locale = StringUtils.substringBefore(language, "###");
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
@@ -139,7 +138,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
                 if (mailService.isEnabled()) {
                     JCRUserNode jcrUserNode = userManagerService.lookupUser(requestNode.getCreationUser(), requestNode.getSession());
                     if (jcrUserNode.hasProperty("j:email")) {
-                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " + sessionWrapper.getNode(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH)).getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
+                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " + sessionWrapper.getNodeByUUID(requestNode.getPropertyAsString(GBL_PROJECT_TARGET_NODE)).getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
                         String name = requestNode.getProperty("name").getString();
                         mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
                                 messageFormat.format(new Object[]{

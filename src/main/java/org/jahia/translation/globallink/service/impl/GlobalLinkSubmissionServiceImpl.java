@@ -12,7 +12,6 @@ import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailService;
-import org.jahia.services.mail.MailServiceImpl;
 import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
@@ -169,7 +168,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
     private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
-        JCRNodeWrapper node = sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
+        JCRNodeWrapper node = sessionWrapper.getNodeByUUID(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE));
 
         if (this.documentService.createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(),
                 config.getComponentList(), sessionWrapper)) {
@@ -203,7 +202,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (!siteNode.getLanguages().contains(jahiaSourceLanguage)) {
                 throw new GlobalLinkServiceException("no source lang matching in site");
             }
-            JCRNodeWrapper parent = sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH));
+            JCRNodeWrapper parent = sessionWrapper.getNodeByUUID(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE));
             String pageTitle;
             if (parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
                 if (parent.getNode("j:translation_" + jahiaSourceLanguage).hasProperty("jcr:title")) {
@@ -293,7 +292,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) && requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD)
                     .getBoolean()) {
                 requestDTO.setChildIncluded(true);
-                processChildPages(requestDTO, sessionWrapper.getNode(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE_PATH)), config);
+                processChildPages(requestDTO, sessionWrapper.getNodeByUUID(requestDTO.getNodeWrapper().getPropertyAsString(GBL_PROJECT_TARGET_NODE)), config);
             }
             if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);

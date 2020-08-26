@@ -47,8 +47,8 @@ window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
             const context = window.jahia.uiExtender.registry.get('globalLinkContext', 'contextData');
             const {setFieldValue, setFieldTouched} = editorContext.formik;
 
-            setFieldValue('targetNodePath', context.path, true);
-            setFieldTouched('targetNodePath', true);
+            setFieldValue('targetNode', context.uuid, true);
+            setFieldTouched('targetNode', true);
         }
     }
 });
