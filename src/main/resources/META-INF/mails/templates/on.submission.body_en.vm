@@ -1,0 +1,150 @@
+#* @vtlvariable name="requestNode" type="org.jahia.services.content.JCRNodeWrapper" *#
+#* @vtlvariable name="datas" type="java.util.Map" *#
+#* @vtlvariable name="user" type="java.lang.String" *#
+#* @vtlvariable name="bundle" type="java.util.ResourceBundle" *#
+#* @vtlvariable name="date" type="org.apache.velocity.tools.generic.DateTool" *#
+#* @vtlvariable name="PrincipalViewHelper" type="org.jahia.data.viewhelper.principal.PrincipalViewHelper" *#
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet" type="text/css"/>
+
+    <style type="text/css" media="screen">
+        [style*='Nunito Sans'] {
+            font-family: 'Nunito Sans', Helvetica, Arial, sans-serif !important
+        }
+    </style>
+</head>
+
+
+<body>
+<table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" align="left" valign="top"
+       style="padding: 32px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; background-color: rgb(246, 250, 252); border: none;">
+    <tbody>
+    <tr>
+        <td valign="top">
+            <table width="600px" align="center" cellpadding="0" cellspacing="0" border="0" valign="top">
+                <tbody>
+                <tr>
+                    <td>
+                        <table width="100%" cellpadding="0" cellspacing="0" border="0" align="left" valign="top"
+                               style="padding: 32px; background-color: rgb(255, 255, 255); margin-top: 16px; border: 1px solid rgb(243, 246, 248);">
+                            <tbody>
+                            <tr>
+                                <td align="center">
+                                    <img
+                                            src="${servername}${contextPath}/modules/jahia-translation-globallink/img/mail.png"
+                                            width="48px" height="48px"
+                                            style="display: block; outline: none; border: none; text-decoration: none; margin-top: 32px;">
+                                    <span
+                                            style="font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; font-size: 20px; color: rgb(82, 92, 98); margin-top: 16px; margin-bottom: 16px;">
+                                        <p style="margin-block-start: 0px;">
+                                            ${requestNode.getProperty("name").string} <br/>
+                                            has been received by <span>translation.</span>com
+                                        </p>
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table cellspacing="0" cellpadding="0" border="0" width="100%"
+                                           style="width: 100%; margin: 32px 0px;">
+                                        <tr>
+                                            <td align="left" valign="top" width="600px" height="1"
+                                                style="background-color: rgb(240, 240, 240); border-collapse: collapse; line-height: 1;"></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <table width="350px" cellpadding="0" cellspacing="0" border="0" align="left"
+                                           valign="top">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
+                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
+                                                        ${PrincipalViewHelper.getFullName($user)}</strong> | translation
+                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">${requestNode.getProperty(
+                                                        "submissionTicket").string}</strong>
+                                                    has been received
+                                                </p>
+                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
+                                                    $site.getDisplayableName()
+                                                    ($site.getServerName())
+                                                    <br/>
+                                                    ${date.format(
+                                                        "short","short",$requestNode.getProperty("jcr:created").getDate(),$locale)}</p>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <table width="160px" align="right" cellpadding="0" cellspacing="0" border="0"
+                                           valign="top"
+                                           style="margin-top: 24px; border-collapse: collapse; border-radius: 4px; overflow: hidden;">
+                                        <tbody>
+                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
+                                            <td><span style="margin-right: 8px;"><img
+                                                    src="${servername}${contextPath}/modules/jahia-translation-globallink/img/Icon-in-button.png"
+                                                    width="13px" height="13px"
+                                                    style="vertical-align: middle;"></span><a
+                                                    href="${servername}${jContentPath}"
+                                                    style="color: rgb(255, 255, 255); text-decoration: none;">Open
+                                                Jahia</a></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                                #foreach ($entry in $datas.entrySet())
+                                <tr>
+                                    <td>
+                                        <table width="350px" cellpadding="0" cellspacing="0" border="0" align="left"
+                                               valign="top">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <p style="color: rgb(82,92,98); font-size: 14px; font-family: 'Nunito Sans',
+                                                    Helvetica, Arial, sans-serif;margin-bottom: 0px;">
+                                                        $entry.key
+                                                    </p>
+                                                    <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans',
+                                                    Helvetica, Arial, sans-serif;margin-top: 0px;">
+                                                        #if($entry.value)
+                                                            $entry.value
+                                                        #end
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                                #end
+                            <tr>
+                                <td>
+                                    <table width="155px" cellpadding="0" cellspacing="0" border="0" align="center" valign="top"
+                                           style="border-collapse: collapse; overflow: hidden; border-radius: 4px;">
+                                        <tbody>
+                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
+                                            <td><span style="margin-right: 8px;"><img
+                                                    src="${servername}${contextPath}/modules/jahia-translation-globallink/img/Icon-in-button.png"
+                                                    width="13px" height="13px" style="vertical-align: middle;"></span><a
+                                                    href="${servername}${dashboardPath}"
+                                                    style="color: rgb(255, 255, 255); text-decoration: none;">See all submissions</a></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>

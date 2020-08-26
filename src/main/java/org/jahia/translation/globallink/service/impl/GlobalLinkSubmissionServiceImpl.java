@@ -1,10 +1,13 @@
 package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.tools.generic.DateTool;
 import org.gs4tr.gcc.restclient.GCExchange;
 import org.gs4tr.gcc.restclient.operation.SubmissionSubmit.SubmissionSubmitResponseData;
 import org.gs4tr.gcc.restclient.request.SubmissionSubmitRequest;
 import org.gs4tr.gcc.restclient.request.UploadFileRequest;
+import org.jahia.bin.Jahia;
+import org.jahia.data.viewhelper.principal.PrincipalViewHelper;
 import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -13,6 +16,7 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailService;
 import org.jahia.services.usermanager.JahiaUserManagerService;
+import org.jahia.settings.SettingsBean;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -29,13 +33,18 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
+import javax.script.ScriptException;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -47,13 +56,16 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO
  *
  * @author Rakesh.Kumar, WebitUp.
  */
-@Component(service = GlobalLinkSubmissionService.class, immediate = true)
-public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionService {
+@Component(service = GlobalLinkSubmissionService.class, immediate = true) public class GlobalLinkSubmissionServiceImpl
+        implements GlobalLinkSubmissionService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkSubmissionServiceImpl.class);
 
     private static final String WITHOUT = " without ";
+    public static final String SHORT = "short";
     public static final String DUE_DATE = "dueDate";
+    public static final String J_TRANSLATION_PREFIX = "j:translation_";
+    public static final String J_EMAIL = "j:email";
 
     private GlobalLinkQueryService gblQueryService;
 
@@ -65,36 +77,30 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private MailService mailService;
     private JahiaUserManagerService userManagerService;
 
-    @Reference
-    public void setMailService(MailService mailService) {
+    @Reference public void setMailService(MailService mailService) {
         this.mailService = mailService;
     }
 
-    @Reference
-    public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
+    @Reference public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
         this.gblQueryService = gblQueryService;
     }
 
-    @Reference
-    public void setDocumentService(GlobalLinkDocumentService documentService) {
+    @Reference public void setDocumentService(GlobalLinkDocumentService documentService) {
         this.documentService = documentService;
     }
 
-    @Reference
-    public void setContentService(SiteContentService contentService) {
+    @Reference public void setContentService(SiteContentService contentService) {
         this.contentService = contentService;
     }
 
-    @Reference
-    public void setUserManagerService(JahiaUserManagerService userManagerService) {
+    @Reference public void setUserManagerService(JahiaUserManagerService userManagerService) {
         this.userManagerService = userManagerService;
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList) {
+    @Override public void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
             LOGGER.info("====  Initializing submission process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
@@ -115,6 +121,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      */
     private void processAllGBLTranslationProjects(GlobalLinkConfigurationDTO config) {
         GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
+
         if (gcExchange == null && mailService.isEnabled()) {
             String to = mailService.defaultRecipient();
             String from = mailService.defaultSender();
@@ -127,6 +134,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         }
         JCRNodeIteratorWrapper projects = this.gblQueryService
                 .getGBLRequests(config.getSiteNode(), this.sessionWrapper.getWorkspace().getQueryManager());
+
         for (JCRNodeWrapper project : projects)
             try {
                 if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
@@ -138,10 +146,77 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     processRequestDTO(projectRequestDTO, gcExchange, config);
                     config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
                     this.sessionWrapper.save();
+                    sendMailOnSubmission(project);
                 }
             } catch (RepositoryException | GlobalLinkServiceException ex) {
                 LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
             }
+    }
+
+    private void sendMailOnSubmission(JCRNodeWrapper requestNode) {
+        try {
+            JCRUserNode user = userManagerService.lookupUser(requestNode.getCreationUser(), sessionWrapper);
+            Map<String, Object> bindings = buildMailDataBinding(requestNode, user);
+            String mailRecipient = user.hasProperty(J_EMAIL) ? user.getPropertyAsString(J_EMAIL) : mailService.defaultRecipient();
+            mailService.sendMessageWithTemplate("/META-INF/mails/templates/on.submission.body.vm", bindings, mailRecipient,
+                    mailService.getSettings().getFrom(), null, null, new Locale(user.getPropertyAsString("preferredLanguage")),
+                    "Jahia GlobalLink Translation Connector");
+        } catch (RepositoryException | ScriptException ex) {
+            LOGGER.error("Error while sending notification mail", ex);
+        }
+    }
+
+    private Map<String, Object> buildMailDataBinding(JCRNodeWrapper requestNode, JCRUserNode user) throws RepositoryException {
+        Map<String, Object> bindings = new HashMap<>();
+        DateTool dateTool = new DateTool();
+        Locale userLocale = new Locale(user.getPropertyAsString("preferredLanguage"));
+
+        JCRNodeWrapper targetNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+        bindings.put("PrincipalViewHelper", PrincipalViewHelper.class);
+        bindings.put("user", user);
+        bindings.put("date", new DateTool());
+        bindings.put("requestNode", requestNode);
+        bindings.put("locale", userLocale);
+        JCRSiteNode siteNode = requestNode.getResolveSite();
+        bindings.put("site", requestNode.getResolveSite());
+        bindings.put("contextPath", Jahia.getContextPath());
+
+        final int siteURLPortOverride = SettingsBean.getInstance().getSiteURLPortOverride();
+        String servername = "http" + (siteURLPortOverride == 443 ? "s" : "") + "://" + siteNode.getServerName() + ((siteURLPortOverride != 0
+                && siteURLPortOverride != 80 && siteURLPortOverride != 443) ? ":" + siteURLPortOverride : "");
+        bindings.put("servername", servername);
+        String jContentFolder = targetNode.isNodeType("jnt:page") ? "pages" : "content-folders";
+
+        bindings.put("jContentPath",
+                Jahia.getContextPath() + "/jahia/jcontent/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
+                        + StringUtils.substringAfter(targetNode.getPath(), "/sites/" + siteNode.getName()));
+
+        bindings.put("dashboardPath", Jahia.getContextPath() + "/jahia/jcontent/" + siteNode.getName() + "/" + userLocale.getLanguage()
+                + "/apps/translation-globallink-requests");
+        Map<String, String> datas = new LinkedHashMap<>();
+        datas.put("Due date", dateTool.format(SHORT, SHORT, requestNode.getProperty(DUE_DATE).getDate(), userLocale));
+        datas.put("Submission name", requestNode.getPropertyAsString("name"));
+        datas.put("Submission Id", requestNode.getPropertyAsString("submissionTicket"));
+        datas.put("Submission Date", dateTool.format(SHORT, SHORT, requestNode.getProperty("jcr:lastModified").getDate(), userLocale));
+        datas.put("Site name", siteNode.getDisplayableName());
+        datas.put("Page name", targetNode.getDisplayableName());
+        datas.put("Source language",
+                StringUtils.substringBefore(requestNode.getPropertyAsString(GBL_PROJECT_SOURCE_LANG), "###").toUpperCase());
+
+        List<String> allTargetLanguages = new ArrayList<>();
+        for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
+            allTargetLanguages.add(StringUtils.substringBefore(targetLanguages.getString(), "###"));
+        }
+        datas.put("Target language(s)", String.join(",", allTargetLanguages).toUpperCase());
+
+        // TODO BACKLOG-14524 set the status according to the request status
+        datas.put("Status", "Received by <span><span>translations.</span>com.</span>com");
+        datas.put("Content count", requestNode.getPropertyAsString("gblContentCount"));
+        datas.put("Instructions", requestNode.getPropertyAsString("instructions"));
+
+        bindings.put("datas", datas);
+
+        return bindings;
     }
 
     private GlobalLinkProjectRequestDTO buildProjectRequestDTO(JCRNodeWrapper project, GlobalLinkConfigurationDTO config)
@@ -170,8 +245,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             throws RepositoryException {
         JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
 
-        if (this.documentService.createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(),
-                config.getComponentList(), sessionWrapper)) {
+        if (this.documentService
+                .createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(), config.getComponentList(), sessionWrapper)) {
 
             String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO, node);
 
@@ -204,11 +279,11 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             }
             JCRNodeWrapper parent = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
             String pageTitle;
-            if (parent.hasNode("j:translation_" + jahiaSourceLanguage)) {
-                if (parent.getNode("j:translation_" + jahiaSourceLanguage).hasProperty("jcr:title")) {
-                    pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getPropertyAsString("jcr:title");
+            if (parent.hasNode(J_TRANSLATION_PREFIX + jahiaSourceLanguage)) {
+                if (parent.getNode(J_TRANSLATION_PREFIX + jahiaSourceLanguage).hasProperty("jcr:title")) {
+                    pageTitle = parent.getNode(J_TRANSLATION_PREFIX + jahiaSourceLanguage).getPropertyAsString("jcr:title");
                 } else {
-                    pageTitle = parent.getNode("j:translation_" + jahiaSourceLanguage).getPropertyAsString("text");
+                    pageTitle = parent.getNode(J_TRANSLATION_PREFIX + jahiaSourceLanguage).getPropertyAsString("text");
                 }
             } else {
                 pageTitle = parent.getName();
@@ -224,10 +299,14 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                                 + " sub pages";
             }
             projectRootNode.setProperty("name", submissionName);
-            projectRootNode.getSession().save();
 
             String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : WITHOUT) + " sub pages\n"
                     + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
+
+            projectRootNode.setProperty("instructions", pmNotes);
+
+            projectRootNode.getSession().save();
+
             if (projectRootNode.hasProperty(DUE_DATE)) {
                 dueDate = projectRootNode.getProperty(DUE_DATE).getDate().getTime();
             } else {
@@ -252,7 +331,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     }
 
     private List<String> uploadContentlist(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange, JCRNodeWrapper parent,
-                                           Date dueDate, String submissionName) {
+            Date dueDate, String submissionName) {
         List<UploadFileRequest> uploadFileRequests = requestDTO.getUploadFileRequests();
 
         List<String> contentIds = new ArrayList<>();
@@ -292,7 +371,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) && requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD)
                     .getBoolean()) {
                 requestDTO.setChildIncluded(true);
-                processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode(), config);
+                processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode(),
+                        config);
             }
             if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
@@ -338,13 +418,13 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             if (mailService.isEnabled()) {
                 JCRNodeWrapper node = requestDTO.getNodeWrapper();
                 JCRUserNode jcrUserNode = userManagerService.lookupUser(node.getCreationUser(), page.getSession());
-                if (jcrUserNode.hasProperty("j:email")) {
+                if (jcrUserNode.hasProperty(J_EMAIL)) {
                     MessageFormat messageFormat = new MessageFormat(
                             "Your translation submission {0} was empty for page " + page.getDisplayableName() + " and "
                                     + "so has not been submitted");
                     String name = node.getProperty("name").getString();
-                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null,
-                            "Satus Update on your translation request " + name, messageFormat.format(new Object[]{name}));
+                    mailService.sendMessage(null, jcrUserNode.getProperty(J_EMAIL).getString(), null, null,
+                            "Satus Update on your translation request " + name, messageFormat.format(new Object[] { name }));
                 }
             }
             requestNode.remove();

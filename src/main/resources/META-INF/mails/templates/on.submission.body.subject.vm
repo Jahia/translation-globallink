@@ -1,0 +1,4 @@
+#* @vtlvariable name="requestNode" type="org.jahia.services.content.JCRNodeWrapper" *#
+#* @vtlvariable name="bundle" type="java.util.ResourceBundle" *#
+#* @vtlvariable name="date" type="org.apache.velocity.tools.generic.DateTool" *#
+${requestNode.getProperty("name").string} ${bundle.getString("on.submission.body.subject")}
