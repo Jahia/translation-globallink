@@ -40,6 +40,8 @@ window.jahia.uiExtender.registry.add('adminRoute', 'translation-globallink-setti
     iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-settings.html'
 });
 
+const TARGET_NODE_NAME = 'targetNode';
+
 window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
     targets: ['Text'],
     onChange: (previousValue, currentValue, field, editorContext) => {
@@ -47,8 +49,15 @@ window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
             const context = window.jahia.uiExtender.registry.get('globalLinkContext', 'contextData');
             const {setFieldValue, setFieldTouched} = editorContext.formik;
 
-            setFieldValue('targetNode', context.uuid, true);
-            setFieldTouched('targetNode', true);
+            const field = editorContext.sections
+                .flatMap(section => section.fieldSets)
+                .flatMap(fieldSet => fieldSet.fields)
+                .find(field => field.name === TARGET_NODE_NAME);
+
+            field.skipReadOnlyFilter = true;
+
+            setFieldValue(TARGET_NODE_NAME, context.uuid, true);
+            setFieldTouched(TARGET_NODE_NAME, true);
         }
     }
 });
