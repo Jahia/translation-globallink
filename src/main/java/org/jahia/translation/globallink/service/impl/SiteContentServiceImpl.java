@@ -157,7 +157,7 @@ public class SiteContentServiceImpl implements SiteContentService {
     @Override
     public void updateRequestStatus(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper, String status) {
         try {
-            if (!nodeWrapper.isLocked() && !status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
+            if (!status.equals(nodeWrapper.getPropertyAsString(GBL_SUBMISSION_STATE))) {
                 nodeWrapper.setProperty(GBL_SUBMISSION_STATE, status);
                 sessionWrapper.save();
             }
