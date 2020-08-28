@@ -1,10 +1,13 @@
 package org.jahia.translation.globallink.service.impl;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.velocity.tools.generic.DateTool;
 import org.gs4tr.gcc.restclient.GCExchange;
 import org.gs4tr.gcc.restclient.operation.SubmissionSubmit.SubmissionSubmitResponseData;
 import org.gs4tr.gcc.restclient.request.SubmissionSubmitRequest;
 import org.gs4tr.gcc.restclient.request.UploadFileRequest;
+import org.jahia.bin.Jahia;
+import org.jahia.data.viewhelper.principal.PrincipalViewHelper;
 import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
@@ -13,6 +16,7 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailService;
 import org.jahia.services.usermanager.JahiaUserManagerService;
+import org.jahia.settings.SettingsBean;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.dto.GlobalLinkProjectRequestDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
@@ -35,6 +39,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -185,14 +191,14 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         String servername = "http" + (siteURLPortOverride == 443 ? "s" : "") + "://" + siteNode.getServerName() + ((siteURLPortOverride != 0
                 && siteURLPortOverride != 80 && siteURLPortOverride != 443) ? ":" + siteURLPortOverride : "");
         bindings.put("servername", servername);
-        String jContentFolder = targetNode.isNodeType("jnt:page") ? "pages" : "content-folders";
+        String jContentFolder = targetNode.isNodeType("jnt:page") ? "browse" : "browse/contents";
 
         bindings.put("jContentPath",
-                Jahia.getContextPath() + "/jahia/jcontent/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
+                Jahia.getContextPath() + "/cms/contentmanager/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
                         + StringUtils.substringAfter(targetNode.getPath(), "/sites/" + siteNode.getName()));
 
-        bindings.put("dashboardPath", Jahia.getContextPath() + "/jahia/jcontent/" + siteNode.getName() + "/" + userLocale.getLanguage()
-                + "/apps/translation-globallink-requests");
+        bindings.put("dashboardPath", Jahia.getContextPath() + "/cms/edit/default/" + userLocale.getLanguage()
+                + "/sites/" + siteNode.getName() + ".globallink-translation-requests.html");
         Map<String, String> datas = new LinkedHashMap<>();
         datas.put("Due date", dateTool.format(SHORT, SHORT, requestNode.getProperty(DUE_DATE).getDate(), userLocale));
         datas.put("Submission name", requestNode.getPropertyAsString("name"));
@@ -424,7 +430,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                                     + "so has not been submitted");
                     String name = node.getProperty("name").getString();
                     mailService.sendMessage(null, jcrUserNode.getProperty(J_EMAIL).getString(), null, null,
-                            "Status Update on your translation request " + name, messageFormat.format(new Object[]{name}));
+                            "Status Update on your translation request " + name, messageFormat.format(new Object[] { name }));
                 }
             }
             requestNode.remove();

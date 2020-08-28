@@ -1,14 +1,11 @@
 package org.jahia.translation.globallink.rules;
 
-import org.apache.commons.lang.StringUtils;
 import org.drools.core.spi.KnowledgeHelper;
 import org.gs4tr.gcc.restclient.GCExchange;
 import org.gs4tr.gcc.restclient.model.Status;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.decorator.JCRUserNode;
-import org.jahia.services.content.rules.AbstractNodeFact;
 import org.jahia.services.content.rules.AddedNodeFact;
 import org.jahia.services.content.rules.DeletedNodeFact;
 import org.jahia.services.mail.MailService;
@@ -22,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
-import java.text.MessageFormat;
 import java.util.List;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_NODE;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CANCELLED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATE;
 
@@ -80,25 +77,6 @@ public class GlobalLinkSubmissionService {
         }
     }
 
-    public void sendNotification(AbstractNodeFact fact) {
-        if (mailService.isEnabled()) {
-            JCRNodeWrapper node = fact.getNode();
-            try {
-                JCRUserNode jcrUserNode = userManagerService.lookupUser(node.getCreationUser(), node.getSession());
-                if (jcrUserNode.hasProperty("j:email")) {
-                    MessageFormat messageFormat = new MessageFormat("Your translation submission {0} has changed status to {1}");
-                    String name = node.getProperty("name").getString();
-                    mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null,
-                            "Satus Update on your translation request " + name, messageFormat.format(new Object[] { name,
-                                    StringUtils.substringAfterLast(node.getProperty("gblSubmitState").getString(), ".") }));
-                }
-
-            } catch (RepositoryException e) {
-                LOGGER.debug("Accessing property on a deleted node");
-            }
-        }
-    }
-
     public void lockTranslationNode(AddedNodeFact nodeFact) {
         try {
             JCRSessionWrapper rootSession = JCRUtil.getRootSession(JCR_DEFAULT_WS);
@@ -107,6 +85,16 @@ public class GlobalLinkSubmissionService {
             rootSession.save();
         } catch (RepositoryException e) {
             LOGGER.error("Fail while adding lock infiniteTranslationLock");
+        }
+    }
+
+    public void setTargetNodeProperty(AddedNodeFact addedNodeFact) {
+        try {
+            String nodeIdentifier = addedNodeFact.getParent().getIdentifier();
+
+            addedNodeFact.getNode().setProperty(GBL_PROJECT_TARGET_NODE, nodeIdentifier);
+        } catch (RepositoryException e) {
+            throw new RuntimeException("Could not set target node path property", e);
         }
     }
 }
