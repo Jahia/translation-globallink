@@ -70,8 +70,9 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
             JCRUserNode user = userManagerService.lookupUser(requestNode.getCreationUser(), sessionWrapper);
             Map<String, Object> bindings = buildMailDataBinding(requestNode, user, submissionStatus);
             String mailRecipient = user.hasProperty(J_EMAIL) ? user.getPropertyAsString(J_EMAIL) : mailService.defaultRecipient();
+           // TODO handle the user languages BACKLOG-14543
             mailService.sendMessageWithTemplate("/META-INF/mails/templates/notification.body.vm", bindings, mailRecipient,
-                    mailService.getSettings().getFrom(), null, null, new Locale(user.getPropertyAsString("preferredLanguage")),
+                    mailService.getSettings().getFrom(), null, null, new Locale("en"),
                     "Jahia GlobalLink Translation Connector");
         } catch (RepositoryException | ScriptException ex) {
             throw new GlobalLinkServiceException("Error while sending notification mail", ex);
