@@ -99,11 +99,19 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
         String servername = "http" + (siteURLPortOverride == 443 ? "s" : "") + "://" + siteNode.getServerName() + ((siteURLPortOverride != 0
                 && siteURLPortOverride != 80 && siteURLPortOverride != 443) ? ":" + siteURLPortOverride : "");
         bindings.put("servername", servername);
-        String jContentFolder = targetNode.isNodeType("jnt:page") ? "pages" : "content-folders";
 
+        String jContentFolder = "";
+        String contentPath = "";
+        if(targetNode.isNodeType("jnt:page")){
+             jContentFolder =  "browse";
+            contentPath = targetNode.getPath();
+        }else{
+            jContentFolder =  "browse/contents";
+            contentPath = targetNode.getParent().getPath();
+        }
         bindings.put("jContentPath",
                 Jahia.getContextPath() + "/cms/contentmanager/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
-                        + StringUtils.substringAfter(targetNode.getPath(), "/sites/" + siteNode.getName()));
+                        + StringUtils.substringAfter(contentPath, "/sites/" + siteNode.getName()));
 
         bindings.put("dashboardPath", Jahia.getContextPath() + "/cms/edit/default/" + userLocale.getLanguage()
                 + "/sites/" + siteNode.getName() + ".globallink-translation-requests.html");
