@@ -4,12 +4,14 @@ import org.apache.commons.lang.StringUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
-import org.jahia.services.content.decorator.JCRUserNode;
 import org.jahia.services.mail.MailService;
-import org.jahia.services.usermanager.JahiaUserManagerService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
-import org.jahia.translation.globallink.service.api.*;
+import org.jahia.translation.globallink.service.api.GlobalLinkDocumentService;
+import org.jahia.translation.globallink.service.api.GlobalLinkMailService;
+import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
+import org.jahia.translation.globallink.service.api.GlobalLinkTranslatedContentProcessService;
+import org.jahia.translation.globallink.service.api.SiteContentService;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
 import org.jahia.translation.globallink.util.IOUtil;
 import org.jahia.translation.globallink.util.JCRUtil;
@@ -22,10 +24,16 @@ import org.w3c.dom.NodeList;
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import java.io.File;
-import java.text.MessageFormat;
 import java.util.List;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_PATH;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.FILE_EXT_XML;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_REQUEST_ID;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SOURCE_LANG;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_LANG;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_NODE;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.TRANSLATED_PATH;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CONTENT_ERROR;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATED;
 
@@ -50,110 +58,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
 
     private SiteContentService contentService;
     private MailService mailService;
-    private JahiaUserManagerService userManagerService;
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void processTranslatedContent(List<GlobalLinkConfigurationDTO> configList) {
-        this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
-        for (GlobalLinkConfigurationDTO config : configList) {
-            processRetrievedRequestsForConfig(config);
-        }
-    }
-
-    /**
-     * Process all requests for a site.
-     *
-     * @param config
-     */
-    private void processRetrievedRequestsForConfig(GlobalLinkConfigurationDTO config) {
-        JCRNodeIteratorWrapper retrievedRequests = this.gblQueryService.getRetrievedRequests(config.getSiteNode().getPath(),
-                this.sessionWrapper.getWorkspace().getQueryManager());
-        while (retrievedRequests.hasNext()) {
-            JCRNodeWrapper request = (JCRNodeWrapper) retrievedRequests.next();
-            processRequest(request, config);
-        }
-    }
-
-    /**
-     * Process a request to save translated content back in jcr.
-     *
-     * @param requestNode
-     * @param config
-     */
-    private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
-        String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
-        try {
-            JCRNodeWrapper node = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
-
-            for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
-                String languageMapping = targetLanguages.getString();
-                String language = StringUtils.substringAfter(languageMapping, "###");
-                String fileName = "";
-                if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
-                    fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH
-                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                            + node.getIdentifier() + FILE_EXT_XML;
-                } else {
-                    fileName = DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH
-                            + File.separator + GlobalLinkUtil.getGLLocale(language) + "_"
-                            + node.getIdentifier() + FILE_EXT_XML;
-                }
-                File file = IOUtil.getFile(fileName);
-                if (file != null) {
-                    processTranslatedDocument(file, requestNode, languageMapping);
-                }
-            }
-        } catch (RepositoryException re) {
-            LOGGER.error("Error while processing request node: {} Exception {}", requestNode, re);
-        }
-    }
-
-    /**
-     * Handle translated document and check all translation content
-     * for respective bigtext nodes.
-     */
-    private void processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
-        try {
-            JCRNodeWrapper pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
-            this.contentService.lockNode(pageNode, this.sessionWrapper);
-            String locale = StringUtils.substringBefore(language, "###");
-            NodeList contentNodes = this.documentService.getTranslatedContentList(file);
-            String sourceLanguage = StringUtils.substringBefore(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString(), "###");
-
-            if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
-                throw new GlobalLinkServiceException("There is no language matching this source on this site");
-            }
-            if (!pageNode.getResolveSite().getLanguages().contains(locale)) {
-                throw new GlobalLinkServiceException("There is no language matching this target on this site");
-            }
-            this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLanguage);
-            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_TRANSLATED);
-            this.contentService.unLockNode(pageNode, this.sessionWrapper);
-        } catch (GlobalLinkServiceException ex) {
-            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CONTENT_ERROR);
-            try {
-                if (mailService.isEnabled()) {
-                    JCRUserNode jcrUserNode = userManagerService.lookupUser(requestNode.getCreationUser(), requestNode.getSession());
-                    if (jcrUserNode.hasProperty("j:email")) {
-                        MessageFormat messageFormat = new MessageFormat("The translated document from submission {0} for page " +  ((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode()).getDisplayableName() + " was badly formatted and so has not been processed.\nThe error message is "+ ex.getMessage());
-                        String name = requestNode.getProperty("name").getString();
-                        mailService.sendMessage(null, jcrUserNode.getProperty("j:email").getString(), null, null, "Satus Update on your translation request " + name,
-                                messageFormat.format(new Object[]{
-                                        name
-                                }));
-                    }
-                }
-            } catch (RepositoryException e) {
-                LOGGER.error("Error sending notification: ", ex);
-            }
-            LOGGER.error("Error while checking in content: ", ex);
-        } catch (Exception ex) {
-            LOGGER.error("Error while processing document: ", ex);
-        }
-    }
+    private GlobalLinkMailService globalLinkMailService;
 
     @Reference
     public void setGblQueryService(GlobalLinkQueryService gblQueryService) {
@@ -176,7 +81,102 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
     }
 
     @Reference
-    public void setUserManagerService(JahiaUserManagerService userManagerService) {
-        this.userManagerService = userManagerService;
+    public void setGlobalLinkMailService(GlobalLinkMailService globalLinkMailService) {
+        this.globalLinkMailService = globalLinkMailService;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void processTranslatedContent(List<GlobalLinkConfigurationDTO> configList) {
+        this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
+        for (GlobalLinkConfigurationDTO config : configList) {
+            processRetrievedRequestsForConfig(config);
+        }
+    }
+
+    /**
+     * Process all requests for a site.
+     *
+     * @param config
+     */
+    private void processRetrievedRequestsForConfig(GlobalLinkConfigurationDTO config) {
+        JCRNodeIteratorWrapper retrievedRequests = this.gblQueryService
+                .getRetrievedRequests(config.getSiteNode().getPath(), this.sessionWrapper.getWorkspace().getQueryManager());
+        while (retrievedRequests.hasNext()) {
+            JCRNodeWrapper request = (JCRNodeWrapper) retrievedRequests.next();
+            processRequest(request, config);
+        }
+    }
+
+    /**
+     * Process a request to save translated content back in jcr.
+     *
+     * @param requestNode
+     * @param config
+     */
+    private void processRequest(JCRNodeWrapper requestNode, GlobalLinkConfigurationDTO config) {
+        String requestId = requestNode.getPropertyAsString(GBL_PROJECT_REQUEST_ID);
+        try {
+            JCRNodeWrapper node = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+            boolean allCorrectlyTranslated = true;
+            for (Value targetLanguages : requestNode.getProperty(GBL_PROJECT_TARGET_LANG).getValues()) {
+                String languageMapping = targetLanguages.getString();
+                String language = StringUtils.substringAfter(languageMapping, "###");
+                String fileName = "";
+                if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
+                    fileName = config.getDocumentPath() + File.separator + requestId + File.separator + TRANSLATED_PATH + File.separator
+                            + GlobalLinkUtil.getGLLocale(language) + "_" + node.getIdentifier() + FILE_EXT_XML;
+                } else {
+                    fileName =
+                            DOCUMENT_PATH + File.separator + requestId + File.separator + TRANSLATED_PATH + File.separator + GlobalLinkUtil
+                                    .getGLLocale(language) + "_" + node.getIdentifier() + FILE_EXT_XML;
+                }
+                File file = IOUtil.getFile(fileName);
+                if (file != null) {
+                    allCorrectlyTranslated = allCorrectlyTranslated && processTranslatedDocument(file, requestNode, languageMapping);
+                }
+            }
+            if (allCorrectlyTranslated && mailService.isEnabled()) {
+                globalLinkMailService.sendNotificationMail(requestNode, STATUS_TRANSLATED);
+            }
+        } catch (RepositoryException re) {
+            LOGGER.error("Error while processing request node: {} Exception {}", requestNode, re);
+        }
+    }
+
+    /**
+     * Handle translated document and check all translation content
+     * for respective bigtext nodes.
+     */
+    private boolean processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
+        try {
+            JCRNodeWrapper pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+            this.contentService.lockNode(pageNode, this.sessionWrapper);
+            String locale = StringUtils.substringBefore(language, "###");
+            NodeList contentNodes = this.documentService.getTranslatedContentList(file);
+            String sourceLanguage = StringUtils.substringBefore(requestNode.getProperty(GBL_PROJECT_SOURCE_LANG).getString(), "###");
+
+            if (!pageNode.getResolveSite().getLanguages().contains(sourceLanguage)) {
+                throw new GlobalLinkServiceException("There is no language matching this source on this site");
+            }
+            if (!pageNode.getResolveSite().getLanguages().contains(locale)) {
+                throw new GlobalLinkServiceException("There is no language matching this target on this site");
+            }
+            this.contentService.checkInTranslatedContent(contentNodes, this.sessionWrapper, locale, sourceLanguage);
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_TRANSLATED);
+            this.contentService.unLockNode(pageNode, this.sessionWrapper);
+            return true;
+        } catch (GlobalLinkServiceException ex) {
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CONTENT_ERROR);
+            if (mailService.isEnabled()) {
+                globalLinkMailService.sendNotificationMail(requestNode, STATUS_CONTENT_ERROR);
+            }
+            LOGGER.error("Error while checking in content: ", ex);
+        } catch (Exception ex) {
+            LOGGER.error("Error while processing document: ", ex);
+        }
+        return false;
     }
 }
