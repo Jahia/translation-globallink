@@ -124,7 +124,7 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
         datas.put("Submission Id", requestNode.getPropertyAsString("submissionTicket"));
         datas.put("Submission Date", dateTool.format(SHORT, SHORT, requestNode.getProperty("jcr:lastModified").getDate(), userLocale));
         datas.put("Site name", siteNode.getDisplayableName());
-        datas.put("Page name", targetNode.getDisplayableName());
+        datas.put("Content name", targetNode.getDisplayableName());
         datas.put("Source language",
                 StringUtils.substringBefore(requestNode.getPropertyAsString(GBL_PROJECT_SOURCE_LANG), "###").toUpperCase());
 
