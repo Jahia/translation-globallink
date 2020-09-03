@@ -254,7 +254,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             projectRootNode.setProperty("name", submissionName);
 
             String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : WITHOUT) + " sub pages\n"
-                    + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
+                    + "from the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
 
             projectRootNode.setProperty("instructions", pmNotes);
 
