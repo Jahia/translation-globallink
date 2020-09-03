@@ -6,11 +6,31 @@
 #* @vtlvariable name="PrincipalViewHelper" type="org.jahia.data.viewhelper.principal.PrincipalViewHelper" *#
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css?family=Nunito+Sans&display=swap" rel="stylesheet" type="text/css"/>
 
-    <style type="text/css" media="screen">
-        [style*='Nunito Sans'] {
-            font-family: 'Nunito Sans', Helvetica, Arial, sans-serif !important
+    <style type="text/css">
+        [style*=Arial] {
+            font-family: Arial, Helvetica, sans-serif !important
+        }
+
+        caption {
+            padding: 28px;
+            caption-side: bottom;
+            background: #f6fafc;
+            color: #C1C8D5;
+            font-size: 12px;
+            line-height: 17px;
+        }
+
+        caption > p {
+            opacity: 0.4;
+        }
+
+        .button-cta > a {
+            font-family: Arial, Helvetica, sans-serif;
+            font-style: normal;
+            font-weight: normal;
+            font-size: 12px;
+            line-height: 14px;
         }
     </style>
 </head>
@@ -18,7 +38,7 @@
 
 <body>
 <table width="100%" height="100%" cellpadding="0" cellspacing="0" border="0" align="left" valign="top"
-       style="padding: 32px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; background-color: rgb(246, 250, 252); border: none;">
+       style="padding: 32px 32px 0;font-family: Arial, Helvetica, sans-serif; background-color: rgb(246, 250, 252); border: none;">
     <tbody>
     <tr>
         <td valign="top">
@@ -31,15 +51,13 @@
                             <tbody>
                             <tr>
                                 <td align="center">
-                                    <img
-                                            src="${servername}${contextPath}/modules/jahia-translation-globallink/img/${imageName}"
+                                    <img src="${servername}${contextPath}/modules/jahia-translation-globallink/img/mail.png"
                                             width="48px" height="48px"
                                             style="display: block; outline: none; border: none; text-decoration: none; margin-top: 32px;">
-                                    <span
-                                            style="font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; font-size: 20px; color: rgb(82, 92, 98); margin-top: 16px; margin-bottom: 16px;">
+
+                                    <span style="font-family: Arial, Helvetica, sans-serif; font-size: 20px; color: rgb(82, 92, 98); margin-top: 16px; margin-bottom: 16px;">
                                         <p style="margin-block-start: 0px;">
-                                            ${requestNode.getProperty("name").string} <br/>
-                                            ${headerStatus}
+                                            ${requestNode.getProperty("name").string} <br/> has been received by <span>translation.</span>com
                                         </p>
                                     </span>
                                 </td>
@@ -62,76 +80,79 @@
                                         <tbody>
                                         <tr>
                                             <td>
-                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
-                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
-                                                        ${PrincipalViewHelper.getFullName($user)}</strong> | translation
-                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">${requestNode.getProperty(
-                                                        "submissionTicket").string}</strong>
+                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: Arial, Helvetica, sans-serif;">
+                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+                                                        ${PrincipalViewHelper.getFullName($user)}
+                                                    </strong>
+                                                    translation
+                                                    <strong style="color: rgb(82, 92, 98); font-weight: 600; font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+                                                        ${requestNode.getProperty("submissionTicket").string}
+                                                    </strong>
                                                     has been received
                                                 </p>
-                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif;">
-                                                    $site.getDisplayableName()
-                                                    ($site.getServerName())
+                                                <p style="color: rgb(130, 136, 146); font-size: 12px; font-family: Arial, Helvetica, sans-serif;">
+                                                    $site.getDisplayableName() ($site.getServerName())
                                                     <br/>
-                                                    ${date.format(
-                                                        "short","short",$requestNode.getProperty("jcr:created").getDate(),$locale)}</p>
+                                                    ${date.format("short","short",$requestNode.getProperty("jcr:created").getDate(),$locale)}
+                                                </p>
                                             </td>
                                         </tr>
                                         </tbody>
                                     </table>
-                                    <table width="160px" align="right" cellpadding="0" cellspacing="0" border="0"
+                                    <table width="114px" align="right" cellpadding="0" cellspacing="0" border="0"
                                            valign="top"
                                            style="margin-top: 24px; border-collapse: collapse; border-radius: 4px; overflow: hidden;">
                                         <tbody>
-                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
-                                            <td><span style="margin-right: 8px;"><img
-                                                    src="${servername}${contextPath}/modules/jahia-translation-globallink/img/Icon-in-button.png"
-                                                    width="13px" height="13px"
-                                                    style="vertical-align: middle;"></span><a
-                                                    href="${servername}${jContentPath}"
-                                                    style="color: rgb(255, 255, 255); text-decoration: none;">Open
-                                                Jahia</a></td>
+                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: Arial, Helvetica, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
+                                            <td class="button-cta">
+                                                <a href="${servername}${jContentPath}"
+                                                   style="color: rgb(255, 255, 255); text-decoration: none;">
+                                                    Open Jahia
+                                                </a>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
                                 </td>
                             </tr>
-                                #foreach ($entry in $datas.entrySet())
-                                <tr>
-                                    <td>
-                                        <table width="350px" cellpadding="0" cellspacing="0" border="0" align="left"
-                                               valign="top">
-                                            <tbody>
-                                            <tr>
-                                                <td>
-                                                    <p style="color: rgb(82,92,98); font-size: 14px; font-family: 'Nunito Sans',
-                                                    Helvetica, Arial, sans-serif;margin-bottom: 0px;">
-                                                        $entry.key
-                                                    </p>
-                                                    <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: 'Nunito Sans',
-                                                    Helvetica, Arial, sans-serif;margin-top: 0px;">
-                                                        #if($entry.value)
-                                                            $entry.value
-                                                        #end
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </td>
-                                </tr>
-                                #end
+                            #foreach ($entry in $datas.entrySet())
                             <tr>
                                 <td>
-                                    <table width="155px" cellpadding="0" cellspacing="0" border="0" align="center" valign="top"
+                                    <table width="350px" cellpadding="0" cellspacing="0" border="0" align="left"
+                                           valign="top">
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <p style="color: #373C42; font-size: 14px; font-family: Arial,
+                                                    Helvetica, sans-serif;margin-bottom: 0px;">
+                                                    $entry.key
+                                                </p>
+                                                <p style="color: rgb(130, 136, 146); font-size: 14px; font-family: Arial,
+                                                    Helvetica, sans-serif;margin-top: 0px;">
+                                                    #if($entry.value)
+                                                    $entry.value
+                                                    #end
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                            #end
+                            <tr>
+                                <td>
+                                    <table width="154px" cellpadding="0" cellspacing="0" border="0" align="center"
+                                           valign="top"
                                            style="border-collapse: collapse; overflow: hidden; border-radius: 4px;">
                                         <tbody>
-                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
-                                            <td><span style="margin-right: 8px;"><img
-                                                    src="${servername}${contextPath}/modules/jahia-translation-globallink/img/Icon-in-button.png"
-                                                    width="13px" height="13px" style="vertical-align: middle;"></span><a
-                                                    href="${servername}${dashboardPath}"
-                                                    style="color: rgb(255, 255, 255); text-decoration: none;">See all submissions</a></td>
+                                        <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: Arial, Helvetica, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
+                                            <td class="button-cta">
+                                                <a href="${servername}${jContentPath}"
+                                                   style="color: rgb(255, 255, 255); text-decoration: none;">
+                                                    See all submissions
+                                                </a>
+                                            </td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -146,5 +167,8 @@
         </td>
     </tr>
     </tbody>
+    <caption>
+        <p>Jahia.com</p>
+    </caption>
 </table>
 </body>
