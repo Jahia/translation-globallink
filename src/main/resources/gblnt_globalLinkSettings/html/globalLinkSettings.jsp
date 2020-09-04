@@ -206,6 +206,7 @@
                        value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
                 <input type="hidden" name="jcrNewNodeOutputFormat"
                        value="<c:url value='${renderContext.mainResource.template}.html'/>">
+                <input type="hidden" name="j:globalLinkUserAgent" value="jahia-translation-globallink">
 
                 <div class="row">
                     <div class="col-md-12">
@@ -258,17 +259,6 @@
                                        placeholder="https://connect.translations.com/api/v2/" required id="gblUrl"
                                        name="j:globalLinkUrl" value="${site.properties['j:globalLinkUrl'].string}">
                                 <p><fmt:message key="gbl.settings.url.detail"/></p>
-                            </div>
-                        </fieldset>
-
-                        <fieldset class="form-group">
-                            <div class="col-md-3">
-                                <label for="gblUserAgent"><fmt:message key="gbl.settings.useragent"/></label>
-                            </div>
-                            <div class="col-md-9">
-                                <input type="text" class="form-control" placeholder="Jahia" required
-                                       id="gblUserAgent" name="j:globalLinkUserAgent"
-                                       value="${site.properties['j:globalLinkUserAgent'].string}">
                             </div>
                         </fieldset>
 
