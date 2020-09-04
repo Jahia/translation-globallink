@@ -242,19 +242,15 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 pageTitle = parent.getName();
             }
 
+            String suffixValue = parent.isNodeType("jnt:page") && requestDTO.isChildIncluded()?  " with sub pages" : "" ;
             if (projectRootNode.hasProperty("name")) {
-                submissionName =
-                        projectRootNode.getProperty("name").getString() + (requestDTO.isChildIncluded() ? " " + "with" + " " : WITHOUT)
-                                + "sub pages";
+                submissionName = projectRootNode.getProperty("name").getString() + suffixValue;
             } else {
-                submissionName =
-                        config.getSubmissionPrefix() + " - from page " + pageTitle + (requestDTO.isChildIncluded() ? " with " : WITHOUT)
-                                + " sub pages";
+                submissionName = config.getSubmissionPrefix() + " - from page " + pageTitle + suffixValue;
             }
             projectRootNode.setProperty("name", submissionName);
 
-            String pmNotes = "Translation for - " + pageTitle + (requestDTO.isChildIncluded() ? " with " : WITHOUT) + " sub pages\n"
-                    + "form the web site - " + siteNode.getServerName() + "( " + siteNode.getTitle() + " )";
+            String pmNotes = "Translation for " + pageTitle + " from " + siteNode.getServerName() + " (" + siteNode.getTitle() + ")";
 
             projectRootNode.setProperty("instructions", pmNotes);
 
