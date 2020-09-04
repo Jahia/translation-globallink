@@ -14,7 +14,7 @@
  - j:globalLinkUserAgent (string) mandatory indexed=no
  - j:globalLinkConnectorName (string) mandatory indexed=no
  - j:globalLinkSubmissionPrefix (string) mandatory indexed=no
- - j:globalLinkfileFormat (string) mandatory indexed=no
+ - j:globalLinkfileFormat (string) = 'Jahia_XML' mandatory indexed=no
  - j:componentsList (string) multiple
  - j:globalLinkfileLocation (string)
  - j:globalLinkInterval (long)
