@@ -305,7 +305,7 @@
                             <div class="col-md-9">
                                 <input type="text" class="form-control" placeholder="Jahia_XML" required
                                        id="fileFormat" name="j:globalLinkfileFormat"
-                                       value="${site.properties['j:globalLinkfileFormat'].string}">
+                                       value="${(not empty site.properties['j:globalLinkfileFormat'].string) ? site.properties['j:globalLinkfileFormat'].string : 'Jahia_XML'}">
                                 <p><fmt:message key="gbl.settings.fileformat.detail"/></p>
                             </div>
                         </fieldset>
