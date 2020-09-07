@@ -175,16 +175,26 @@
               method="post" class="horizontal">
             <div class="col-md-4">
 
-            <c:choose>
-                <c:when test="${directions eq 'NA'}">
-                    <div style="padding:4px; font-weight:bold; background: red; color: white;"><fmt:message key="gbl.settings.configNOK"/></div>
-                </c:when>
-                <c:otherwise>
-                    <div style="padding:4px; font-weight:bold; background: green; color: white;"><fmt:message key="gbl.settings.configOK"/></div>
-
-                </c:otherwise>
-            </c:choose>
-
+                <c:choose>
+                    <c:when test="${not (site.properties['status'].string eq 'OK')}">
+                        <div class="alert alert-danger" id="error">
+                            <fmt:message key="gbl.settings.connectorNameIssue"> ""
+                                <fmt:param value="${site.properties['j:globalLinkConnectorName'].string}"/>
+                                <fmt:param value="${site.properties['status'].string}"/>
+                            </fmt:message>
+                        </div>
+                    </c:when>
+                    <c:otherwise>
+                        <c:choose>
+                            <c:when test="${directions eq 'NA'}">
+                                <div style="padding:4px; font-weight:bold; background: red; color: white;"><fmt:message key="gbl.settings.configNOK"/></div>
+                            </c:when>
+                            <c:otherwise>
+                                <div style="padding:4px; font-weight:bold; background: green; color: white;"><fmt:message key="gbl.settings.configOK"/></div>
+                            </c:otherwise>
+                        </c:choose>
+                    </c:otherwise>
+                </c:choose>
 
                 <h1 class="globallink-heading"><fmt:message key="gbl.settings.title"/></h1>
                 <%--<c:if test="${not empty site.properties['status']}">--%>
