@@ -2,6 +2,7 @@ package org.jahia.translation.globallink.action;
 
 import org.apache.commons.lang.StringUtils;
 import org.gs4tr.gcc.restclient.GCExchange;
+import org.gs4tr.gcc.restclient.model.Connector;
 import org.gs4tr.gcc.restclient.model.LanguageDirection;
 import org.gs4tr.gcc.restclient.model.LocaleConfig;
 import org.gs4tr.gcc.restclient.operation.ConnectorsConfig.ConnectorsConfigResponseData;
@@ -199,7 +200,19 @@ public class GlobalLinkConfigAction extends Action {
 
                 } catch (Exception e) {
                     siteNode.setProperty(GBL_PROPERTY_ENABLE, false);
-                    siteNode.setProperty("status", e.getMessage());
+                    if (e.getMessage().contains("Connector key")) {
+                        StringBuilder availableConnectors = new StringBuilder();
+                        for (Connector c : gcExchange.getConnectors()) {
+                            if (availableConnectors.length() > 0) {
+                                availableConnectors.append(", ");
+                            }
+                            availableConnectors.append(c.getConnectorName());
+                        }
+
+                        siteNode.setProperty("status", availableConnectors.toString());
+                    } else {
+                        siteNode.setProperty("status", e.getMessage());
+                    }
                     siteNode.getSession().save();
                     throw e;
                 }
