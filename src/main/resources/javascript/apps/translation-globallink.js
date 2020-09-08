@@ -22,7 +22,8 @@ window.jahia.uiExtender.registry.add('callback', 'translation-Globallink', {
             openEditor: true,
             buttonLabel: 'jahia-translation-globallink:label.requestATranslation',
             targets: ['contentActions:3.10'],
-            showOnNodeTypes: ['gblnt:globalLinkProjectRequests']
+            showOnNodeTypes: ['gblnt:globalLinkProjectRequests'],
+            contextNodePath: '/sites/' + window.contextJsParameters.site + '/global-link-project-requests'
         })
     ])
 });
