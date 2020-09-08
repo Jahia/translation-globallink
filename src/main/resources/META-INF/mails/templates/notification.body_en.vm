@@ -148,7 +148,7 @@
                                         <tbody>
                                         <tr style="background-color: rgb(0, 124, 176); padding: 24px; font-size: 14px; font-family: Arial, Helvetica, sans-serif; line-height: 48px; color: rgb(255, 255, 255); text-align: center; border: 0px; border-radius: 4px;">
                                             <td class="button-cta">
-                                                <a href="${servername}${jContentPath}"
+                                                <a href="${servername}${dashboardPath}"
                                                    style="color: rgb(255, 255, 255); text-decoration: none;">
                                                     See all submissions
                                                 </a>
