@@ -176,7 +176,7 @@
             <div class="col-md-4">
 
                 <c:choose>
-                    <c:when test="${not (site.properties['status'].string eq 'OK')}">
+                    <c:when test="${(not empty site.properties['status'].string) and (not (site.properties['status'].string eq 'OK'))}">
                         <div class="alert alert-danger" id="error">
                             <fmt:message key="gbl.settings.connectorNameIssue"> ""
                                 <fmt:param value="${site.properties['j:globalLinkConnectorName'].string}"/>
