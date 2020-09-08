@@ -196,15 +196,19 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
     private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
-        JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+        if (requestDTO.getNodeWrapper().hasProperty(GBL_PROJECT_TARGET_NODE)) {
+            JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
 
-        if (this.documentService
-                .createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(), config.getComponentList(), sessionWrapper)) {
+            if (this.documentService
+                    .createDocumentForProject(requestDTO, node, requestDTO.getNodeWrapper(), config.getComponentList(), sessionWrapper)) {
 
-            String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO, node);
+                String documentName = GlobalLinkUtil.getSourceDocumentPath(requestDTO, node);
 
-            Optional.ofNullable(prepareGlobalLinkDocument(documentName, config.getFileFormat()))
-                    .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
+                Optional.ofNullable(prepareGlobalLinkDocument(documentName, config.getFileFormat()))
+                        .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
+            }
+        } else {
+            LOGGER.error("Unable to read " + GBL_PROJECT_TARGET_NODE + " property on node " + requestDTO.getNodeWrapper().getPath());
         }
     }
 
