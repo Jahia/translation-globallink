@@ -1,7 +1,10 @@
 {
   "jahia": {
     "apps": {
-      "jahia": "javascript/apps/translation-globallink.js"
+      "jahia": [
+        "javascript/apps/translation-globallink.js",
+        "configs/translation-globallink.jsp"
+      ]
     }
   }
 }

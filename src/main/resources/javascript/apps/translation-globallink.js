@@ -22,8 +22,7 @@ window.jahia.uiExtender.registry.add('callback', 'translation-Globallink', {
             openEditor: true,
             buttonLabel: 'jahia-translation-globallink:label.requestATranslation',
             targets: ['contentActions:3.10'],
-            showOnNodeTypes: ['gblnt:globalLinkProjectRequests'],
-            targetPath: '/sites/' + window.contextJsParameters.site + '/global-link-project-requests'
+            showOnNodeTypes: ['gblnt:globalLinkProjectRequests']
         })
     ])
 });
@@ -40,16 +39,33 @@ window.jahia.uiExtender.registry.add('adminRoute', 'translation-globallink-setti
     iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-settings.html'
 });
 
-window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
-    targets: ['Text'],
-    onChange: (previousValue, currentValue, field, editorContext) => {
-        if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject') {
-            const context = window.jahia.uiExtender.registry.get('globalLinkContext', 'contextData');
-            const {setFieldValue, setFieldTouched} = editorContext.formik;
+window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslationRequest', {
+    onCreate: (variables, nodeData) => {
+        if (variables.primaryNodeType === 'gblnt:globalLinkProject') {
+            // resolve site
+            const [, , siteKey,] = nodeData.path.split('/');
 
-            setFieldValue('targetNode', context.uuid, true);
-            setFieldTouched('targetNode', true);
+            // Sites' global link folder UUID is provided by /configs/translation-globallink.jsp
+            const globallinkFolderId = window.globallinkFolderId[siteKey];
+            if (globallinkFolderId) {
+                // Set target node
+                const targetNode = {
+                    language: variables.properties[0].language,
+                    name: 'targetNode',
+                    option: undefined,
+                    type: "STRING",
+                    value: variables.uuid
+                };
+                variables.properties.push(targetNode);
+                // Change node to save
+                variables.uuid = globallinkFolderId;
+                return variables;
+            }
+            console.error(`No global link folder found for site key ${siteKey}, please check your configuration`);
+            // Clean up uuid to make the form fail to save.
+            variables.uuid = '';
         }
+        return variables;
     }
 });
 
