@@ -19,6 +19,11 @@
 <template:addResources type="javascript" resources="jquery.quicksearch.js"/>
 <c:set var="directions" value="${gbl:projectInfo(renderContext.mainResource.node)}"/>
 
+<c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
+<c:if test="${not empty site.properties['j:globalLinkActivated']}">
+    <c:set var="isActive" value="${site.properties['j:globalLinkActivated'].boolean}"/>
+</c:if>
+
 <template:addResources>
     <script type="text/javascript">
         function showHideError($componentSelection, init) {
@@ -141,6 +146,22 @@
 
             checkMappings();
         });
+
+        const saveTranslationSettings = () => {
+            var data = $('#updateSiteForm').serialize();
+            $.ajax({
+                url: '<c:url value="${url.base}${site.path}.globalLinkConfig.do"/>',
+                type: 'POST',
+                dataType : "json",
+                data: data
+            }).done(function () {
+                    top.location.reload();
+                }
+            ).fail(err => {
+            console.log('an error occurred', err);
+            });
+            return false;
+        }
     </script>
 
 </template:addResources>
@@ -159,10 +180,6 @@
     </style>
 </template:addResources>
 
-<c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
-<c:if test="${not empty site.properties['j:globalLinkActivated']}">
-    <c:set var="isActive" value="${site.properties['j:globalLinkActivated'].boolean}"/>
-</c:if>
 <div class="row" style="margin: 0">
     <div class="col-md-12" style="margin: 0">
         <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px"
@@ -171,8 +188,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <form id="updateSiteForm" action="<c:url value='${url.base}${site.path}.globalLinkConfig.do'/>"
-              method="post" class="horizontal">
+        <form id="updateSiteForm" class="horizontal">
             <div class="col-md-4">
 
                 <c:choose>
@@ -444,7 +460,7 @@
                 </c:if>
             </div>
             <div class="col-md-12">
-                <input type="submit" name="updateSiteButton" id="updateSiteButton"
+                <input onClick="saveTranslationSettings()" name="updateSiteButton" id="updateSiteButton"
                        class="btn btn-primary btn-sm"
                        value="<fmt:message key='gbl.label.save'/>" disabled/>
             </div>
