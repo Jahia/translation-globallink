@@ -14,8 +14,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default</jahia-depends>
-        <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
-        <jahia-module-signature>MCwCFCHqyIWypMXfqsWm9MFmM/UjHp/RAhQTH66veWnbmpq5siU57ZAmBMhSNA==</jahia-module-signature>
+        <jahia-key>org.jahia.translationGlobalLink</jahia-key>
+        <require-capability>
+            osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
+            org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
+        </require-capability>
+        <jahia-module-signature>MC0CFGGdKOcsY2d5bnPbJxBDO6CQSK7HAhUAlGnxj3DgdmJ/1be9Fk6z6AdjgfE=</jahia-module-signature>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>
