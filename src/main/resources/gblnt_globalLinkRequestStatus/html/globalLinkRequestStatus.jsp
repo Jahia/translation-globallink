@@ -73,9 +73,9 @@
                         <tr>
                             <td data-order="${gblRequest.properties['submissionTicket'].string}"><small title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small></td>
                             <td>
-                                <a href="<c:url value="${url.baseEdit}${gblRequest.parent.path}.html"/>"
+                                <a href="<c:url value="${url.baseEdit}${gblRequest.properties['targetNode'].node.path}.html"/>"
                                    target="_blank">
-                                        ${gblRequest.parent.displayableName}
+                                        ${gblRequest.properties['targetNode'].node. displayableName}
                                 </a>
                             </td>
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
