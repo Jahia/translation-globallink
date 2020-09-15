@@ -71,11 +71,26 @@
                     </c:when>
                     <c:otherwise>
                         <tr>
-                            <td data-order="${gblRequest.properties['submissionTicket'].string}"><small title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small></td>
+                            <td data-order="${gblRequest.properties['submissionTicket'].string}"><small
+                                    title="${gblRequest.properties['submissionTicket'].string}">${functions:abbreviate(gblRequest.properties['submissionTicket'].string,16,16,'...')}</small>
+                            </td>
                             <td>
-                                <a href="<c:url value="${url.baseEdit}${gblRequest.properties['targetNode'].node.path}.html"/>"
-                                   target="_blank">
-                                        ${gblRequest.properties['targetNode'].node. displayableName}
+                                <c:set var="sitePath" value="/sites/${site.name}"/>
+                                <jcr:node var="targetNode" path="${gblRequest.properties['targetNode'].node.path}"/>
+                                <c:choose>
+                                    <c:when test="${jcr:isNodeType(targetNode, 'jnt:page')}">
+                                        <c:url
+                                                var="nodeUrl"
+                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/pages${fn:substringAfter(targetNode.path,sitePath)}"/>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <c:url
+                                                var="nodeUrl"
+                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/content-folders${fn:substringAfter(targetNode.path,sitePath)}"/>
+                                    </c:otherwise>
+                                </c:choose>
+                                <a href="${nodeUrl}">
+                                        ${targetNode.displayableName}
                                 </a>
                             </td>
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
@@ -84,16 +99,15 @@
                                                 value="${gblRequest.properties['jcr:created'].time}"/></td>
                             <td>${gblRequest.properties['jcr:createdBy'].string}</td>
                             <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), renderContext.UILocale)}&nbsp;->&nbsp;
-                                <ul class="list-unstyled">
-                                        <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
+                                <ul class=" list-unstyled">
+                                    <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
                                         <li>${gbl:displayLocale(fn:substringAfter(lan.string,"###"), renderContext.UILocale)}</li>
-                                        </c:forEach>
+                                    </c:forEach>
                                 </ul>
                             </td>
                             <td>
                                     ${gblRequest.properties['name'].string}
                             </td>
-
                             <td>
                                 <dl class="">
                                     <c:forTokens items="${gblRequest.properties['targetTicket'].string}" delims=","
@@ -153,18 +167,18 @@
         $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
         $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
         $('#request-list').DataTable({
-            serverSide    : false,
-            deferRender   : true,
-            processing    : false,
-            responsive    : {details: false},
+            serverSide: false,
+            deferRender: true,
+            processing: false,
+            responsive: {details: false},
             scrollCollapse: true,
-            paging        : false,
-            scrollX       : true,
-            scroller      : false,
-            autoWidth     : false,
-            dom           : "<'row'<'col-sm-9'><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-12'>>",
-            order         : [[3, 'desc']],
-            scrollY       : <c:choose><c:when test="${index.count lt 5}">true
+            paging: false,
+            scrollX: true,
+            scroller: false,
+            autoWidth: false,
+            dom: "<'row'<'col-sm-9'><'col-sm-3'f>><'row'<'col-lg-12'tr>><'row'<'col-sm-12'>>",
+            order: [[3, 'desc']],
+            scrollY: <c:choose><c:when test="${index.count lt 5}">true
             </c:when><c:otherwise>"500px"</c:otherwise></c:choose>
         });
     });
