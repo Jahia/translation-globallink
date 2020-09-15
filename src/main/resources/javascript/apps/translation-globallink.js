@@ -70,6 +70,17 @@ window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslat
     }
 });
 
+window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
+    targets: ['ContentPicker'],
+    onChange: (previousValue, currentValue, field, editorContext) => {
+        if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
+            const {setFieldValue, setFieldTouched} = editorContext.formik;
+            setFieldValue('targetNode', editorContext.nodeData.uuid, true);
+            setFieldTouched('targetNode', true);
+        }
+    }
+});
+
 window.jahia.uiExtender.registry.add('adminRoute', 'translation-globallink-requests', {
     targets: ['jcontent:23'],
     icon: window.jahia.moonstone.toIconComponent('GlobalLink'),
