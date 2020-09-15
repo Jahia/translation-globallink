@@ -1,0 +1,13 @@
+{
+  "name": "gblnt:globalLinkProject",
+  "priority": 2,
+  "fields": [
+      {
+        "name": "targetNode",
+        "defaultValues": [{
+          "type": "STRING",
+          "value": "dummyTarget"
+        }]
+      }
+  ]
+}
