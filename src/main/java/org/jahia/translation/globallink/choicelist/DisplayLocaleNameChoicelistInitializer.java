@@ -24,18 +24,20 @@ import java.util.Optional;
 /**
  * Created by rincevent on 2016-07-21.
  */
-@Component(service = ModuleChoiceListInitializer.class, immediate = true) public class DisplayLocaleNameChoicelistInitializer
-        implements ModuleChoiceListInitializer {
+@Component(service = ModuleChoiceListInitializer.class, immediate = true)
+public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListInitializer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DisplayLocaleNameChoicelistInitializer.class);
     public static final String SOURCE_LANGUAGE = "sourceLanguage";
     public static final String CONTEXT_NODE = "contextNode";
 
-    @Override public String getKey() {
+    @Override
+    public String getKey() {
         return "displayLocaleName";
     }
 
-    @Override public void setKey(String s) {
+    @Override
+    public void setKey(String s) {
     }
 
     private JCRSiteNode getResolveSite(Map<String, Object> map) throws RepositoryException {
@@ -43,7 +45,8 @@ import java.util.Optional;
                 .orElse((JCRNodeWrapper) map.get(CONTEXT_NODE)).getResolveSite();
     }
 
-    @Override public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s,
+    @Override
+    public List<ChoiceListValue> getChoiceListValues(ExtendedPropertyDefinition extendedPropertyDefinition, String s,
             List<ChoiceListValue> list, Locale userLocale, Map<String, Object> map) {
         List<ChoiceListValue> results = new ArrayList<>();
         try {
@@ -65,7 +68,7 @@ import java.util.Optional;
                         addResults(userLocale, results, sourceMapping);
                     }
                 }
-            } else if (map.containsKey(SOURCE_LANGUAGE)) {
+            } else if (map.containsKey(SOURCE_LANGUAGE) && map.get(SOURCE_LANGUAGE) != null) {
                 String sourceLanguage = ((String) ((List) map.get(SOURCE_LANGUAGE)).get(0)).split("###")[1];
                 addResults(userLocale, results, getTargetLanguagesMapping(sourceLanguage, resolveSite));
             } else if (map.get(CONTEXT_NODE) != null) {
