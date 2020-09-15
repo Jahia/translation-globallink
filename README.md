@@ -1,6 +1,6 @@
 # Jahia GlobalLink Translation Connector
 
-This module is made for calling the REST API of translation.com
+This module is made for calling the REST API of translations.com
 
 The documentation of the API can be found at the following link: https://connect-dev.translations.com/docs/api/
 
