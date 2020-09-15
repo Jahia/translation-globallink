@@ -86,7 +86,7 @@
                                     <c:otherwise>
                                         <c:url
                                                 var="nodeUrl"
-                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/content-folders${fn:substringAfter(targetNode.path,sitePath)}"/>
+                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/content-folders${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
                                     </c:otherwise>
                                 </c:choose>
                                 <a href="${nodeUrl}">
