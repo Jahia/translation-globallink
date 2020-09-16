@@ -63,8 +63,8 @@
                         $componentSelection.append(this);
                     });
                     $componentSelection.multiSelect({
-                        selectableHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
-                        selectionHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='Search Components'>",
+                        selectableHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='<fmt:message key="gbl.settings.componentlist.searchComponents"/>'>",
+                        selectionHeader: "<input type='text' class='search-input form-control' autocomplete='off' placeholder='<fmt:message key="gbl.settings.componentlist.searchComponents"/>'>",
                         selectableFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selectable" /></div>",
                         selectionFooter: "<div class='custom-label'><fmt:message key="gbl.settings.componentlist.selected" /><span class='glyphicon glyphicon-asterisk'></span></div>",
                         afterInit: function (ms) {
