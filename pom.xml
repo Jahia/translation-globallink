@@ -14,6 +14,10 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default</jahia-depends>
+        <jahia-key>org.jahia.translationGlobalLink</jahia-key>
+        <require-capability>
+            org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
+        </require-capability>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>

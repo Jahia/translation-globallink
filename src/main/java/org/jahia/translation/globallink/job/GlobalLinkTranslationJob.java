@@ -2,6 +2,7 @@ package org.jahia.translation.globallink.job;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.jahia.osgi.BundleUtils;
+import org.jahia.security.license.LicenseCheckerService;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.scheduler.BackgroundJob;
@@ -31,19 +32,24 @@ public class GlobalLinkTranslationJob extends BackgroundJob {
     @Override
     public void executeJahiaJob(JobExecutionContext context) throws Exception {
         LOGGER.info("Inside GBL Translation background Job Execution");
-        JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
+        if (LicenseCheckerService.Stub.isAllowed("org.jahia.translationGlobalLink")) {
+            JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
+            GlobalLinkQueryService globalLinkQueryService = BundleUtils.getOsgiService(GlobalLinkQueryService.class, null);
+            GlobalLinkSubmissionService globalLinkSubmissionService = BundleUtils.getOsgiService(GlobalLinkSubmissionService.class, null);
+            GlobalLinkRetrieveDocumentService globalLinkRetrieveDocumentService = BundleUtils
+                    .getOsgiService(GlobalLinkRetrieveDocumentService.class, null);
+            GlobalLinkTranslatedContentProcessService globalLinkTranslatedContentProcessService = BundleUtils
+                    .getOsgiService(GlobalLinkTranslatedContentProcessService.class, null);
 
-        GlobalLinkQueryService globalLinkQueryService = BundleUtils.getOsgiService(GlobalLinkQueryService.class, null);
-        GlobalLinkSubmissionService globalLinkSubmissionService = BundleUtils.getOsgiService(GlobalLinkSubmissionService.class, null);
-        GlobalLinkRetrieveDocumentService globalLinkRetrieveDocumentService = BundleUtils.getOsgiService(GlobalLinkRetrieveDocumentService.class, null);
-        GlobalLinkTranslatedContentProcessService globalLinkTranslatedContentProcessService = BundleUtils.getOsgiService(GlobalLinkTranslatedContentProcessService.class, null);
-
-        List<JCRSiteNode> sites = globalLinkQueryService.getAllSites(sessionWrapper.getWorkspace().getQueryManager());
-        List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(sites);
-        if (CollectionUtils.isNotEmpty(configList)) {
-            globalLinkSubmissionService.submitSiteProjects(configList);
-            globalLinkRetrieveDocumentService.retrieveCompletedProjects(configList);
-            globalLinkTranslatedContentProcessService.processTranslatedContent(configList);
+            List<JCRSiteNode> sites = globalLinkQueryService.getAllSites(sessionWrapper.getWorkspace().getQueryManager());
+            List<GlobalLinkConfigurationDTO> configList = JCRUtil.getConfigurationList(sites);
+            if (CollectionUtils.isNotEmpty(configList)) {
+                globalLinkSubmissionService.submitSiteProjects(configList);
+                globalLinkRetrieveDocumentService.retrieveCompletedProjects(configList);
+                globalLinkTranslatedContentProcessService.processTranslatedContent(configList);
+            }
+        } else {
+            LOGGER.warn("Your license does not allow you to use the translation GlobalLink module");
         }
     }
 }
