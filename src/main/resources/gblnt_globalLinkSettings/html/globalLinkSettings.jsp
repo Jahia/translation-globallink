@@ -188,7 +188,7 @@
 </div>
 <div class="row">
     <div class="col-md-12">
-        <form id="updateSiteForm" class="horizontal">
+        <form id="updateSiteForm" class="horizontal" onsubmit="return saveTranslationSettings();">
             <div class="col-md-4">
 
                 <c:choose>
@@ -460,7 +460,7 @@
                 </c:if>
             </div>
             <div class="col-md-12">
-                <input onClick="saveTranslationSettings()" name="updateSiteButton" id="updateSiteButton"
+                <input type="submit" name="updateSiteButton" id="updateSiteButton"
                        class="btn btn-primary btn-sm"
                        value="<fmt:message key='gbl.label.save'/>" disabled/>
             </div>
