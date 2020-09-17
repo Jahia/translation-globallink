@@ -42,7 +42,7 @@
                             <input type="text" class="form-control" required
                                    id="daysOld" name="daysOld"
                                    value="30">
-                            <div class="input-group-addon">days</div>
+                            <div class="input-group-addon"><fmt:message key="gbl.settings.clean.days"/></div>
                         </div>
                     </div>
                     <button type="submit"
