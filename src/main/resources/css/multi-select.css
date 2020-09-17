@@ -16,18 +16,13 @@
 
 .ms-container .ms-selectable, .ms-container .ms-selection{
    color: #555555;
-   padding-top: 5%;
    float: left;
    width: 45%;
    position: relative;
 }
 
 .custom-label {
-   position: absolute;
-   top: 0px;
-   border-bottom: 1px;
    font-size: 13px;
-   width: 100%;
    font-weight: bold;
 }
 

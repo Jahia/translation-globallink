@@ -152,6 +152,10 @@
                 $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
                 $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
                 $('#request-list').DataTable({
+                    language: {
+                        search: "<fmt:message key='request.details.search'/>",
+                        zeroRecords: "<fmt:message key='request.details.zeroRecords'/>"
+                    },
                     serverSide: false,
                     deferRender: true,
                     processing: false,
