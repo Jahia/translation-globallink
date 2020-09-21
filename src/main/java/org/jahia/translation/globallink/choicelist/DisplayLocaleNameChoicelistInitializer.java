@@ -73,7 +73,7 @@ public class DisplayLocaleNameChoicelistInitializer implements ModuleChoiceListI
                 addResults(userLocale, results, getTargetLanguagesMapping(sourceLanguage, resolveSite));
             } else if (map.get(CONTEXT_NODE) != null) {
                 final JCRNodeWrapper contextNode = (JCRNodeWrapper) map.get(CONTEXT_NODE);
-                if (contextNode.hasProperty(SOURCE_LANGUAGE)) {
+                if (contextNode.hasProperty(SOURCE_LANGUAGE) && contextNode.getPropertyAsString(SOURCE_LANGUAGE).split("###").length > 1) {
                     addResults(userLocale, results,
                             getTargetLanguagesMapping(contextNode.getPropertyAsString(SOURCE_LANGUAGE).split("###")[1], resolveSite));
                 } else {
