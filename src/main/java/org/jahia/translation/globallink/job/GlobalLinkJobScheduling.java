@@ -18,7 +18,7 @@ public class GlobalLinkJobScheduling extends JobSchedulingBean {
     SchedulerService schedulerService;
 
     public GlobalLinkJobScheduling() throws ParseException {
-        setRamJob(true);
+        setRamJob(false);
         setJobDetail(new JobDetail("translationJob", Scheduler.DEFAULT_GROUP, GlobalLinkTranslationJob.class));
         setTrigger(new CronTrigger("TranslationJobTrigger", null, "15 0/1 * * * ?"));
     }
