@@ -115,7 +115,7 @@ public class GlobalLinkConfigAction extends Action {
         if (!getRequestParameter(request, GBL_PROPERTY_INTERVAL).equals(StringUtils.EMPTY)) {
             siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
             try {
-                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler()
+                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getScheduler()
                         .getTriggersOfJob("translationJob", "DEFAULT");
                 for (int i = 0; i < triggersOfJob.length; i++) {
                     Trigger trigger = triggersOfJob[i];
@@ -131,7 +131,7 @@ public class GlobalLinkConfigAction extends Action {
                             aLong = 1l;
                         }
                         cronTrigger1.setCronExpression("25 0/" + aLong + " * * * ?");
-                        Date date = ServicesRegistry.getInstance().getSchedulerService().getRAMScheduler()
+                        Date date = ServicesRegistry.getInstance().getSchedulerService().getScheduler()
                                 .rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
                     }
                 }
