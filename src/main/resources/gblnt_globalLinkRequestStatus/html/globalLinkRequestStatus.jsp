@@ -25,9 +25,9 @@
         <img src="<c:url value='/modules/jahia-translation-globallink/img/globalLink.png'/>" width="100px"
         >
     </div>
-    <div class="col-md-6 pull-right" style="margin-top: 15px;margin-bottom: 10px">
+    <div class="col-md-6" style="margin-top: 15px;margin-bottom: 10px">
         <form id="cleanSubmissionForm" action="<c:url value='${url.base}${site.path}.globalLinkSubmissionClean.do'/>"
-              method="post" class="form-inline">
+              method="post" class="form-inline pull-right">
             <input type="hidden" name="jcrRedirectTo"
                    value="<c:url value='${url.base}${renderContext.mainResource.node.path}'/>"/>
             <input type="hidden" name="jcrNewNodeOutputFormat"
