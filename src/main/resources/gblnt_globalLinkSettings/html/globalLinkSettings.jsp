@@ -1,3 +1,5 @@
+<%@ page import="org.jahia.services.render.RenderContext" %>
+<%@ page import="org.jahia.services.content.nodetypes.ExtendedNodeType" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -368,12 +370,25 @@
                 <fieldset class="form-group">
                     <select name="j:componentsList" id="componentSelection" multiple size="30">
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
+                            <jcr:nodeType name="${fn:substringAfter(component.string, '-')}" var="selectedType"/>
+                            <%
+                                try {
+                                    // A bit of scriptlet
+                                    ExtendedNodeType type = (ExtendedNodeType) pageContext.getAttribute("selectedType");
+                                    RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
+                                    String label = type.getLabel(renderContext.getUILocale());
+                                    pageContext.setAttribute("nodeTypeLabel", label);
+                                } catch (Exception e) {
+                                    // Do nothing in case type / label is not resolved.
+                                }
+
+                            %>
                             <option value="${component.string}"
-                                    selected>${fn:substringBefore(component.string, '-')}
+                                    selected>${empty nodeTypeLabel ? fn:substringBefore(component.string, '-') : nodeTypeLabel}
                             </option>
                         </c:forEach>
                         <c:forEach
-                                items="${gbl:componentList(renderContext.mainResource.node, renderContext.request.locale, script, site.properties['j:componentsList'])}"
+                                items="${gbl:componentList(renderContext.mainResource.node, renderContext.UILocale, script, site.properties['j:componentsList'])}"
                                 var="component">
                             <option value="${component.value}-${component.key}">${component.value}
                             </option>

@@ -9,7 +9,7 @@ import javax.jcr.PropertyType
 
 def siteNode = renderContext.mainResource.node.session.getNodeByIdentifier(renderContext.request.parameterMap['identifier'][0])
 def mapTypes = ComponentRegistry.getComponentTypes(siteNode, null,
-        GlobalLinkUtil.getExcludedComponents(siteNode.hasProperty('j:componentsList')?siteNode.getProperty('j:componentsList').getValues():null), renderContext.mainResourceLocale)
+        GlobalLinkUtil.getExcludedComponents(siteNode.hasProperty('j:componentsList')?siteNode.getProperty('j:componentsList').getValues():null), renderContext.UILocale)
 
 def componentType = (renderContext.request.parameterMap['componentType'][0] == "all") ? "nt:base":"jmix:editorialContent";
 
