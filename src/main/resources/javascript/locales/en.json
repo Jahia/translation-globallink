@@ -1,7 +1,7 @@
 {
   "label" : {
-    "settings": "GlobalLink - settings",
-    "requests": "GlobalLink - request",
+    "settings": "GlobalLink - Settings",
+    "requests": "GlobalLink - Requests",
     "requestATranslation": "Request a translation"
   }
 }
