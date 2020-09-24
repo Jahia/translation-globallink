@@ -28,7 +28,8 @@
                                 <td align="center">
                                     <img src="${servername}${contextPath}/modules/jahia-translation-globallink/img/${imageName}" width="48px" height="48px" style="cdisplay: block; outline: none; border: none; text-decoration: none; margin-top: 32px;">
                                     <span style="font-family: 'Nunito Sans', Helvetica, Arial, sans-serif; font-size: 20px; color: rgb(82, 92, 98); margin-top: 16px; margin-bottom: 16px; display: block">
-                                        ${requestNode.getProperty("name").string}<br/>has been received by <span>translations.</span>com
+                                        ${requestNode.getProperty("name").string}<br/>
+                                        ${headerStatus}
                                     </span>
                                 </td>
                             </tr>
