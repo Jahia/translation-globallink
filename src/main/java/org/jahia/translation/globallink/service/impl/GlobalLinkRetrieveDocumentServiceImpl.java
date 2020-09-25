@@ -11,7 +11,9 @@ import org.gs4tr.gcc.restclient.request.TaskListRequest;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
+import org.jahia.services.mail.MailService;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
+import org.jahia.translation.globallink.service.api.GlobalLinkMailService;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.jahia.translation.globallink.service.api.GlobalLinkRetrieveDocumentService;
 import org.jahia.translation.globallink.service.api.SiteContentService;
@@ -49,6 +51,18 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
 
     private GlobalLinkQueryService queryService;
 
+    private MailService mailService;
+    private GlobalLinkMailService globalLinkMailService;
+
+    @Reference
+    public void setMailService(MailService mailService) {
+        this.mailService = mailService;
+    }
+
+    @Reference
+    public void setGlobalLinkMailService(GlobalLinkMailService globalLinkMailService) {
+        this.globalLinkMailService = globalLinkMailService;
+    }
     /**
      * {@inheritDoc}
      */
@@ -132,10 +146,10 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     }
 
     private void processTask(GCTask task, GCExchange gcExchange, GlobalLinkConfigurationDTO config) {
+        JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
+            getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
         try {
             LOGGER.info("Submission: {} - Job: {} - Task: {}", task.getSubmissionId(), task.getJobId(), task.getTaskId());
-            JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
-                    getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
             this.contentService.unLockNode((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode(), this.sessionWrapper);
             String docPath;
             if (config.getDocumentPath() != null && !config.getDocumentPath().equals("")) {
@@ -164,6 +178,10 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             });
         } catch (Exception ex) {
             LOGGER.error("Error retrieving translated document - ", ex);
+            this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CONTENT_ERROR);
+            if (mailService.isEnabled()) {
+                globalLinkMailService.sendNotificationMail(requestNode, STATUS_CONTENT_ERROR);
+            }
         }
     }
 
