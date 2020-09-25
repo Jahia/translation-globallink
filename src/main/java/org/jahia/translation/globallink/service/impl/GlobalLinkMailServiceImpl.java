@@ -16,6 +16,8 @@ import org.jahia.translation.globallink.service.api.GlobalLinkMailService;
 import org.jahia.translation.globallink.util.JCRUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import javax.jcr.Value;
@@ -49,6 +51,8 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
 
     private MailService mailService;
     private JahiaUserManagerService userManagerService;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkMailServiceImpl.class);
 
     @Reference
     public void setMailService(MailService mailService) {
@@ -85,7 +89,6 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
         DateTool dateTool = new DateTool();
         Locale userLocale = new Locale(user.getPropertyAsString("preferredLanguage"));
 
-        JCRNodeWrapper targetNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
         bindings.put("PrincipalViewHelper", PrincipalViewHelper.class);
         bindings.put("user", user);
         bindings.put("date", new DateTool());
@@ -102,16 +105,23 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
 
         String jContentFolder = "";
         String contentPath = "";
-        if(targetNode.isNodeType("jnt:page")){
-             jContentFolder =  "browse";
-            contentPath = targetNode.getPath();
-        }else{
-            jContentFolder =  "browse/contents";
-            contentPath = targetNode.getParent().getPath();
+        JCRNodeWrapper targetNode = null;
+        try{
+            targetNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+            if(targetNode.isNodeType("jnt:page")){
+                jContentFolder =  "browse";
+                contentPath = targetNode.getPath();
+            }else{
+                jContentFolder =  "browse/contents";
+                contentPath = targetNode.getParent().getPath();
+            }
+            bindings.put("jContentPath",
+                    Jahia.getContextPath() + "/cms/contentmanager/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
+                            + StringUtils.substringAfter(contentPath, "/sites/" + siteNode.getName()));
+
+        } catch (RepositoryException e) {
+            LOGGER.error("Error while getting node information", e);
         }
-        bindings.put("jContentPath",
-                Jahia.getContextPath() + "/cms/contentmanager/" + siteNode.getName() + "/" + userLocale.getLanguage() + "/" + jContentFolder
-                        + StringUtils.substringAfter(contentPath, "/sites/" + siteNode.getName()));
 
         bindings.put("dashboardPath", Jahia.getContextPath() + "/cms/edit/default/" + userLocale.getLanguage()
                 + "/sites/" + siteNode.getName() + ".globallink-translation-requests.html");
@@ -124,7 +134,7 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
         datas.put("Submission Id", requestNode.getPropertyAsString("submissionTicket"));
         datas.put("Submission Date", dateTool.format(SHORT, SHORT, requestNode.getProperty("jcr:lastModified").getDate(), userLocale));
         datas.put("Site name", siteNode.getDisplayableName());
-        datas.put("Content name", targetNode.getDisplayableName());
+        datas.put("Content name", targetNode != null ? targetNode.getDisplayableName() : "");
         datas.put("Source language",
                 StringUtils.substringBefore(requestNode.getPropertyAsString(GBL_PROJECT_SOURCE_LANG), "###").toUpperCase());
 
