@@ -41,6 +41,7 @@
  - gblError (string) hidden
  - dueDate (date) = now('1000*60*60*24*5')
  - instructions (string) hidden
+ - isChildRequest (boolean) hidden
 
 
 [gblnt:globalLinkRequestStatus] > jnt:content, mix:title, jmix:droppableContent, jmix:hiddenType

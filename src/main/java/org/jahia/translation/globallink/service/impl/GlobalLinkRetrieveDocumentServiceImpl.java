@@ -146,8 +146,14 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
     }
 
     private void processTask(GCTask task, GCExchange gcExchange, GlobalLinkConfigurationDTO config) {
-        JCRNodeWrapper requestNode = (JCRNodeWrapper) this.queryService.
-            getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager()).next();
+        final JCRNodeIteratorWrapper submissionNodeByContentIdIterator = this.queryService.
+            getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager());
+        if (!submissionNodeByContentIdIterator.hasNext()) {
+            // Unable to find node related to the task (probably because it has been removed manually)
+            LOGGER.warn("Unable to find submition ID {}", task.getContentId());
+            return;
+        }
+        JCRNodeWrapper requestNode = (JCRNodeWrapper) submissionNodeByContentIdIterator.next();
         try {
             LOGGER.info("Submission: {} - Job: {} - Task: {}", task.getSubmissionId(), task.getJobId(), task.getTaskId());
             this.contentService.unLockNode((JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode(), this.sessionWrapper);

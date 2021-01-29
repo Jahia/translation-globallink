@@ -1,5 +1,6 @@
 package org.jahia.translation.globallink.service.impl;
 
+import org.jahia.services.content.JCRContentUtils;
 import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
@@ -170,18 +171,19 @@ public class SiteContentServiceImpl implements SiteContentService {
      * {@inheritDoc}
      */
     @Override
-    public JCRNodeWrapper addGlobalLinkRequestNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper,
-                                                   GlobalLinkProjectRequestDTO requestDTO) {
+    public JCRNodeWrapper addGlobalLinkRequestOnChildNode(JCRNodeWrapper nodeWrapper, JCRSessionWrapper sessionWrapper,
+                                                          GlobalLinkProjectRequestDTO requestDTO) {
         try {
-            if (nodeWrapper.hasNode(NODE_NAME_GLOBAL_LINK)) {
-                nodeWrapper.getNode(NODE_NAME_GLOBAL_LINK).remove();
-            }
-            JCRNodeWrapper requestNode = nodeWrapper.addNode(NODE_NAME_GLOBAL_LINK, NODE_TYPE_PROJECT);
+            final JCRNodeWrapper requestsFolderNode = nodeWrapper.getResolveSite().getNode(NODE_NAME_PROJECT_REQUESTS);
+            final String newRequestName = JCRContentUtils.findAvailableNodeName(requestsFolderNode, NODE_NAME_GLOBAL_LINK);
+            JCRNodeWrapper requestNode = requestsFolderNode.addNode(newRequestName, NODE_TYPE_PROJECT);
+            requestNode.setProperty(GBL_PROJECT_TARGET_NODE, nodeWrapper);
             requestNode.setProperty(GBL_PROJECT_SOURCE_LANG, requestDTO.getSourceLanguage());
             requestNode.setProperty(GBL_PROJECT_TARGET_LANG, requestDTO.getDesLanguages());
             requestNode.setProperty(GBL_PROJECT_REQUEST_ID, requestDTO.getRequestId());
             requestNode.setProperty(GBL_SKIP_TRANSLATED, requestDTO.isSkipTranslated());
             requestNode.setProperty(GBL_INCLUDE_CHILD, requestDTO.isChildIncluded());
+            requestNode.setProperty(GBL_IS_CHILD_REQUEST, true);
             sessionWrapper.save();
             return requestNode;
         } catch (RepositoryException re) {

@@ -62,6 +62,8 @@ public class GlobalLinkConstants {
 
     public static final String GBL_INCLUDE_CHILD = "includeChildPages";
 
+    public static final String GBL_IS_CHILD_REQUEST = "isChildRequest";
+
     public static final String GBL_SKIP_TRANSLATED = "skipTranslated";
 
     public static final String NODE_TYPE_BIGTEXT = "jnt:bigText";
