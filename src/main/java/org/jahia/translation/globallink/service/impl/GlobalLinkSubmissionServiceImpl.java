@@ -32,13 +32,7 @@ import javax.jcr.RepositoryException;
 import javax.jcr.Value;
 import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_INCLUDE_CHILD;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_ERROR;
@@ -51,7 +45,6 @@ import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PR
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SKIP_TRANSLATED;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SUBMISSION_STATE;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_NAME_GLOBAL_LINK;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PAGE;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO_DOCUMENT;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
@@ -194,7 +187,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         return projectRequestDTO;
     }
 
-    private void processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
+    private Map<String, JCRNodeWrapper> processDocumentForProject(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
         if (requestDTO.getNodeWrapper().hasProperty(GBL_PROJECT_TARGET_NODE)) {
             JCRNodeWrapper node = (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode();
@@ -207,8 +200,10 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 Optional.ofNullable(prepareGlobalLinkDocument(documentName, config.getFileFormat()))
                         .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
             }
+            return Collections.singletonMap(node.getIdentifier(), requestDTO.getNodeWrapper());
         } else {
             LOGGER.error("Unable to read " + GBL_PROJECT_TARGET_NODE + " property on node " + requestDTO.getNodeWrapper().getPath());
+            return Collections.emptyMap();
         }
     }
 
@@ -218,7 +213,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param requestDTO
      * @return
      */
-    private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config, GCExchange gcExchange) {
+    private boolean submitGBLRequest(GlobalLinkProjectRequestDTO requestDTO, GlobalLinkConfigurationDTO config, GCExchange gcExchange, Map<String, JCRNodeWrapper> contentToRequestMap) {
         String submissionName;
         Date dueDate;
         String[] split = requestDTO.getSourceLanguage().split("###");
@@ -268,7 +263,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 dueDate = calendar.getTime();
             }
             SubmissionSubmitRequest submissionSubmitRequest = new SubmissionSubmitRequest(submissionName, dueDate, sourceLanguage,
-                    targetLanguages, uploadContentlist(requestDTO, gcExchange, parent, dueDate, submissionName));
+                    targetLanguages, uploadContentlist(requestDTO, gcExchange, parent, dueDate, submissionName,  contentToRequestMap));
             submissionSubmitRequest.setInstructions(pmNotes);
 
             SubmissionSubmitResponseData submissionSubmitResponseData = gcExchange.submitSubmission(submissionSubmitRequest);
@@ -284,7 +279,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     }
 
     private List<String> uploadContentlist(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange, JCRNodeWrapper parent,
-            Date dueDate, String submissionName) {
+            Date dueDate, String submissionName, Map<String, JCRNodeWrapper> contentToRequestMap) {
         List<UploadFileRequest> uploadFileRequests = requestDTO.getUploadFileRequests();
 
         List<String> contentIds = new ArrayList<>();
@@ -294,7 +289,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 contentIds.add(contentId);
                 String id = StringUtils.substringBefore(StringUtils.substringAfterLast(uploadFileRequest.getFileName(), "___"), ".");
                 if (!id.equals(parent.getIdentifier())) {
-                    JCRNodeWrapper requestNode = this.sessionWrapper.getNodeByIdentifier(id).getNode(NODE_NAME_GLOBAL_LINK);
+                    JCRNodeWrapper requestNode = contentToRequestMap.get(id);
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(dueDate);
                     requestNode.setProperty(DUE_DATE, calendar);
@@ -320,14 +315,18 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      */
     private void processRequestDTO(GlobalLinkProjectRequestDTO requestDTO, GCExchange gcExchange, GlobalLinkConfigurationDTO config) {
         try {
-            processDocumentForProject(requestDTO, config);
+            Map<String, JCRNodeWrapper> contentToRequestMap = new HashMap<>(processDocumentForProject(requestDTO, config));
+            if (contentToRequestMap.isEmpty()) {
+                LOGGER.error("Unable to process request node path {}", requestDTO.getNodeWrapper().getPath());
+                return;
+            }
             if (requestDTO.getNodeWrapper().hasProperty(GBL_INCLUDE_CHILD) && requestDTO.getNodeWrapper().getProperty(GBL_INCLUDE_CHILD)
                     .getBoolean()) {
                 requestDTO.setChildIncluded(true);
-                processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode(),
-                        config);
+                contentToRequestMap.putAll(processChildPages(requestDTO, (JCRNodeWrapper) requestDTO.getNodeWrapper().getProperty(GBL_PROJECT_TARGET_NODE).getNode(),
+                        config));
             }
-            if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange)) {
+            if (!requestDTO.getUploadFileRequests().isEmpty() && this.submitGBLRequest(requestDTO, config, gcExchange, contentToRequestMap)) {
                 this.contentService.logProjectRequestInJcr(requestDTO, true, sessionWrapper);
             } else {
                 this.contentService.updateRequestStatus(requestDTO.getNodeWrapper(), this.sessionWrapper, STATUS_NO_DOCUMENT);
@@ -344,10 +343,12 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
      * @param pageNode
      * @param config
      */
-    private void processChildPages(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode, GlobalLinkConfigurationDTO config) {
+    private Map<String, JCRNodeWrapper> processChildPages(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper pageNode, GlobalLinkConfigurationDTO config) {
+        Map<String, JCRNodeWrapper> contentToRequestMap = new HashMap<>();
         JCRContentUtils.getChildrenOfType(pageNode, NODE_TYPE_PAGE).forEach(child -> {
             try {
-                JCRNodeWrapper requestNode = this.contentService.addGlobalLinkRequestNode(child, this.sessionWrapper, requestDTO);
+                JCRNodeWrapper requestNode = this.contentService.addGlobalLinkRequestOnChildNode(child, this.sessionWrapper, requestDTO);
+                contentToRequestMap.put(child.getIdentifier(), requestNode);
                 boolean documentForProject = this.documentService
                         .createDocumentForProject(requestDTO, child, requestNode, config.getComponentList(), sessionWrapper);
                 if (documentForProject) {
@@ -358,12 +359,13 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     sendMailForEmptySubmission(requestDTO, requestNode, child);
                 }
                 if (!JCRContentUtils.getChildrenOfType(child, NODE_TYPE_PAGE).isEmpty()) {
-                    processChildPages(requestDTO, child, config);
+                    contentToRequestMap.putAll(processChildPages(requestDTO, child, config));
                 }
-            } catch (GlobalLinkServiceException se) {
+            } catch (GlobalLinkServiceException | RepositoryException se) {
                 LOGGER.error("Exception while processing child page -> ", se);
             }
         });
+        return contentToRequestMap;
     }
 
     private void sendMailForEmptySubmission(GlobalLinkProjectRequestDTO requestDTO, JCRNodeWrapper requestNode, JCRNodeWrapper page) {

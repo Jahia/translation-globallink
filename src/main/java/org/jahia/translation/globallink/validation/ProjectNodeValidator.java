@@ -6,10 +6,9 @@ import org.jahia.services.content.decorator.validation.JCRNodeValidator;
 import org.slf4j.Logger;
 
 import javax.jcr.RepositoryException;
-import javax.validation.constraints.Future;
 import java.util.Calendar;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_NAME_GLOBAL_LINK;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_IS_CHILD_REQUEST;
 
 /**
  * Created by rincevent on 2017-02-06.
@@ -25,7 +24,8 @@ public class ProjectNodeValidator implements JCRNodeValidator {
     @FutureDueDate
     public Calendar getDueDate() {
         try {
-            if(node.getName().equals(NODE_NAME_GLOBAL_LINK) || !node.isNew()) {
+            // Skip for sub pages requests
+            if((node.hasProperty(GBL_IS_CHILD_REQUEST) && node.getProperty(GBL_IS_CHILD_REQUEST).getBoolean()) || !node.isNew()) {
                 return null;
             }
             JCRPropertyWrapper property = node.getProperty("dueDate");
