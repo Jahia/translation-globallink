@@ -1,4 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    /*
+     * ==========================================================================================
+     * =                            JAHIA'S ENTERPRISE DISTRIBUTION                             =
+     * ==========================================================================================
+     *
+     *                                  http://www.jahia.com
+     *
+     * JAHIA'S ENTERPRISE DISTRIBUTIONS LICENSING - IMPORTANT INFORMATION
+     * ==========================================================================================
+     *
+     *     Copyright (C) 2002-2021 Jahia Solutions Group. All rights reserved.
+     *
+     *     This file is part of a Jahia's Enterprise Distribution.
+     *
+     *     Jahia's Enterprise Distributions must be used in accordance with the terms
+     *     contained in the Jahia Solutions Group Terms & Conditions as well as
+     *     the Jahia Sustainable Enterprise License (JSEL).
+     *
+     *     For questions regarding licensing, support, production usage...
+     *     please contact our team at sales@jahia.com or go to http://www.jahia.com/license.
+     *
+     * ==========================================================================================
+     */
+
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -12,6 +39,7 @@
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
+        <jahia.nexus.staging.repository.id>1b7030912bcbea1</jahia.nexus.staging.repository.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default</jahia-depends>
         <yarn.arguments>build -p</yarn.arguments>
