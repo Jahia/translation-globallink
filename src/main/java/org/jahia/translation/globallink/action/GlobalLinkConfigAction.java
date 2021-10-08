@@ -159,10 +159,8 @@ public class GlobalLinkConfigAction extends Action {
                                 .rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
                     }
                 }
-            } catch (SchedulerException e) {
-                e.printStackTrace();
-            } catch (ParseException e) {
-                e.printStackTrace();
+            } catch (SchedulerException | ParseException e) {
+                LOGGER.error("Error scheduling jobs", e);
             }
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
