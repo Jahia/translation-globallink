@@ -49,7 +49,7 @@
             osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
             org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
         </require-capability>
-        <jahia-module-signature>MC0CFQCABdfX1Wz1OM6fSZ8Q7dKhQBchugIUSelYNa1TbXbOyqE+LgEhU2zi8Nk=</jahia-module-signature>
+        <jahia-module-signature>MCwCFBP9EkzH4ugQVkIsJi+XB+4H5OMkAhQcN0KcAn4UZ23S/XaslfUEpWQ67A==</jahia-module-signature>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>
