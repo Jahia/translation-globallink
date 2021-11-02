@@ -39,7 +39,7 @@
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
-        <jahia.nexus.staging.repository.id>1b7030912bcbea1</jahia.nexus.staging.repository.id>
+        <jahia.nexus.staging.repository.id>6476c85c299551</jahia.nexus.staging.repository.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default</jahia-depends>
         <yarn.arguments>build -p</yarn.arguments>
