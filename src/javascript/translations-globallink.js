@@ -63,11 +63,11 @@ window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslat
 });
 
 window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
-    targets: ['ContentPicker'],
+    targets: ['Picker'],
     onChange: (previousValue, currentValue, field, editorContext) => {
         if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
             const {setFieldValue} = editorContext.formik;
-            setFieldValue('targetNode', editorContext.nodeData.uuid, true);
+            setFieldValue('gblnt:globalLinkProject_targetNode', editorContext.nodeData.uuid, true);
         }
     }
 });
