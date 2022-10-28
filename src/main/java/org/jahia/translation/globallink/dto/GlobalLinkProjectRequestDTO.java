@@ -48,7 +48,6 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
     private Long submissionId;
     private boolean childIncluded;
     private List<UploadFileRequest> uploadFileRequests;
-    private String fileFormat;
     private String requestId;
     private String documentpath;
     private boolean skipTranslated;
@@ -111,14 +110,6 @@ public class GlobalLinkProjectRequestDTO implements Serializable {
 
     public void setUploadFileRequests(List<UploadFileRequest> uploadFileRequests) {
         this.uploadFileRequests = uploadFileRequests;
-    }
-
-    public String getFileFormat() {
-        return fileFormat;
-    }
-
-    public void setFileFormat(String fileFormat) {
-        this.fileFormat = fileFormat;
     }
 
     public String getRequestId() {
