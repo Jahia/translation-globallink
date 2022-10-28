@@ -192,7 +192,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     private GlobalLinkProjectRequestDTO buildProjectRequestDTO(JCRNodeWrapper project, GlobalLinkConfigurationDTO config)
             throws RepositoryException {
         GlobalLinkProjectRequestDTO projectRequestDTO = new GlobalLinkProjectRequestDTO();
-        projectRequestDTO.setFileFormat(StringUtils.substringAfter(config.getFileFormat(), "_").toLowerCase());
         String sourceLanguage = project.getProperty(GBL_PROJECT_SOURCE_LANG).getString();
         projectRequestDTO.setSourceLanguage(sourceLanguage);
         ArrayList<String> allTargetLanguages = new ArrayList<>();

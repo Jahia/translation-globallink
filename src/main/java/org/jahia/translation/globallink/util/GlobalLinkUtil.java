@@ -51,6 +51,7 @@ import java.nio.file.FileSystems;
 import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_PATH;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.FILE_EXT_XML;
 
 /**
  * Utility class for common methods.
@@ -105,7 +106,7 @@ public class GlobalLinkUtil {
                 docPath = requestDTO.getDocumentpath();
             }
             IOUtil.createDirectories(FileSystems.getDefault().getPath(docPath) + File.separator + requestDTO.getRequestId());
-            return docPath + File.separator + requestDTO.getRequestId() + File.separator + pageNode.getDisplayableName() + "___" + pageNode.getIdentifier() + "." + requestDTO.getFileFormat();
+            return docPath + File.separator + requestDTO.getRequestId() + File.separator + pageNode.getDisplayableName() + "___" + pageNode.getIdentifier() + FILE_EXT_XML;
         } catch (Exception ex) {
             LOGGER.error("Exception while preparing source file path -> ", ex);
         }
