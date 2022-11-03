@@ -83,6 +83,11 @@
                                                 var="nodeUrl"
                                                 value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/pages${fn:substringAfter(targetNode.path,sitePath)}"/>
                                     </c:when>
+                                    <c:when test="${jcr:getParentOfType(targetNode,'jnt:page') != null}">
+                                        <c:url
+                                                var="nodeUrl"
+                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/pages${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
+                                    </c:when>
                                     <c:otherwise>
                                         <c:url
                                                 var="nodeUrl"
