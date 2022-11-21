@@ -1,0 +1,12 @@
+# This is the template configuration use to build new site configuration.
+---
+accessJsonToGetAllNodeTypes:
+  description: "Access json view"
+  auto_apply:
+    - always: true
+  constraints:
+    - privileged_user: true
+  grants:
+  - api: view.json.default
+    node:
+      nodeType: gblnt:globalLinkSettings
