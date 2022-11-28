@@ -50,11 +50,8 @@ import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DE
  */
 public class GlobalLinkTranslationJob extends BackgroundJob {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkTranslationJob.class);
-
     @Override
     public void executeJahiaJob(JobExecutionContext context) throws Exception {
-        LOGGER.info("Inside GBL Translation background Job Execution");
         JCRSessionWrapper sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
 
         GlobalLinkQueryService globalLinkQueryService = BundleUtils.getOsgiService(GlobalLinkQueryService.class, null);
