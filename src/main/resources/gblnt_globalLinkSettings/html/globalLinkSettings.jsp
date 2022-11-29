@@ -16,6 +16,7 @@
 <template:addResources type="javascript" resources="jquery.min.js,jquery.form.min.js"/>
 <template:addResources type="css" resources="gblbootstrap.min.css"/>
 <template:addResources type="css" resources="multi-select.css"/>
+<template:addResources type="css" resources="translation-globallink-settings.css"/>
 <template:addResources type="javascript" resources="gblbootstrap.min.js"/>
 <template:addResources type="javascript" resources="jquery.multi-select.js"/>
 <template:addResources type="javascript" resources="jquery.quicksearch.js"/>
@@ -145,6 +146,24 @@
             });
 
             checkMappings();
+
+            $("#refreshLanguages").on("click", function (event) {
+                // disable other buttons to avoid multiple clicks
+                $("#refreshLanguages span").addClass('glyphicon-refresh-animate');
+                $("#refreshLanguages").prop("disabled", true);
+                $("#updateSiteButton").prop("disabled", true);
+                $.ajax({
+                    url: '<c:url value="${url.base}${site.path}.globalLinkRefreshLanguages.do"/>',
+                    type: 'GET',
+                    dataType : "json"
+                }).done(function () {
+                    location.reload();
+                }).fail(err => {
+                    console.log('an error occurred while refreshing languages', err);
+                });
+                event.preventDefault();
+                return false;
+            });
         });
 
         const saveTranslationSettings = () => {
@@ -155,10 +174,10 @@
                 dataType : "json",
                 data: data
             }).done(function () {
-                    top.location.reload();
-                }
-            ).fail(err => {
-            console.log('an error occurred', err);
+                // We reload the top iframe, because we need to reload the registry action that is doing a check on site config.
+                top.location.reload();
+            }).fail(err => {
+                console.log('an error occurred', err);
             });
             return false;
         }
@@ -206,6 +225,7 @@
                                 <div style="padding:4px; font-weight:bold; background: red; color: white;"><fmt:message key="gbl.settings.configNOK"/></div>
                             </c:when>
                             <c:otherwise>
+                                <c:set var="configured" value="${true}"/>
                                 <div style="padding:4px; font-weight:bold; background: green; color: white;"><fmt:message key="gbl.settings.configOK"/></div>
                             </c:otherwise>
                         </c:choose>
@@ -476,6 +496,19 @@
                 <input type="submit" name="updateSiteButton" id="updateSiteButton"
                        class="btn btn-primary btn-sm"
                        value="<fmt:message key='gbl.label.save'/>" disabled/>
+
+                <!--
+                    Don't ask me why, but:
+                     - NS seems to mean that there is no configuration for current site
+                     - NA seems to be used when the config is not valid
+                    (check: org.jahia.translation.globallink.jsp.taglibs.ELFunctions.checkAndGetProjectInfo)
+                    So we display the refresh language button only in case we have a valid conf saved already.
+                 -->
+                <c:if test="${directions ne 'NS' && directions ne 'NA'}">
+                    <button name="refreshLanguages" id="refreshLanguages" class="btn btn-sm btn-primary">
+                        <span class="glyphicon glyphicon-refresh"></span>&nbsp;<fmt:message key='gbl.settings.refreshLanguages'/>
+                    </button>
+                </c:if>
             </div>
         </form>
     </div>

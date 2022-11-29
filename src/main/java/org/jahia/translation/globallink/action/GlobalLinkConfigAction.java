@@ -9,7 +9,7 @@
  *  * JAHIA'S ENTERPRISE DISTRIBUTIONS LICENSING - IMPORTANT INFORMATION
  *  * ==========================================================================================
  *  *
- *  *     Copyright (C) 2002-2021 Jahia Solutions Group. All rights reserved.
+ *  *     Copyright (C) 2002-2022 Jahia Solutions Group. All rights reserved.
  *  *
  *  *     This file is part of a Jahia's Enterprise Distribution.
  *  *
@@ -81,6 +81,8 @@ public class GlobalLinkConfigAction extends Action {
 
     public GlobalLinkConfigAction() {
         this.setRequiredMethods("POST");
+        this.setRequireAuthenticatedUser(true);
+        this.setRequiredPermission("adminGlobalLinkTranslation");
     }
 
     /**
@@ -199,7 +201,7 @@ public class GlobalLinkConfigAction extends Action {
         return null;
     }
 
-    private void getLanguageMapping(JCRSiteNode siteNode) throws RepositoryException {
+    protected void getLanguageMapping(JCRSiteNode siteNode) throws RepositoryException {
         GlobalLinkConfigurationDTO configuration = JCRUtil.getSiteConfiguration(siteNode);
 
         if (configuration != null) {
