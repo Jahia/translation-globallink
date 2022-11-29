@@ -225,7 +225,6 @@
                                 <div style="padding:4px; font-weight:bold; background: red; color: white;"><fmt:message key="gbl.settings.configNOK"/></div>
                             </c:when>
                             <c:otherwise>
-                                <c:set var="configured" value="${true}"/>
                                 <div style="padding:4px; font-weight:bold; background: green; color: white;"><fmt:message key="gbl.settings.configOK"/></div>
                             </c:otherwise>
                         </c:choose>
