@@ -63,7 +63,8 @@ window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslat
 });
 
 window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
-    targets: ['Picker'],
+    // 'ContentPicker' is for content editor v3 compatibility.
+    targets: ['Picker', 'ContentPicker'],
     onChange: (previousValue, currentValue, field, editorContext) => {
         if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
             const {setFieldValue} = editorContext.formik;
