@@ -395,7 +395,7 @@
                                     // A bit of scriptlet
                                     ExtendedNodeType type = (ExtendedNodeType) pageContext.getAttribute("selectedType");
                                     RenderContext renderContext = (RenderContext) pageContext.getAttribute("renderContext", PageContext.REQUEST_SCOPE);
-                                    String label = type.getLabel(renderContext.getUILocale());
+                                    String label = String.format("%s (%s)", type.getLabel(renderContext.getUILocale()), type.getName());
                                     pageContext.setAttribute("nodeTypeLabel", label);
                                 } catch (Exception e) {
                                     // Do nothing in case type / label is not resolved.
@@ -409,7 +409,7 @@
                         <c:forEach
                                 items="${gbl:componentList(renderContext.mainResource.node, renderContext.UILocale, script, site.properties['j:componentsList'])}"
                                 var="component">
-                            <option value="${component.value}-${component.key}">${component.value}
+                            <option value="${component.value}-${component.key}">${component.value} (${component.key})
                             </option>
                         </c:forEach>
                     </select>
