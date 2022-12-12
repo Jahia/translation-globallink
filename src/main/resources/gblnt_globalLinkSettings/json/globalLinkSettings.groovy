@@ -22,7 +22,7 @@ mapTypes.each { key, value ->
             for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
                 ExtendedPropertyDefinition value1 = definitionEntry.getValue();
                 if (!value1.isProtected() && value1.isInternationalized() && value1.getRequiredType() == PropertyType.STRING) {
-                    filteredMap[key] = value;
+                    filteredMap[key] = value + " (" + key + ")";
                     break;
                 }
             }
