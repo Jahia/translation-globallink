@@ -10,6 +10,8 @@
 <%--@elvariable id="url" type="org.jahia.services.render.URLGenerator"--%>
 
 <c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
+<c:set var="currentLocale" value="${renderContext.mainResource.locale}"/>
+<c:set var="localeLanguage" value="${currentLocale.country == '' ? currentLocale.language : currentLocale.language.concat('_').concat(currentLocale.country)}"/>
 <jcr:sql var="gblRequests"
          sql="select * from [gblnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
 
@@ -81,17 +83,17 @@
                                     <c:when test="${jcr:isNodeType(targetNode, 'jnt:page')}">
                                         <c:url
                                                 var="nodeUrl"
-                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/pages${fn:substringAfter(targetNode.path,sitePath)}"/>
+                                                value="/jahia/jcontent/${site.name}/${localeLanguage}/pages${fn:substringAfter(targetNode.path,sitePath)}"/>
                                     </c:when>
                                     <c:when test="${jcr:getParentOfType(targetNode,'jnt:page') != null}">
                                         <c:url
                                                 var="nodeUrl"
-                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/pages${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
+                                                value="/jahia/jcontent/${site.name}/${localeLanguage}/pages${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
                                     </c:when>
                                     <c:otherwise>
                                         <c:url
                                                 var="nodeUrl"
-                                                value="/jahia/jcontent/${site.name}/${renderContext.UILocale.language}/content-folders${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
+                                                value="/jahia/jcontent/${site.name}/${localeLanguage}/content-folders${fn:substringAfter(targetNode.parent.path,sitePath)}"/>
                                     </c:otherwise>
                                 </c:choose>
                                 <a href="${nodeUrl}">
@@ -103,10 +105,10 @@
                             <td><fmt:formatDate pattern="yyyy-MM-dd HH:mm"
                                                 value="${gblRequest.properties['jcr:created'].time}"/></td>
                             <td>${gblRequest.properties['jcr:createdBy'].string}</td>
-                            <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), renderContext.UILocale)}&nbsp;->&nbsp;
+                            <td>${gbl:displayLocale(fn:substringAfter(gblRequest.properties['sourceLanguage'].string,"###"), currentLocale)}&nbsp;->&nbsp;
                                 <ul class=" list-unstyled">
                                     <c:forEach items="${gblRequest.properties['targetLanguage']}" var="lan">
-                                        <li>${gbl:displayLocale(fn:substringAfter(lan.string,"###"), renderContext.UILocale)}</li>
+                                        <li>${gbl:displayLocale(fn:substringAfter(lan.string,"###"), currentLocale)}</li>
                                     </c:forEach>
                                 </ul>
                             </td>
@@ -123,7 +125,7 @@
                                         <c:set var="ticket" value="${fn:substringBefore(remaining, '_')}"/>
 
                                         <dt><fmt:message key="request.target.language"/></dt>
-                                        <dd>${gbl:displayLocale(targetLocale,renderContext.UILocale)}</dd>
+                                        <dd>${gbl:displayLocale(targetLocale, currentLocale)}</dd>
 
                                         <dt><fmt:message key="request.target.wordcount"/></dt>
                                         <dd>${wordCount}</dd>
@@ -152,7 +154,7 @@
                             <td>
                                 <button type="submit"
                                         onclick="window.top.CE_API.edit('${gblRequest.identifier}', '${site.name}',
-                                                '${renderContext.UILocale.language}','${renderContext.UILocale.language}');"
+                                                '${localeLanguage}');"
                                         class="btn btn-primary btn-sm"><fmt:message key='request.details.view'/></button>
                             </td>
                         </tr>
@@ -168,7 +170,7 @@
 </div>
 <script>
     $(document).ready(function () {
-        moment.locale('${renderContext.UILocale.language}');
+        moment.locale('${currentLocale.language}');
         $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
         $.fn.dataTable.moment('yyyy-MM-dd HH:mm');
         $('#request-list').DataTable({
