@@ -4,7 +4,7 @@ import {useSelector} from 'react-redux';
 import {useNodeChecks} from '@jahia/data-helper';
 
 export const CreateNewTranslationRequest = ({render: Render, loading: Loading, ...otherProps}) => {
-    const {language, siteKey, uilang} = useSelector(state => ({language: state.language, siteKey: state.site, uilang: state.uilang}));
+    const {language, siteKey} = useSelector(state => ({language: state.language, siteKey: state.site}));
 
     const res = useNodeChecks(
         {path: otherProps.path, language: language},
@@ -24,18 +24,28 @@ export const CreateNewTranslationRequest = ({render: Render, loading: Loading, .
         return <Render {...otherProps} isVisible={false}/>;
     }
 
-    if (res.checksResult && !window.globallinkFolderId[siteKey]) {
+    if (res.checksResult && !window.globallinkFolder[siteKey]) {
         console.log('No Translations globalling config found for site ', siteKey);
     }
 
     // Use onClick to open content editor using the URL.
     // URL : const onClick = () => history.push(`/content-editor/${language}/create/${nodeInfo.node.uuid}/gblnt:globalLinkProject`);
     // Use onClick to open the modal window
-    const onClick = () => window.CE_API.create(res.node.uuid, otherProps.path, siteKey, language, uilang, ['gblnt:globalLinkProject'], [], false);
+    const onClick = () => window.CE_API.create({
+        uuid: res.node.uuid,
+        path: window.globallinkFolder[siteKey].path,
+        site: siteKey,
+        uilang: window.contextJsParameters.uilang,
+        lang: language,
+        nodeTypes: ['gblnt:globalLinkProject'],
+        includeSubTypes: false,
+        isFullscreen: false,
+        keepSectionsState: true
+    });
 
     return (
         <Render
-            isVisible={res.checksResult && Boolean(window.globallinkFolderId[siteKey])}
+            isVisible={res.checksResult && Boolean(window.globallinkFolder[siteKey])}
             onClick={onClick}
             {...otherProps}
         />

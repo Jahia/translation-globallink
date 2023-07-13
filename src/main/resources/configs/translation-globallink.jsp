@@ -6,11 +6,14 @@
         response.setHeader("Cache-Control", "no-cache");
         response.setDateHeader("Expires", 0);
     %>
-    window.globallinkFolderId = {};
-    <%
-    try {
-for (JCRSiteNode site : JahiaSitesService.getInstance().getSitesNodeList()) {
-%>window.globallinkFolderId['<%=site.getName()%>']='<%=site.hasNode(NODE_NAME_PROJECT_REQUESTS) ? site.getNode(NODE_NAME_PROJECT_REQUESTS).getIdentifier() : ""%>'
+    window.globallinkFolder = {};
+<%
+try {
+    for (JCRSiteNode site : JahiaSitesService.getInstance().getSitesNodeList()) {
+%>
+    window.globallinkFolder['<%=site.getName()%>'] = {};
+    window.globallinkFolder['<%=site.getName()%>'].uuid = '<%=site.hasNode(NODE_NAME_PROJECT_REQUESTS) ? site.getNode(NODE_NAME_PROJECT_REQUESTS).getIdentifier() : ""%>'
+    window.globallinkFolder['<%=site.getName()%>'].path = '<%=site.hasNode(NODE_NAME_PROJECT_REQUESTS) ? site.getNode(NODE_NAME_PROJECT_REQUESTS).getPath() : ""%>'
 <%
 }} catch (Exception e) {
     LoggerFactory.getLogger("translation-globallink.jsp").error("Unable to init folders IDs", e);

@@ -36,9 +36,9 @@ window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslat
             // Resolve site
             const [, , siteKey] = nodeData.path.split('/');
 
-            // Sites' global link folder UUID is provided by /configs/translation-globallink.jsp
-            const globallinkFolderId = window.globallinkFolderId[siteKey];
-            if (globallinkFolderId) {
+            // Sites' global link folder is provided by /configs/translation-globallink.jsp
+            const globallinkFolder = window.globallinkFolder[siteKey];
+            if (globallinkFolder) {
                 // Set target node
                 const targetNode = {
                     language: variables.properties[0].language,
@@ -49,7 +49,7 @@ window.jahia.uiExtender.registry.add('contentEditor.onCreate', 'onCreateTranslat
                 };
                 variables.properties.push(targetNode);
                 // Change node to save
-                variables.uuid = globallinkFolderId;
+                variables.uuid = globallinkFolder.uuid;
                 return variables;
             }
 
@@ -66,7 +66,7 @@ window.jahia.uiExtender.registry.add('selectorType.onChange', 'globalLink', {
     // 'ContentPicker' is for content editor v3 compatibility.
     targets: ['Picker', 'ContentPicker'],
     onChange: (previousValue, currentValue, field, editorContext) => {
-        if (editorContext.formQueryParams.primaryNodeType === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
+        if (editorContext.nodeTypeName === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
             const {setFieldValue} = editorContext.formik;
             setFieldValue('gblnt:globalLinkProject_targetNode', editorContext.nodeData.uuid, true);
         }
