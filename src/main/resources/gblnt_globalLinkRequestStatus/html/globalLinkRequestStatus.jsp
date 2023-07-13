@@ -11,7 +11,7 @@
 
 <c:set var="site" value="${renderContext.mainResource.node.resolveSite}"/>
 <c:set var="currentLocale" value="${renderContext.mainResource.locale}"/>
-<c:set var="localeLanguage" value="${currentLocale.country == '' ? currentLocale.language : currentLocale.language.concat('_').concat(currentLocale.country)}"/>
+<c:set var="localeLanguage" value="${currentLocale.toString()}"/>
 <jcr:sql var="gblRequests"
          sql="select * from [gblnt:globalLinkProject] where isdescendantnode(['${site.path}']) order by [jcr:created] desc"/>
 
