@@ -153,8 +153,8 @@
                             </td>
                             <td>
                                 <button type="submit"
-                                        onclick="window.top.CE_API.edit('${gblRequest.identifier}', '${site.name}',
-                                                '${localeLanguage}');"
+                                        onclick="window.top.CE_API.edit({uuid: '${gblRequest.identifier}', site: '${site.name}',
+                                                lang: '${localeLanguage}'});"
                                         class="btn btn-primary btn-sm"><fmt:message key='request.details.view'/></button>
                             </td>
                         </tr>
