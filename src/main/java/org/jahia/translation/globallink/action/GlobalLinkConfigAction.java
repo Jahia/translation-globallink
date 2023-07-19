@@ -184,7 +184,7 @@ public class GlobalLinkConfigAction extends Action {
      */
     private String getRequestParameter(HttpServletRequest request, String parameterName) {
         if (request.getParameter(parameterName) != null) {
-            return request.getParameter(parameterName);
+            return request.getParameter(parameterName).trim();
         }
         return StringUtils.EMPTY;
     }
