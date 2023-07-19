@@ -196,7 +196,7 @@ public class GlobalLinkConfigAction extends Action {
      */
     private String[] getMultiRequestparameter(HttpServletRequest request, String parameterName) {
         if (request.getParameter(parameterName) != null) {
-            return (String[]) request.getParameterMap().get(parameterName);
+            return request.getParameterMap().get(parameterName);
         }
         return null;
     }
