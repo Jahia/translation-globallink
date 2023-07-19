@@ -7,6 +7,14 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 // Get manifest
 const normalizedPath = require('path').join(__dirname, './target/dependency');
 let manifest = '';
+const {CycloneDxWebpackPlugin} = require('@cyclonedx/webpack-plugin');
+
+/** @type {import('@cyclonedx/webpack-plugin').CycloneDxWebpackPluginOptions} */
+const cycloneDxWebpackPluginOptions = {
+    specVersion: '1.4',
+    rootComponentType: 'library',
+    outputLocation: './bom'
+};
 
 require('fs').readdirSync(normalizedPath).forEach(function (file) {
     manifest = './target/dependency/' + file;
@@ -74,7 +82,8 @@ module.exports = (env, argv) => {
                 hashDigest: 'hex',
                 hashDigestLength: 20
             }),
-            new CopyWebpackPlugin([{from: './package.json', to: ''}])
+            new CopyWebpackPlugin([{from: './package.json', to: ''}]),
+            new CycloneDxWebpackPlugin(cycloneDxWebpackPluginOptions)
         ],
         mode: argv.mode
     };
