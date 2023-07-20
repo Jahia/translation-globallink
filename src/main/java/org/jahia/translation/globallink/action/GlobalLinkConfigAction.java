@@ -40,7 +40,6 @@ import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
-import org.jahia.services.seo.urlrewrite.ResourceChecksumCalculator;
 import org.jahia.translation.globallink.dto.GlobalLinkConfigurationDTO;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.util.GlobalLinkUtil;
@@ -56,13 +55,7 @@ import org.slf4j.LoggerFactory;
 import javax.jcr.RepositoryException;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toSet;
@@ -184,7 +177,7 @@ public class GlobalLinkConfigAction extends Action {
      */
     private String getRequestParameter(HttpServletRequest request, String parameterName) {
         if (request.getParameter(parameterName) != null) {
-            return request.getParameter(parameterName);
+            return request.getParameter(parameterName).trim();
         }
         return StringUtils.EMPTY;
     }
@@ -196,7 +189,7 @@ public class GlobalLinkConfigAction extends Action {
      */
     private String[] getMultiRequestparameter(HttpServletRequest request, String parameterName) {
         if (request.getParameter(parameterName) != null) {
-            return (String[]) request.getParameterMap().get(parameterName);
+            return request.getParameterMap().get(parameterName);
         }
         return null;
     }
