@@ -34,7 +34,7 @@
         <version>8.1.1.2</version>
     </parent>
     <artifactId>jahia-translation-globallink</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
@@ -49,7 +49,7 @@
             osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
             org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
         </require-capability>
-        <jahia-module-signature>MC0CFGfQQirFDfpxkJ12NcHuNrXFTrRHAhUAgc2bFD3EGB31W5OdYTOcexQH96A=</jahia-module-signature>
+        <jahia-module-signature>MCwCFDyWe34FqiSCU7WWO8QpOEL+2RclAhR8UJP+38cNcxREu8v7tz20H7ky2g==</jahia-module-signature>
         <sonar.sources>src/javascript</sonar.sources>
     </properties>
     <scm>
