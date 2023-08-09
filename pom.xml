@@ -34,14 +34,14 @@
         <version>8.1.1.2</version>
     </parent>
     <artifactId>jahia-translation-globallink</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>4.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
         <jahia.nexus.staging.repository.id>6476c85c299551</jahia.nexus.staging.repository.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jahia-depends>siteSettings,default,content-editor=4.1</jahia-depends>
+        <jahia-depends>siteSettings,default,jcontent=3</jahia-depends>
         <yarn.arguments>build -p</yarn.arguments>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <jahia-key>org.jahia.translationGlobalLink</jahia-key>
@@ -49,7 +49,7 @@
             osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
             org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
         </require-capability>
-        <jahia-module-signature>MCwCFHhnn3dD+f7PNpZRjuaQME2i4pppAhQ5rJPpRW8p2XQQul1WdbObN0dFeA==</jahia-module-signature>
+        <jahia-module-signature>MCwCFGbm0V1OjPLiFYc0MgS9FfsaWzzjAhQ0wsvMD4GSs100Y7rnDhBn+vteqw==</jahia-module-signature>
         <sonar.sources>src/javascript</sonar.sources>
     </properties>
     <scm>
