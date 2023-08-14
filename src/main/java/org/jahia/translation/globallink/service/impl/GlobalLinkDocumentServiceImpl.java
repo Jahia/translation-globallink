@@ -157,7 +157,6 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      * @param sessionWrapper
      * @param skipTranslated
      */
-    @SuppressWarnings("unchecked")
     private void processContentNodeForDocument(JCRNodeWrapper nodeWrapper, List<String> componentList, Document document,
                                                Element rootElement, String locale, JCRSessionWrapper sessionWrapper, boolean skipTranslated, boolean skipSubPages) {
         try {
@@ -182,6 +181,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                         propertyName = propertyName.replace(":", "_");
                                     }
                                     Element propertyElement = document.createElement(propertyName);
+                                    propertyElement.setAttribute("realName", property.getName());
                                     if (propertyDefinition.isMultiple()) {
                                         Value[] values = property.getValues();
                                         for (Value value : values) {

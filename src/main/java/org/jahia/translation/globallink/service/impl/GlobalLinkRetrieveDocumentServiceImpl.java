@@ -174,7 +174,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
             getSubmissionNodeByContentId(task.getContentId(), this.sessionWrapper.getWorkspace().getQueryManager());
         if (!submissionNodeByContentIdIterator.hasNext()) {
             // Unable to find node related to the task (probably because it has been removed manually)
-            LOGGER.warn("Unable to find submition ID {}", task.getContentId());
+            LOGGER.warn("Unable to find submission ID {}", task.getContentId());
             return;
         }
         JCRNodeWrapper requestNode = (JCRNodeWrapper) submissionNodeByContentIdIterator.next();

@@ -175,8 +175,9 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      * for respective bigtext nodes.
      */
     private boolean processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
+        JCRNodeWrapper pageNode = null;
         try {
-            JCRNodeWrapper pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
+            pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();
             this.contentService.lockNode(pageNode, this.sessionWrapper);
             String locale = StringUtils.substringBefore(language, "###");
             NodeList contentNodes = this.documentService.getTranslatedContentList(file);
@@ -200,6 +201,10 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
             LOGGER.error("Error while checking in content: ", ex);
         } catch (Exception ex) {
             LOGGER.error("Error while processing document: ", ex);
+        } finally {
+            if (pageNode != null) {
+                this.contentService.unLockNode(pageNode, this.sessionWrapper);
+            }
         }
         return false;
     }
