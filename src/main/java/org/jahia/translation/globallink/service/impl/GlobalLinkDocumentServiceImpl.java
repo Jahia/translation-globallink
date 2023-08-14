@@ -157,7 +157,6 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
      * @param sessionWrapper
      * @param skipTranslated
      */
-    @SuppressWarnings("unchecked")
     private void processContentNodeForDocument(JCRNodeWrapper nodeWrapper, List<String> componentList, Document document,
                                                Element rootElement, String locale, JCRSessionWrapper sessionWrapper, boolean skipTranslated, boolean skipSubPages) {
         try {
