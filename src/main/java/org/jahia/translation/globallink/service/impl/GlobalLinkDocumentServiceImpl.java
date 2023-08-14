@@ -182,6 +182,7 @@ public class GlobalLinkDocumentServiceImpl implements GlobalLinkDocumentService 
                                         propertyName = propertyName.replace(":", "_");
                                     }
                                     Element propertyElement = document.createElement(propertyName);
+                                    propertyElement.setAttribute("realName", property.getName());
                                     if (propertyDefinition.isMultiple()) {
                                         Value[] values = property.getValues();
                                         for (Value value : values) {

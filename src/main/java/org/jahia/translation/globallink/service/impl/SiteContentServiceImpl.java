@@ -295,7 +295,7 @@ public class SiteContentServiceImpl implements SiteContentService {
      */
     private void savePropertiesInJcr(Element element, JCRNodeWrapper jcrContentNode, String locale, String sourceLocale,
                                      JCRSessionWrapper sessionWrapper) throws RepositoryException {
-        JCRNodeWrapper translationNode = null;
+        JCRNodeWrapper translationNode;
         if (jcrContentNode.hasNode(NODE_TRANSLATE_PREFIX + locale)) {
             if (!jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).hasProperty(NODE_PROP_LANGUAGE)) {
                 jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).setProperty(NODE_PROP_LANGUAGE, locale);
@@ -310,10 +310,12 @@ public class SiteContentServiceImpl implements SiteContentService {
         if (nodeList != null) {
             for (int index = 0; index < nodeList.getLength(); index++) {
                 Node currentNode = nodeList.item(index);
-                String xmlNodename = currentNode.getNodeName();
-                if (xmlNodename.contains("_")) {
-                    xmlNodename = xmlNodename.replace("_", ":");
+
+                String xmlNodeName = currentNode.getNodeName();
+                if (currentNode.getAttributes() != null && currentNode.getAttributes().getNamedItem("realName") != null){
+                    xmlNodeName = currentNode.getAttributes().getNamedItem("realName").getNodeValue();
                 }
+
                 if (currentNode.getChildNodes().getLength() > 1) {
                     NodeList contentNodeList = currentNode.getChildNodes();
                     int length = contentNodeList.getLength();
@@ -321,9 +323,9 @@ public class SiteContentServiceImpl implements SiteContentService {
                     for (int i = 0; i < length; i++) {
                         transContentList[i] = contentNodeList.item(i).getTextContent();
                     }
-                    translationNode.setProperty(xmlNodename, transContentList);
+                    translationNode.setProperty(xmlNodeName, transContentList);
                 } else {
-                    translationNode.setProperty(xmlNodename, currentNode.getFirstChild().getTextContent());
+                    translationNode.setProperty(xmlNodeName, currentNode.getFirstChild().getTextContent());
                 }
             }
         }
