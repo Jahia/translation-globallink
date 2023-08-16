@@ -126,4 +126,6 @@ public class GlobalLinkConstants {
 
     public static final String FILE_EXT_XML = ".xml";
 
+    public static final String DUE_DATE = "dueDate";
+
 }

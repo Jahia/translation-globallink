@@ -58,18 +58,7 @@ import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.*;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_INCLUDE_CHILD;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_ERROR;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_REQUEST_ID;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SOURCE_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_NODE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_INTERVAL;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROPERTY_LAST_EXEC;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SKIP_TRANSLATED;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_SUBMISSION_STATE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PAGE;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_NO_DOCUMENT;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 
@@ -85,7 +74,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
     private static final String WITHOUT = " without ";
     public static final String SHORT = "short";
-    public static final String DUE_DATE = "dueDate";
     public static final String J_TRANSLATION_PREFIX = "j:translation_";
     public static final String J_EMAIL = "j:email";
 
