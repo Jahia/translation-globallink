@@ -32,13 +32,14 @@ import org.slf4j.Logger;
 import javax.jcr.RepositoryException;
 import java.util.Calendar;
 
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.DUE_DATE;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_IS_CHILD_REQUEST;
 
 /**
  * Created by rincevent on 2017-02-06.
  */
 public class ProjectNodeValidator implements JCRNodeValidator {
-    private static Logger logger = org.slf4j.LoggerFactory.getLogger(ProjectNodeValidator.class);
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(ProjectNodeValidator.class);
     private JCRNodeWrapper node;
 
     public ProjectNodeValidator(JCRNodeWrapper node) {
@@ -52,9 +53,8 @@ public class ProjectNodeValidator implements JCRNodeValidator {
             if((node.hasProperty(GBL_IS_CHILD_REQUEST) && node.getProperty(GBL_IS_CHILD_REQUEST).getBoolean()) || !node.isNew()) {
                 return null;
             }
-            JCRPropertyWrapper property = node.getProperty("dueDate");
-            if (property != null) {
-                return property.getDate();
+            if (node.hasProperty(DUE_DATE)) {
+                return node.getProperty(DUE_DATE).getDate();
             }
         } catch (RepositoryException e) {
             logger.error(e.getMessage());

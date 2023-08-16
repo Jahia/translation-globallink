@@ -53,10 +53,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SOURCE_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_LANG;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_TARGET_NODE;
-import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
+import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_CONTENT_ERROR;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TRANSLATED;
@@ -68,7 +65,6 @@ import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_TR
 public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
 
     public static final String SHORT = "short";
-    public static final String DUE_DATE = "dueDate";
     public static final String J_EMAIL = "j:email";
     public static final String TRANSLATION_COMPLETE = "Translation complete";
     public static final String TRANSLATION_FAILED = "Translation failed";
@@ -155,7 +151,9 @@ public class GlobalLinkMailServiceImpl implements GlobalLinkMailService {
         bindings.put("imageName", getImageName(submissionStatus));
         bindings.put("headerStatus", getHeaderLabel(submissionStatus));
         Map<String, String> datas = new LinkedHashMap<>();
-        datas.put("Due date", dateTool.format(SHORT, SHORT, requestNode.getProperty(DUE_DATE).getDate(), userLocale));
+        if (requestNode.hasProperty(DUE_DATE)) {
+            datas.put("Due date", dateTool.format(SHORT, SHORT, requestNode.getProperty(DUE_DATE).getDate(), userLocale));
+        }
         datas.put("Submission name", requestNode.getPropertyAsString("name"));
         datas.put("Submission Id", requestNode.getPropertyAsString("submissionTicket"));
         datas.put("Submission Date", dateTool.format(SHORT, SHORT, requestNode.getProperty("jcr:lastModified").getDate(), userLocale));
