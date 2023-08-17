@@ -37,7 +37,7 @@ jobs:
         name: Release Module
         with:
           github_slug: Jahia/translation-globallink
-          primary_release_branch: master
+          primary_release_branch: 3_x
           release_id: ${{ github.event.release.id }}
           release_version: ${{ github.event.release.tag_name }}
           github_api_token: ${{ secrets.GH_API_TOKEN }}
@@ -67,13 +67,13 @@ jobs:
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 15
-        
+
   sbom:
     name: SBOM processing
     needs: on-release
     runs-on: ubuntu-latest
     container:
-      image: cyclonedx/cyclonedx-cli:0.24.2   
+      image: cyclonedx/cyclonedx-cli:0.24.2
     steps:
       - uses: jahia/jahia-modules-action/sbom-processing@v2
         with:
