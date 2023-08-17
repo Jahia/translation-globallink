@@ -42,6 +42,9 @@ import org.w3c.dom.NodeList;
 
 import javax.jcr.RepositoryException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.*;
 import static org.jahia.translation.globallink.common.SubmissionStatus.STATUS_SUBMITTED;
 
@@ -143,15 +146,30 @@ public class SiteContentServiceImpl implements SiteContentService {
     @Override
     public void checkInTranslatedContent(NodeList contentNodes, JCRSessionWrapper sessionWrapper, String locale, String sourceLocale) {
         try {
+            List<String> uuidInError = new ArrayList<>();
             for (int index = 0; index < contentNodes.getLength(); index++) {
                 Node contentNode = contentNodes.item(index);
                 if (contentNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element element = (Element) contentNode;
                     JCRNodeWrapper jcrContentNode = sessionWrapper.getNodeByIdentifier(element.getAttribute(DOCUMENT_CONTENT_PROP_UUID));
-                    savePropertiesInJcr(element, jcrContentNode, locale, sourceLocale, sessionWrapper);
+                    try {
+                        savePropertiesInJcr(element, jcrContentNode, locale, sourceLocale, sessionWrapper);
+                    } catch (RepositoryException e) {
+                        uuidInError.add(jcrContentNode.getIdentifier());
+                        LOGGER.error("Error when saving properties for node: {}", jcrContentNode.getIdentifier(), e);
+                    } finally {
+                        if (jcrContentNode.hasNode(NODE_TRANSLATE_PREFIX + sourceLocale) && jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + sourceLocale).isLocked()) {
+                            LOGGER.warn("Translation have not been unlocked when adding the translated values. Node unlocked after the execution. Node: {}", jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + sourceLocale).getPath());
+                            jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + sourceLocale).unlock("translation", " globalLink ");
+                            sessionWrapper.save();
+                        }
+                    }
                 }
             }
             sessionWrapper.save();
+            if (!uuidInError.isEmpty()){
+                throw new GlobalLinkServiceException("Error for the uuids : " + String.join(", ", uuidInError));
+            }
         } catch (RepositoryException ex) {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }
@@ -295,50 +313,43 @@ public class SiteContentServiceImpl implements SiteContentService {
      */
     private void savePropertiesInJcr(Element element, JCRNodeWrapper jcrContentNode, String locale, String sourceLocale,
                                      JCRSessionWrapper sessionWrapper) throws RepositoryException {
-        JCRNodeWrapper translationNode = null;
-       try {
-           if (jcrContentNode.hasNode(NODE_TRANSLATE_PREFIX + locale)) {
-               if (!jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).hasProperty(NODE_PROP_LANGUAGE)) {
-                   jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).setProperty(NODE_PROP_LANGUAGE, locale);
-               }
-               translationNode = jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale);
-           } else {
-               translationNode = jcrContentNode.addNode(NODE_TRANSLATE_PREFIX + locale, NODE_TRANLSATE_TYPE);
-               translationNode.setProperty(NODE_PROP_LANGUAGE, locale);
+        JCRNodeWrapper translationNode;
+       if (jcrContentNode.hasNode(NODE_TRANSLATE_PREFIX + locale)) {
+           if (!jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).hasProperty(NODE_PROP_LANGUAGE)) {
+               jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale).setProperty(NODE_PROP_LANGUAGE, locale);
            }
-           NodeList nodeList = element.getChildNodes();
+           translationNode = jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + locale);
+       } else {
+           translationNode = jcrContentNode.addNode(NODE_TRANSLATE_PREFIX + locale, NODE_TRANLSATE_TYPE);
+           translationNode.setProperty(NODE_PROP_LANGUAGE, locale);
+       }
+       NodeList nodeList = element.getChildNodes();
 
-           if (nodeList != null) {
-               for (int index = 0; index < nodeList.getLength(); index++) {
-                   Node currentNode = nodeList.item(index);
+       if (nodeList != null) {
+           for (int index = 0; index < nodeList.getLength(); index++) {
+               Node currentNode = nodeList.item(index);
 
-                   String xmlNodeName = currentNode.getNodeName();
-                   if (currentNode.getAttributes() != null && currentNode.getAttributes().getNamedItem("realName") != null) {
-                       xmlNodeName = currentNode.getAttributes().getNamedItem("realName").getNodeValue();
-                   }
-
-                   if (currentNode.getChildNodes().getLength() > 1) {
-                       NodeList contentNodeList = currentNode.getChildNodes();
-                       int length = contentNodeList.getLength();
-                       String[] transContentList = new String[length];
-                       for (int i = 0; i < length; i++) {
-                           transContentList[i] = contentNodeList.item(i).getTextContent();
-                       }
-                       translationNode.setProperty(xmlNodeName, transContentList);
-                   } else {
-                       translationNode.setProperty(xmlNodeName, currentNode.getFirstChild().getTextContent());
-                   }
+               String xmlNodeName = currentNode.getNodeName();
+               if (currentNode.getAttributes() != null && currentNode.getAttributes().getNamedItem("realName") != null) {
+                   xmlNodeName = currentNode.getAttributes().getNamedItem("realName").getNodeValue();
                }
-           }
-           //Adding translation status for source node.
-           this.addTransStateForContentNode(jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + sourceLocale),
-               sessionWrapper);
-       } finally {
-           if (translationNode != null && translationNode.isLocked()) {
-               LOGGER.warn("Translation have not been unlocked when adding the translated values. Node unlocked after the execution. Node: {}", translationNode.getPath());
-               translationNode.unlock("translation", " globalLink ");
+
+               if (currentNode.getChildNodes().getLength() > 1) {
+                   NodeList contentNodeList = currentNode.getChildNodes();
+                   int length = contentNodeList.getLength();
+                   String[] transContentList = new String[length];
+                   for (int i = 0; i < length; i++) {
+                       transContentList[i] = contentNodeList.item(i).getTextContent();
+                   }
+                   translationNode.setProperty(xmlNodeName, transContentList);
+               } else {
+                   translationNode.setProperty(xmlNodeName, currentNode.getFirstChild().getTextContent());
+               }
            }
        }
+       //Adding translation status for source node.
+       this.addTransStateForContentNode(jcrContentNode.getNode(NODE_TRANSLATE_PREFIX + sourceLocale),
+           sessionWrapper);
     }
 
     @Reference
