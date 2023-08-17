@@ -389,7 +389,7 @@
                 <fieldset class="form-group">
                     <select name="j:componentsList" id="componentSelection" multiple size="30">
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
-                            <jcr:nodeType name="${fn:substringAfter(component.string, '-')}" var="selectedType"/>
+                            <jcr:nodeType name="${fn:split(component.string, '-')[fn:length(fn:split(component.string, '-'))-1]}" var="selectedType"/>
                             <%
                                 try {
                                     // A bit of scriptlet
@@ -403,7 +403,7 @@
 
                             %>
                             <option value="${component.string}"
-                                    selected>${empty nodeTypeLabel ? fn:substringBefore(component.string, '-') : nodeTypeLabel}
+                                    selected>${empty nodeTypeLabel ? component.string : nodeTypeLabel}
                             </option>
                         </c:forEach>
                         <c:forEach
