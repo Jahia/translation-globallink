@@ -389,7 +389,8 @@
                 <fieldset class="form-group">
                     <select name="j:componentsList" id="componentSelection" multiple size="30">
                         <c:forEach items="${site.properties['j:componentsList']}" var="component">
-                            <jcr:nodeType name="${fn:split(component.string, '-')[fn:length(fn:split(component.string, '-'))-1]}" var="selectedType"/>
+                            <c:set var="componentParts" value="${fn:split(component.string, '-')}"/>
+                            <jcr:nodeType name="${componentParts[fn:length(componentParts)-1]}" var="selectedType"/>
                             <%
                                 try {
                                     // A bit of scriptlet
