@@ -159,7 +159,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
                 }
                 File file = IOUtil.getFile(fileName);
                 if (file != null) {
-                    allCorrectlyTranslated = allCorrectlyTranslated && processTranslatedDocument(file, requestNode, languageMapping);
+                    allCorrectlyTranslated = processTranslatedDocument(file, requestNode, languageMapping) && allCorrectlyTranslated;
                 }
             }
             if (allCorrectlyTranslated && mailService.isEnabled()) {
