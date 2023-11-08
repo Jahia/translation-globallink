@@ -12,3 +12,36 @@
     from { transform: scale(1) rotate(0deg);}
     to { transform: scale(1) rotate(360deg);}
 }
+
+.form-control {
+    height: 30px;
+}
+
+.globallink-heading {
+    color: #0088cc;
+    font-size: 20px;
+}
+
+/* Add custom jquery.multi-select css override */
+.ms-container .ms-list {
+    height: 500px !important;
+}
+
+.ms-container {
+    width: 100% !important;
+}
+
+.ms-container .ms-selectable, .ms-container .ms-selection {
+    position: relative;
+}
+
+.custom-label {
+    background: #fafafa;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.ms-error {
+    border: red solid 1px;
+}
+

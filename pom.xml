@@ -31,7 +31,7 @@
     <parent>
         <groupId>org.jahia.modules</groupId>
         <artifactId>jahia-modules</artifactId>
-        <version>8.1.1.2</version>
+        <version>8.2.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>jahia-translation-globallink</artifactId>
     <version>4.0.0-SNAPSHOT</version>
@@ -42,7 +42,7 @@
         <jahia.nexus.staging.repository.id>6476c85c299551</jahia.nexus.staging.repository.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default,jcontent=3</jahia-depends>
-        <yarn.arguments>build -p</yarn.arguments>
+        <yarn.arguments>build --mode production</yarn.arguments>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <jahia-key>org.jahia.translationGlobalLink</jahia-key>
         <require-capability>
