@@ -2,11 +2,10 @@ const path = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { DllReferencePlugin } = require('webpack');
+const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const getModuleFederationConfig = require('@jahia/webpack-config/getModuleFederationConfig');
+const packageJson = require('./package.json');
 
-// Get manifest
-const normalizedPath = require('path').join(__dirname, './target/dependency');
-let manifest = '';
 const {CycloneDxWebpackPlugin} = require('@cyclonedx/webpack-plugin');
 
 /** @type {import('@cyclonedx/webpack-plugin').CycloneDxWebpackPluginOptions} */
@@ -16,15 +15,10 @@ const cycloneDxWebpackPluginOptions = {
     outputLocation: './bom'
 };
 
-require('fs').readdirSync(normalizedPath).forEach(function (file) {
-    manifest = './target/dependency/' + file;
-    console.log('Translations Globallink module uses manifest: ' + manifest);
-});
-
 module.exports = (env, argv) => {
     let config = {
         entry: {
-            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/translations-globallink.js')] }
+            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/init.js')] }
         },
         output: {
             chunkLoadingGlobal: 'translationsGolballinkJsonp',
@@ -33,16 +27,14 @@ module.exports = (env, argv) => {
             chunkFilename: '[name].translations-globallink.[chunkhash:6].js'
         },
         plugins: [
-            new DllReferencePlugin({
-                manifest: require(manifest)
-            }),
+            new ModuleFederationPlugin(getModuleFederationConfig(packageJson)),
             new CleanWebpackPlugin({verbose: false}),
             new CopyWebpackPlugin({patterns: [{from: './package.json', to: ''}]}),
             new CycloneDxWebpackPlugin(cycloneDxWebpackPluginOptions)
         ],
         resolve: {
             mainFields: ['module', 'main'],
-            extensions: ['.mjs', '.js', '.jsx', 'json']
+            extensions: ['.mjs', '.js', '.jsx', '.json']
         },
         optimization: {
             moduleIds: 'deterministic',
