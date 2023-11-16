@@ -1,40 +1,49 @@
 const path = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const getModuleFederationConfig = require('@jahia/webpack-config/getModuleFederationConfig');
-const packageJson = require('./package.json');
-
+const {ProvidePlugin} = require('webpack');
 const {CycloneDxWebpackPlugin} = require('@cyclonedx/webpack-plugin');
 
 /** @type {import('@cyclonedx/webpack-plugin').CycloneDxWebpackPluginOptions} */
 const cycloneDxWebpackPluginOptions = {
     specVersion: '1.4',
     rootComponentType: 'library',
-    outputLocation: './bom'
+    outputLocation: './bom-assets'
 };
 
 module.exports = (env, argv) => {
     let config = {
         entry: {
-            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/init.js')] }
+            assets: {import: path.resolve(__dirname, 'src/javascript/assets.js')}
         },
         output: {
-            chunkLoadingGlobal: 'translationsGolballinkJsonp',
-            path: path.resolve(__dirname, 'src/main/resources/javascript/apps/'),
-            filename: 'translations-globallink.bundle.js',
-            chunkFilename: '[name].translations-globallink.[chunkhash:6].js'
+            path: path.resolve(__dirname, 'src/main/resources/javascript/apps/assets/'),
+            filename: 'assets-translations-globallink.bundle.js',
+            chunkFilename: '[name].assets-translations-globallink.[chunkhash:6].js'
         },
         plugins: [
-            new ModuleFederationPlugin(getModuleFederationConfig(packageJson)),
+            new ProvidePlugin({
+                $: 'jquery',
+                jQuery: 'jquery'
+            }),
             new CleanWebpackPlugin({verbose: false}),
             new CopyWebpackPlugin({patterns: [{from: './package.json', to: ''}]}),
             new CycloneDxWebpackPlugin(cycloneDxWebpackPluginOptions)
         ],
         resolve: {
-            mainFields: ['module', 'main'],
-            extensions: ['.mjs', '.js', '.jsx', '.json']
+            mainFields: ['module', 'assets'],
+            extensions: ['.mjs', '.js', '.jsx', '.json', '.css'],
+            alias: {
+                jquery: 'jquery/src/jquery',
+                'jquery-form': 'jquery-form/src/jquery.form.js',
+                'jquery.quicksearch': 'jquery.quicksearch/src/jquery.quicksearch.js',
+                multiselect: 'multiselect/js/jquery.multi-select.js'
+            },
+            modules: [
+                path.resolve(__dirname, 'src/javascript'),
+                path.resolve(__dirname, 'node_modules')
+            ]
         },
         optimization: {
             moduleIds: 'deterministic',
@@ -60,7 +69,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.css$/i,
-                    use: ["style-loader","css-loader"],
+                    use: ['style-loader', 'css-loader']
                 }
             ]
         },

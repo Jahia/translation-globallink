@@ -24,9 +24,7 @@
     <c:if test="${!empty keywords}"><meta name="keywords" content="${keywords}" /></c:if>
     <title>${fn:escapeXml(renderContext.mainResource.node.displayableName)}</title>
 </head>
-<template:addResources type="javascript" resources="jquery.min.js"/>
-<template:addResources type="css" resources="gblbootstrap.min.css"/>
-<template:addResources type="javascript" resources="gblbootstrap.min.js"/>
+<template:addResources type="javascript" resources="apps/assets/assets-translations-globallink.bundle.js"/>
 <body>
 <div class="container-fluid">
     <div class="row">
