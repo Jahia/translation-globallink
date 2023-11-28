@@ -28,9 +28,9 @@
     "@jahia/jahia-ui-root": "0.0.1"
   },
   "jahia": {
-    "apps": {
+    "remotes": {
       "jahia": [
-        "javascript/apps/translations-globallink.bundle.js",
+        "javascript/apps/remoteEntry.js",
         "configs/translation-globallink.jsp"
       ]
     }
@@ -38,7 +38,7 @@
   "dependencies": {
     "@jahia/data-helper": "0.0.25",
     "@jahia/moonstone": "^0.15.4",
-    "@jahia/ui-extender": "^0.4.0",
+    "@jahia/ui-extender": "^1.1.0",
     "i18next": "^19.1.0",
     "jquery": "^3.7.1",
     "jquery-form": "^4.3.0",
