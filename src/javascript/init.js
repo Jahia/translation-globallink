@@ -1,5 +1,6 @@
 import {registry} from '@jahia/ui-extender';
 import {toIconComponent} from '@jahia/moonstone';
+import i18next from 'i18next';
 import {CreateNewTranslationRequest} from './components/CreateNewTranslationRequest';
 
 export default function () {
@@ -31,7 +32,7 @@ export default function () {
         iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-settings.html'
     });
 
-    window.jahia.i18n.loadNamespaces('jahia-translation-globallink');
+    i18next.loadNamespaces('jahia-translation-globallink');
 
     registry.add('contentEditor.onCreate', 'onCreateTranslationRequest', {
         onCreate: (variables, nodeData) => {
