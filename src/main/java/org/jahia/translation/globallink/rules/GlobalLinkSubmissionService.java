@@ -87,6 +87,8 @@ public class GlobalLinkSubmissionService {
                             Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
                             Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
                             if (submissionStatus.getStatusName().equals(STATUS_TRANSLATE)) {
+                                LOGGER.info("Cancel submission {}, node identifier {}", submissionId, addedNodeFact.getIdentifier());
+                                LOGGER.info("Request node {}", request.getIdentifier());
                                 gcExchange.cancelSubmission(submissionId);
                                 contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
                             }
