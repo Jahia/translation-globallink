@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.jcr.RepositoryException;
 import java.util.List;
+import java.util.Set;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.GBL_PROJECT_SUB_TICKET;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.JCR_DEFAULT_WS;
@@ -78,21 +79,23 @@ public class GlobalLinkSubmissionService {
         for (GlobalLinkConfigurationDTO config : configList) {
 
             if (node.getPath().startsWith(config.getSiteNode().getPath())) {
-                JCRNodeIteratorWrapper submittedRequests = queryService
-                        .getSubmittedRequests(node.getPath(), rootSession.getWorkspace().getQueryManager());
+                Set<JCRNodeWrapper> submittedRequests = queryService
+                        .getRequestsFilteredByPath(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
                 if (gcExchange != null) {
                     for (JCRNodeWrapper request : submittedRequests) {
                         try {
-                            Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
-                            Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
-                            if (submissionStatus.getStatusName().equals(STATUS_TRANSLATE)) {
-                                LOGGER.info("Cancel submission {}, node identifier {}", submissionId, addedNodeFact.getIdentifier());
-                                LOGGER.info("Request node {}", request.getIdentifier());
-                                gcExchange.cancelSubmission(submissionId);
-                                contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
+                            if (request.getProperty("targetNode").getNode().getPath().startsWith(node.getPath())) {
+                                Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
+                                Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
+                                if (submissionStatus.getStatusName().equals(STATUS_TRANSLATE)) {
+                                    LOGGER.info("Cancel submission {}, node identifier {}", submissionId, addedNodeFact.getIdentifier());
+                                    LOGGER.info("Request node {}", request.getIdentifier());
+                                    gcExchange.cancelSubmission(submissionId);
+                                    contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
+                                }
+                                drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                             }
-                            drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                         } catch (Exception e) {
                             LOGGER.error("Error while releting translation", e);
                         }
