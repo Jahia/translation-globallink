@@ -181,11 +181,14 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
                     stepResult.getNodes().forEachRemaining(node -> {
                         JCRNodeWrapper currentNode = (JCRNodeWrapper) node;
                         try {
-                            if (currentNode.getProperty("targetNode").getNode().getPath().startsWith(path)) {
+                            if ((currentNode.getProperty("targetNode").getNode().getPath() + "/").startsWith(path + "/")) {
                                 result.add(currentNode);
                             }
                         } catch (RepositoryException e) {
-                            throw new RuntimeException(e);
+                            LOGGER.error("Error while getting target node: {}",e.getMessage());
+                            if (LOGGER.isDebugEnabled()){
+                                LOGGER.debug("Error: ", e);
+                            }
                         }
                     });
                     return true;
