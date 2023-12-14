@@ -28,18 +28,19 @@ import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.services.query.QueryResultWrapper;
+import org.jahia.services.query.ScrollableQuery;
+import org.jahia.services.query.ScrollableQueryCallback;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 import org.jahia.translation.globallink.service.api.GlobalLinkQueryService;
 import org.osgi.service.component.annotations.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
 import javax.jcr.query.Query;
 import javax.jcr.query.QueryManager;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.NODE_TYPE_PROJECT;
 import static org.jahia.translation.globallink.common.SubmissionStatus.*;
@@ -151,6 +152,7 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
     /**
      * {@inheritDoc}
      */
+    @Deprecated
     @Override public JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager) {
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.gblSubmitState = '" + STATUS_SUBMITTED
@@ -159,6 +161,42 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
             return queryResult.getNodes();
+        } catch (Exception ex) {
+            throw new GlobalLinkServiceException(ex.getMessage(), ex);
+        }
+    }
+
+    public Set<JCRNodeWrapper> getRequestsFilteredByPath(String path, QueryManager queryManager) {
+        try {
+            String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.gblSubmitState = '" + STATUS_SUBMITTED
+                + "' OR gblProject.gblSubmitState = '" + STATUS_CANCELLED + "' OR gblProject.gblSubmitState = '" + STATUS_TRANSLATED + "'";
+            Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
+            ScrollableQuery scrollableQuery = new ScrollableQuery(500, jcrQuery);
+
+            return scrollableQuery.execute(new ScrollableQueryCallback<Set<JCRNodeWrapper>>() {
+                final Set<JCRNodeWrapper> result = new HashSet<>();
+
+                @Override
+                public boolean scroll() throws RepositoryException {
+                    stepResult.getNodes().forEachRemaining(node -> {
+                        JCRNodeWrapper currentNode = (JCRNodeWrapper) node;
+                        try {
+                            if ((currentNode.getProperty("targetNode").getNode().getPath() + "/").startsWith(path + "/")) {
+                                result.add(currentNode);
+                            }
+                        } catch (RepositoryException e) {
+                            LOGGER.error("Error while getting target node: {}",e.getMessage());
+                            LOGGER.debug("Error: ", e);
+                        }
+                    });
+                    return true;
+                }
+
+                @Override
+                protected Set<JCRNodeWrapper> getResult() {
+                    return result;
+                }
+            });
         } catch (Exception ex) {
             throw new GlobalLinkServiceException(ex.getMessage(), ex);
         }

@@ -138,6 +138,7 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
         tasksResponseData.getTasks().forEach(task -> {
             try {
                 if (requestNode.getProperty(GBL_PROJECT_UPLOAD_TICKET).getString().equals(task.getContentId())) {
+                    LOGGER.info("Found cancelled event {} from gcExchange.getTasksList for node {}", task.getContentId(), requestNode.getIdentifier());
                     this.contentService.updateRequestStatus(requestNode, this.sessionWrapper, STATUS_CANCELLED);
                 }
             } catch (RepositoryException e) {
