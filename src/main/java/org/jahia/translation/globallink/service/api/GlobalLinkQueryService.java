@@ -25,11 +25,13 @@
 package org.jahia.translation.globallink.service.api;
 
 import org.jahia.services.content.JCRNodeIteratorWrapper;
+import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.decorator.JCRSiteNode;
 import org.jahia.translation.globallink.exception.GlobalLinkServiceException;
 
 import javax.jcr.query.QueryManager;
 import java.util.List;
+import java.util.Set;
 
 /**
  * JCR Query Service for Global Link Translation module.
@@ -92,7 +94,16 @@ public interface GlobalLinkQueryService {
      * @param queryManager
      * @return
      */
+    @Deprecated
     JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager);
+
+    /**
+     * Get request descendants of the path
+     * @param path root path
+     * @param queryManager query manager
+     * @return Set of result descendant of the root path
+     */
+    Set<JCRNodeWrapper> getRequestsFilteredByPath(String path, QueryManager queryManager);
 
     /**
      * Get all submission requests that in retrieved state.
