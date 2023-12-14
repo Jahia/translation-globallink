@@ -186,9 +186,7 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
                             }
                         } catch (RepositoryException e) {
                             LOGGER.error("Error while getting target node: {}",e.getMessage());
-                            if (LOGGER.isDebugEnabled()){
-                                LOGGER.debug("Error: ", e);
-                            }
+                            LOGGER.debug("Error: ", e);
                         }
                     });
                     return true;
