@@ -157,16 +157,15 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         JCRNodeIteratorWrapper projects = this.gblQueryService
                 .getGBLRequests(config.getSiteNode(), this.sessionWrapper.getWorkspace().getQueryManager());
 
-        for (JCRNodeWrapper project : projects)
+        for (JCRNodeWrapper project : projects) {
             try {
                 if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
-                        && !project.hasProperty(GBL_PROJECT_ERROR)) {
+                    && !project.hasProperty(GBL_PROJECT_ERROR)) {
                     LOGGER.info("processing project node: {}", project.getPath());
                     GlobalLinkProjectRequestDTO projectRequestDTO = buildProjectRequestDTO(project, config);
 
                     this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
                     processRequestDTO(projectRequestDTO, gcExchange, config);
-                    config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
                     this.sessionWrapper.save();
                     if (mailService.isEnabled()) {
                         globalLinkMailService.sendNotificationMail(project, STATUS_SUBMITTED);
@@ -175,6 +174,14 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             } catch (RepositoryException | GlobalLinkServiceException ex) {
                 LOGGER.error("Error while collecting project info for - " + project.getPath() + " Exception -> ", ex);
             }
+        }
+        try {
+            config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
+        } catch (RepositoryException e) {
+            LOGGER.error("Error while setting the last execution time for site {}", config.getSiteNode().getSiteKey());
+            LOGGER.debug("Full Stack trace:",e);
+        }
+
     }
 
     private GlobalLinkProjectRequestDTO buildProjectRequestDTO(JCRNodeWrapper project, GlobalLinkConfigurationDTO config)
@@ -420,9 +427,10 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         try {
             if (config.getSiteNode().hasProperty(GBL_PROPERTY_LAST_EXEC) && config.getSiteNode().hasProperty(GBL_PROPERTY_INTERVAL)) {
                 Calendar lastExecuted = config.getSiteNode().getProperty(GBL_PROPERTY_LAST_EXEC).getDate();
+                lastExecuted.set(Calendar.SECOND, 0);
                 lastExecuted.add(Calendar.MINUTE,
                         Integer.parseInt((String.valueOf(config.getSiteNode().getProperty(GBL_PROPERTY_INTERVAL).getLong()))));
-                return Calendar.getInstance().after(lastExecuted);
+                return Calendar.getInstance().equals(lastExecuted) || Calendar.getInstance().after(lastExecuted);
             }
             return true;
         } catch (RepositoryException re) {
