@@ -159,7 +159,18 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
         for (JCRNodeWrapper project : projects) {
             try {
-                if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
+                if (!project.hasProperty(GBL_PROJECT_TARGET_NODE) || project.getProperty(GBL_PROJECT_TARGET_NODE).getValue().getNode() == null) {
+                    if (project.hasProperty(GBL_PROJECT_REQUEST_ID)) {
+                        String instructions = project.hasProperty("instructions") ? project.getPropertyAsString("instructions") : "No translation request sent";
+                        String submissionId = project.hasProperty(GBL_PROJECT_REQUEST_ID) ? project.getPropertyAsString(GBL_PROJECT_REQUEST_ID) : "No";
+                        String state = project.getPropertyAsString(GBL_SUBMISSION_STATE);
+                        LOGGER.info("Remove translation request {} [{}] with ID {} and status {} as the target has been removed", project.getName(), instructions, submissionId, state);
+                    } else {
+                        LOGGER.info("Remove translation request as the target has been removed");
+                    }
+                    project.remove();
+                    sessionWrapper.save();
+                } else if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
                     && !project.hasProperty(GBL_PROJECT_ERROR)) {
                     LOGGER.info("processing project node: {}", project.getPath());
                     GlobalLinkProjectRequestDTO projectRequestDTO = buildProjectRequestDTO(project, config);
@@ -375,6 +386,8 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                             .ifPresent(uploadFileRequest -> requestDTO.getUploadFileRequests().add(uploadFileRequest));
                 } else {
                     sendMailForEmptySubmission(requestDTO, requestNode, child);
+                    requestNode.remove();
+                    this.sessionWrapper.save();
                 }
                 if (!JCRContentUtils.getChildrenOfType(child, NODE_TYPE_PAGE).isEmpty()) {
                     contentToRequestMap.putAll(processChildPages(requestDTO, child, config));
@@ -400,8 +413,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                             "Satus Update on your translation request " + name, messageFormat.format(new Object[] { name }));
                 }
             }
-            requestNode.remove();
-            this.sessionWrapper.save();
         } catch (RepositoryException e) {
             LOGGER.error("Error while sending mail", e);
         }
