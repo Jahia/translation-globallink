@@ -77,7 +77,7 @@ public class GlobalLinkSubmissionService {
         JCRNodeWrapper node = addedNodeFact.getNode();
         for (GlobalLinkConfigurationDTO config : configList) {
 
-            if (node.getPath().startsWith(config.getSiteNode().getPath())) {
+            if ((node.getPath() + "/").startsWith(config.getSiteNode().getPath() + "/")) {
                 Set<JCRNodeWrapper> submittedRequests = queryService
                         .getRequestsFilteredByPath(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
@@ -94,7 +94,7 @@ public class GlobalLinkSubmissionService {
                                         gcExchange.cancelSubmission(submissionId);
                                         contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
                                     } catch (IllegalStateException e) {
-                                        LOGGER.info("Unable to cancel translation request with ID {}, because {}", submissionId,  e.getMessage());
+                                        LOGGER.warn("Unable to cancel translation request with ID {}, because {}", submissionId,  e.getMessage());
                                         LOGGER.debug("Request failed", e);
                                     }
                                 }

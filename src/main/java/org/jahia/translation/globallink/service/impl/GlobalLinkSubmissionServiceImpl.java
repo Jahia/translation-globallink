@@ -159,15 +159,15 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
 
         for (JCRNodeWrapper project : projects)
             try {
-                // Remove request that match removed nodes
-                if (project.getProperty(GBL_PROJECT_TARGET_NODE).getValue().getNode() == null) {
+                // Remove request that match removed nodes or missing target node
+                if (!project.hasProperty(GBL_PROJECT_TARGET_NODE) || project.getProperty(GBL_PROJECT_TARGET_NODE).getValue().getNode() == null) {
                     if (project.hasProperty(GBL_PROJECT_REQUEST_ID)) {
                         String instructions = project.hasProperty("instructions") ? project.getPropertyAsString("instructions") : "No translation request sent";
                         String submissionId = project.hasProperty(GBL_PROJECT_REQUEST_ID) ? project.getPropertyAsString(GBL_PROJECT_REQUEST_ID) : "No";
                         String state = project.getPropertyAsString(GBL_SUBMISSION_STATE);
                         LOGGER.info("Remove translation request {} [{}] with ID {} and status {} as the target has been removed", project.getName(), instructions, submissionId, state);
                     } else {
-                        LOGGER.info("Remove translation request (No submission was send to translations.com)");
+                        LOGGER.info("Remove translation request as the target has been removed");
                     }
                     project.remove();
                     sessionWrapper.save();
