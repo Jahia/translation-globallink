@@ -173,7 +173,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     sessionWrapper.save();
                 } else if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
                         && !project.hasProperty(GBL_PROJECT_ERROR)) {
-                    LOGGER.info("processing project node: {}", project.getPath());
                     GlobalLinkProjectRequestDTO projectRequestDTO = buildProjectRequestDTO(project, config);
 
                     this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
