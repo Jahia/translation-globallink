@@ -27,7 +27,6 @@ package org.jahia.translation.globallink.rules;
 import org.drools.core.spi.KnowledgeHelper;
 import org.gs4tr.gcc.restclient.GCExchange;
 import org.gs4tr.gcc.restclient.model.Status;
-import org.jahia.services.content.JCRNodeIteratorWrapper;
 import org.jahia.services.content.JCRNodeWrapper;
 import org.jahia.services.content.JCRSessionWrapper;
 import org.jahia.services.content.rules.AddedNodeFact;
@@ -78,26 +77,31 @@ public class GlobalLinkSubmissionService {
         JCRNodeWrapper node = addedNodeFact.getNode();
         for (GlobalLinkConfigurationDTO config : configList) {
 
-            if (node.getPath().startsWith(config.getSiteNode().getPath())) {
+            if ((node.getPath() + "/").startsWith(config.getSiteNode().getPath() + "/")) {
                 Set<JCRNodeWrapper> submittedRequests = queryService
                         .getRequestsFilteredByPath(node.getPath(), rootSession.getWorkspace().getQueryManager());
                 GCExchange gcExchange = GlobalLinkUtil.getGlobalLinkClient(config);
                 if (gcExchange != null) {
                     for (JCRNodeWrapper request : submittedRequests) {
                         try {
-                            if (request.getProperty("targetNode").getNode().getPath().startsWith(node.getPath())) {
+                            if ((request.getProperty("targetNode").getNode().getPath() + "/").startsWith(node.getPath() + "/")) {
                                 Long submissionId = request.getProperty(GBL_PROJECT_SUB_TICKET).getLong();
                                 Status submissionStatus = gcExchange.getSubmissionStatus(submissionId);
                                 if (submissionStatus.getStatusName().equals(STATUS_TRANSLATE)) {
                                     LOGGER.info("Cancel submission {}, node identifier {}", submissionId, addedNodeFact.getIdentifier());
                                     LOGGER.info("Request node {}", request.getIdentifier());
-                                    gcExchange.cancelSubmission(submissionId);
-                                    contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
+                                    try {
+                                        gcExchange.cancelSubmission(submissionId);
+                                        contentService.updateRequestStatus(request, rootSession, STATUS_CANCELLED);
+                                    } catch (IllegalStateException e) {
+                                        LOGGER.warn("Unable to cancel translation request with ID {}, because {}", submissionId,  e.getMessage());
+                                        LOGGER.debug("Request failed", e);
+                                    }
                                 }
                                 drools.insert(new DeletedNodeFact(addedNodeFact, request.getPath()));
                             }
                         } catch (Exception e) {
-                            LOGGER.error("Error while releting translation", e);
+                            LOGGER.error("Error while deleting translation", e);
                         }
                     }
                 }
