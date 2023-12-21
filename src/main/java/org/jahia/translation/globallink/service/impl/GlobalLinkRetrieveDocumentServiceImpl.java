@@ -92,14 +92,15 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
      */
     @Override public void retrieveCompletedProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
-            LOGGER.info("====  Initializing Retrieve process  =====");
+            LOGGER.info("==== Initializing Retrieve process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
             for (GlobalLinkConfigurationDTO config : configList) {
-                this.retrieveDocuments(config);
+                this.retrieveActiveDocuments(config);
             }
         } catch (Exception ex) {
             LOGGER.error("Exception while starting document retrieve process -> ", ex);
         }
+        LOGGER.info("==== End of Retrieve process  =====");
     }
 
     /**
@@ -107,10 +108,10 @@ public class GlobalLinkRetrieveDocumentServiceImpl implements GlobalLinkRetrieve
      *
      * @param config config for the connection
      */
-    private void retrieveDocuments(GlobalLinkConfigurationDTO config) {
+    private void retrieveActiveDocuments(GlobalLinkConfigurationDTO config) {
         JCRNodeIteratorWrapper submittedRequests = this.queryService
-                .getSubmittedRequests(config.getSiteNode().getPath(), this.sessionWrapper.getWorkspace().getQueryManager());
-
+                .getActiveSubmittedRequests(config.getSiteNode().getPath(), this.sessionWrapper.getWorkspace().getQueryManager());
+        LOGGER.info("Process {} requests, for {} siteKey", submittedRequests.getSize(), config.getSiteNode().getSiteKey());
         submittedRequests.forEach(request -> {
             try {
                 processExistingRequests(request, GlobalLinkUtil.getGlobalLinkClient(config), config);

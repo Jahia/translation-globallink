@@ -153,10 +153,9 @@ public class GlobalLinkQueryServiceImpl implements GlobalLinkQueryService {
      * {@inheritDoc}
      */
     @Deprecated
-    @Override public JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager) {
+    @Override public JCRNodeIteratorWrapper getActiveSubmittedRequests(String path, QueryManager queryManager) {
         try {
             String query = "select * from [" + NODE_TYPE_PROJECT + "] as gblProject where gblProject.gblSubmitState = '" + STATUS_SUBMITTED
-                    + "' OR gblProject.gblSubmitState = '" + STATUS_CANCELLED + "' OR gblProject.gblSubmitState = '" + STATUS_TRANSLATED
                     + "' AND ISDESCENDANTNODE(gblProject, [" + path + "])";
             Query jcrQuery = queryManager.createQuery(query, Query.JCR_SQL2);
             QueryResultWrapper queryResult = (QueryResultWrapper) jcrQuery.execute();
