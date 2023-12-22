@@ -88,14 +88,14 @@ public interface GlobalLinkQueryService {
     JCRNodeIteratorWrapper getRequestNodeList(String requestId, QueryManager queryManager);
 
     /**
-     * Get all the requests that has status as submitted.
+     * Get all the active (not canceled) requests that has status as submitted.
      *
      * @param path
      * @param queryManager
      * @return
      */
     @Deprecated
-    JCRNodeIteratorWrapper getSubmittedRequests(String path, QueryManager queryManager);
+    JCRNodeIteratorWrapper getActiveSubmittedRequests(String path, QueryManager queryManager);
 
     /**
      * Get request descendants of the path
