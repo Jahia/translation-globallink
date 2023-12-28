@@ -114,10 +114,12 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      */
     @Override
     public void processTranslatedContent(List<GlobalLinkConfigurationDTO> configList) {
+        LOGGER.info("==== Initializing Process Translated content  =====");
         this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
         for (GlobalLinkConfigurationDTO config : configList) {
             processRetrievedRequestsForConfig(config);
         }
+        LOGGER.info("==== End of Process Translated content  =====");
     }
 
     /**
@@ -175,6 +177,7 @@ public class GlobalLinkTranslatedContentProcessServiceImpl implements GlobalLink
      * for respective bigtext nodes.
      */
     private boolean processTranslatedDocument(File file, JCRNodeWrapper requestNode, String language) {
+        LOGGER.info("Handle received translation for {} request  in {} language", requestNode.getName(), language);
         JCRNodeWrapper pageNode = null;
         try {
             pageNode = (JCRNodeWrapper) requestNode.getProperty(GBL_PROJECT_TARGET_NODE).getNode();

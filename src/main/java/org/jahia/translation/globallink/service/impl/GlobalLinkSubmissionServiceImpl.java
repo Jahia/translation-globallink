@@ -124,7 +124,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
     @Override
     public void submitSiteProjects(List<GlobalLinkConfigurationDTO> configList) {
         try {
-            LOGGER.info("====  Initializing submission process  =====");
+            LOGGER.info("==== Initializing submission process  =====");
             this.sessionWrapper = JCRUtil.getRootSession(JCR_DEFAULT_WS);
             for (GlobalLinkConfigurationDTO config : configList) {
                 LOGGER.info("Site found with GBL Translation config - {} Sitename - {}", config.getUsername(),
@@ -134,6 +134,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         } catch (Exception ex) {
             LOGGER.error("Exception while starting submission process -> ", ex);
         }
+        LOGGER.info("==== End of submission process  =====");
     }
 
     /**
@@ -173,7 +174,6 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     sessionWrapper.save();
                 } else if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
                         && !project.hasProperty(GBL_PROJECT_ERROR)) {
-                    LOGGER.info("processing project node: {}", project.getPath());
                     GlobalLinkProjectRequestDTO projectRequestDTO = buildProjectRequestDTO(project, config);
 
                     this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
