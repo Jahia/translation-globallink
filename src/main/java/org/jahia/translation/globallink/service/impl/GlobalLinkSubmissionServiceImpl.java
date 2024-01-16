@@ -248,7 +248,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
         Date dueDate;
         String[] split = requestDTO.getSourceLanguage().split("###");
         String sourceLanguage = split[1];
-        List<String> targetLanguages = new LinkedList<>();
+        Set<String> targetLanguages = new HashSet<>();
         for (String targetLanguage : requestDTO.getDesLanguages()) {
             targetLanguages.add(StringUtils.substringAfter(targetLanguage, "###"));
         }
@@ -293,7 +293,7 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                 dueDate = calendar.getTime();
             }
             SubmissionSubmitRequest submissionSubmitRequest = new SubmissionSubmitRequest(submissionName, dueDate, sourceLanguage,
-                    targetLanguages, uploadContentlist(requestDTO, gcExchange, parent, dueDate, submissionName,  contentToRequestMap));
+                    new LinkedList<>(targetLanguages), uploadContentlist(requestDTO, gcExchange, parent, dueDate, submissionName,  contentToRequestMap));
             submissionSubmitRequest.setInstructions(pmNotes);
 
             SubmissionSubmitResponseData submissionSubmitResponseData = gcExchange.submitSubmission(submissionSubmitRequest);
