@@ -132,31 +132,7 @@ public class GlobalLinkConfigAction extends Action {
         siteNode.setProperty(GBL_PROPERTY_FORMAT, getRequestParameter(request, GBL_PROPERTY_FORMAT));
         siteNode.setProperty(GBL_PROPERTY_DOC_LOCATION, getRequestParameter(request, GBL_PROPERTY_DOC_LOCATION));
         if (!getRequestParameter(request, GBL_PROPERTY_INTERVAL).equals(StringUtils.EMPTY)) {
-            siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
-            try {
-                Trigger[] triggersOfJob = ServicesRegistry.getInstance().getSchedulerService().getScheduler()
-                        .getTriggersOfJob("translationJob", "DEFAULT");
-                for (int i = 0; i < triggersOfJob.length; i++) {
-                    Trigger trigger = triggersOfJob[i];
-                    if (trigger instanceof CronTrigger) {
-                        CronTrigger cronTrigger = (CronTrigger) trigger;
-                        CronTrigger cronTrigger1 = new CronTrigger(cronTrigger.getName(), cronTrigger.getGroup());
-                        cronTrigger1.setJobName("translationJob");
-                        cronTrigger1.setJobGroup("DEFAULT");
-                        Long aLong = Long.valueOf(getRequestParameter(request, GBL_PROPERTY_INTERVAL));
-                        if (aLong > 59l) {
-                            aLong = 59l;
-                        } else if (aLong < 1l) {
-                            aLong = 1l;
-                        }
-                        cronTrigger1.setCronExpression("25 0/" + aLong + " * * * ?");
-                        Date date = ServicesRegistry.getInstance().getSchedulerService().getScheduler()
-                                .rescheduleJob(cronTrigger.getName(), cronTrigger.getGroup(), cronTrigger1);
-                    }
-                }
-            } catch (SchedulerException | ParseException e) {
-                LOGGER.error("Error scheduling jobs", e);
-            }
+            siteNode.setProperty(GBL_PROPERTY_INTERVAL, Long.parseLong(getRequestParameter(request, GBL_PROPERTY_INTERVAL)));
         }
         siteNode.setProperty(GBL_PROPERTY_COMPONENTS, getMultiRequestparameter(request, GBL_PROPERTY_COMPONENTS));
         String[] multiRequestparameter = getMultiRequestparameter(request, "j:languageMappings");

@@ -172,14 +172,12 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
                     }
                     project.remove();
                     sessionWrapper.save();
-                } else if (checkInterval(config) && (!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
-                        && !project.hasProperty(GBL_PROJECT_ERROR)) {
+                } else if ((!project.hasProperty(GBL_SUBMISSION_STATE) || !project.hasProperty(GBL_PROJECT_REQUEST_ID))
+                    && !project.hasProperty(GBL_PROJECT_ERROR)) {
                     GlobalLinkProjectRequestDTO projectRequestDTO = buildProjectRequestDTO(project, config);
 
                     this.contentService.addRequestId(project, this.sessionWrapper, projectRequestDTO.getRequestId());
                     processRequestDTO(projectRequestDTO, gcExchange, config);
-                    config.getSiteNode().setProperty(GBL_PROPERTY_LAST_EXEC, Calendar.getInstance());
-                    this.sessionWrapper.save();
                     if (mailService.isEnabled()) {
                         globalLinkMailService.sendNotificationMail(project, STATUS_SUBMITTED);
                     }
@@ -419,27 +417,5 @@ public class GlobalLinkSubmissionServiceImpl implements GlobalLinkSubmissionServ
             LOGGER.error("Error while preparing global link content -> ", ex);
         }
         return null;
-    }
-
-    /**
-     * Check configured interval for global link request process and
-     * match last executed time.
-     *
-     * @param config
-     * @return
-     */
-    private boolean checkInterval(GlobalLinkConfigurationDTO config) {
-        try {
-            if (config.getSiteNode().hasProperty(GBL_PROPERTY_LAST_EXEC) && config.getSiteNode().hasProperty(GBL_PROPERTY_INTERVAL)) {
-                Calendar lastExecuted = config.getSiteNode().getProperty(GBL_PROPERTY_LAST_EXEC).getDate();
-                lastExecuted.add(Calendar.MINUTE,
-                        Integer.parseInt((String.valueOf(config.getSiteNode().getProperty(GBL_PROPERTY_INTERVAL).getLong()))));
-                return Calendar.getInstance().after(lastExecuted);
-            }
-            return true;
-        } catch (RepositoryException re) {
-            LOGGER.error("Error while checking submission interval -> ", re);
-        }
-        return false;
     }
 }
