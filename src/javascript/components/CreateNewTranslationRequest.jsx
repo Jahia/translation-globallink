@@ -32,7 +32,7 @@ export const CreateNewTranslationRequest = ({render: Render, loading: Loading, .
     // URL : const onClick = () => history.push(`/content-editor/${language}/create/${nodeInfo.node.uuid}/gblnt:globalLinkProject`);
     // Use onClick to open the modal window
     const onClick = () => window.CE_API.create({
-        uuid: res.node.uuid,
+        targetNodeId: res.node.uuid,
         path: window.globallinkFolder[siteKey].path,
         site: siteKey,
         uilang: window.contextJsParameters.uilang,
@@ -40,7 +40,8 @@ export const CreateNewTranslationRequest = ({render: Render, loading: Loading, .
         nodeTypes: ['gblnt:globalLinkProject'],
         includeSubTypes: false,
         isFullscreen: false,
-        keepSectionsState: true
+        keepSectionsState: true,
+        configName: 'gblnt:globalLinkProject'
     });
 
     return (

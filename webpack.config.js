@@ -1,6 +1,6 @@
 const path = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
 const getModuleFederationConfig = require('@jahia/webpack-config/getModuleFederationConfig');
@@ -18,7 +18,7 @@ const cycloneDxWebpackPluginOptions = {
 module.exports = (env, argv) => {
     let config = {
         entry: {
-            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/init.js')] }
+            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/init.js')]}
         },
         output: {
             chunkLoadingGlobal: 'translationsGolballinkJsonp',
@@ -27,7 +27,11 @@ module.exports = (env, argv) => {
             chunkFilename: '[name].translations-globallink.[chunkhash:6].js'
         },
         plugins: [
-            new ModuleFederationPlugin(getModuleFederationConfig(packageJson)),
+            new ModuleFederationPlugin(getModuleFederationConfig(packageJson, {
+                remotes: {
+                    '@jahia/jcontent': 'appShell.remotes.jcontent',
+                }
+            })),
             new CleanWebpackPlugin({verbose: false}),
             new CopyWebpackPlugin({patterns: [{from: './package.json', to: ''}]}),
             new CycloneDxWebpackPlugin(cycloneDxWebpackPluginOptions)
@@ -60,7 +64,7 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.css$/i,
-                    use: ["style-loader","css-loader"],
+                    use: ["style-loader", "css-loader"],
                 }
             ]
         },

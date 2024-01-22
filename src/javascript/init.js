@@ -3,6 +3,8 @@ import {toIconComponent} from '@jahia/moonstone';
 import i18next from 'i18next';
 import {CreateNewTranslationRequest} from './components/CreateNewTranslationRequest';
 
+import {useCreateFormDefinition, useContentEditorConfigContext} from '@jahia/jcontent';
+
 export default function () {
     registry.addOrReplace('action', 'createTranslation', {
         buttonIcon: toIconComponent(`<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -34,35 +36,16 @@ export default function () {
 
     i18next.loadNamespaces('jahia-translation-globallink');
 
-    registry.add('contentEditor.onCreate', 'onCreateTranslationRequest', {
-        onCreate: (variables, nodeData) => {
-            if (variables.primaryNodeType === 'gblnt:globalLinkProject') {
-                // Resolve site
-                const [, , siteKey] = nodeData.path.split('/');
+    registry.add('content-editor-config', 'gblnt:globalLinkProject', {
+        useFormDefinition: () => {
+            const {data, refetch, loading, error} = useCreateFormDefinition();
+            const contentEditorConfigContext = useContentEditorConfigContext();
 
-                // Sites' global link folder is provided by /configs/translation-globallink.jsp
-                const globallinkFolder = window.globallinkFolder[siteKey];
-                if (globallinkFolder) {
-                    // Set target node
-                    const targetNode = {
-                        language: variables.properties[0].language,
-                        name: 'targetNode',
-                        option: undefined,
-                        type: 'STRING',
-                        value: variables.uuid
-                    };
-                    variables.properties.push(targetNode);
-                    // Change node to save
-                    variables.uuid = globallinkFolder.uuid;
-                    return variables;
-                }
-
-                console.error(`No global link folder found for site key ${siteKey}, please check your configuration`);
-                // Clean up uuid to make the form fail to save.
-                variables.uuid = '';
+            if (data && contentEditorConfigContext.targetNodeId) {
+                data.initialValues['gblnt:globalLinkProject_targetNode'] = contentEditorConfigContext.targetNodeId;
             }
 
-            return variables;
+            return {data, refetch, loading, error};
         }
     });
 
