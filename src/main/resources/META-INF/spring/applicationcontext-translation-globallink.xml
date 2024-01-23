@@ -19,6 +19,7 @@
                 <property name="parentTypes" value="jnt:page"/>
             </bean>
         </property>
+        <property name="requiredModule" value="jahia-translation-globallink"/>
         <property name="title" value="GlobalLink Translation" />
         <property name="icon" value="/modules/jahia-translation-globallink/img/module_GlobalLink.png"/>
         <property name="parent" value="editmode.tabs[0].treeContextMenu"/>
