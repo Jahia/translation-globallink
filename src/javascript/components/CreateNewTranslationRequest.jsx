@@ -10,8 +10,8 @@ export const CreateNewTranslationRequest = ({render: Render, loading: Loading, .
         {path: otherProps.path, language: language},
         {
             requireModuleInstalledOnSite: ['jahia-translation-globallink'],
-            getPrimaryNodeType: true
-
+            getPrimaryNodeType: true,
+            showOnNodeTypes: otherProps.showOnNodeTypes
         }
     );
 
