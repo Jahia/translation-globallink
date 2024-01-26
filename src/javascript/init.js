@@ -20,6 +20,7 @@ export default function () {
                                                                     </defs>
                                                                 </svg>`),
         buttonLabel: 'jahia-translation-globallink:label.requestATranslation',
+        showOnNodeTypes: ['jnt:page'],
         targets: ['contentActions:3.10'],
         component: CreateNewTranslationRequest
     });
