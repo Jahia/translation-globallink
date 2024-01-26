@@ -14,6 +14,7 @@ window.jahia.uiExtender.registry.addOrReplace('action', 'createTranslation', {
                                                                     </defs>
                                                                 </svg>`),
     buttonLabel: 'jahia-translation-globallink:label.requestATranslation',
+    showOnNodeTypes: ['jnt:page'],
     targets: ['contentActions:3.10'],
     component: CreateNewTranslationRequest
 });
