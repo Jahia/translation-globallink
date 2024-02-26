@@ -36,7 +36,6 @@ module.exports = (env, argv) => {
             extensions: ['.mjs', '.js', '.jsx', '.json', '.css'],
             alias: {
                 jquery: 'jquery/src/jquery',
-                'jquery-form': 'jquery-form/src/jquery.form.js',
                 'jquery.quicksearch': 'jquery.quicksearch/src/jquery.quicksearch.js',
                 multiselect: 'multiselect/js/jquery.multi-select.js'
             },
