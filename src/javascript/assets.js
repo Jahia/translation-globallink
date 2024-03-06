@@ -1,5 +1,7 @@
 import 'jquery';
 import 'jquery.quicksearch';
-import 'jquery-form';
+// Import 'jquery-form';
+// Security patched version, see https://github.com/jquery-form/form/pull/586
+import './lib/jquery-form';
 import 'multiselect';
 import '../../node_modules/multiselect/css/multi-select.css';

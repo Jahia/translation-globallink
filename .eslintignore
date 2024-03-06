@@ -5,3 +5,4 @@ src/main/resources/javascript
 src/javascript/publicPath.js
 storybook-static/
 webpack.config.js
+src/javascript/lib
