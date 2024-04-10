@@ -24,8 +24,6 @@
  *  */
 package org.jahia.translation.globallink.util;
 
-import com.google.common.base.Functions;
-import com.google.common.collect.Ordering;
 import org.apache.commons.lang.StringUtils;
 import org.gs4tr.gcc.restclient.GCConfig;
 import org.gs4tr.gcc.restclient.GCExchange;
@@ -49,6 +47,7 @@ import javax.jcr.nodetype.NoSuchNodeTypeException;
 import java.io.File;
 import java.nio.file.FileSystems;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.DOCUMENT_PATH;
 import static org.jahia.translation.globallink.common.GlobalLinkConstants.FILE_EXT_XML;
@@ -78,7 +77,6 @@ public class GlobalLinkUtil {
     }
 
     /**
-     *
      * @param config
      * @return
      */
@@ -88,10 +86,10 @@ public class GlobalLinkUtil {
         try {
             GCExchange gcExchange = new GCExchange(gcConfig);
             gcExchange.getConnectors()
-                    .stream()
-                    .filter(connector -> connector.getConnectorName().equals(config.getConnectorName()))
-                    .findFirst()
-                    .ifPresent(connector -> gcExchange.setConnectorKey(connector.getConnectorKey()));
+                .stream()
+                .filter(connector -> connector.getConnectorName().equals(config.getConnectorName()))
+                .findFirst()
+                .ifPresent(connector -> gcExchange.setConnectorKey(connector.getConnectorKey()));
             return gcExchange;
         } catch (Exception ex) {
             LOGGER.error("Error while generating GCExchange client: ", ex);
@@ -140,7 +138,7 @@ public class GlobalLinkUtil {
         for (Map.Entry<String, String> entry : components.entrySet()) {
             try {
                 ExtendedNodeType extendedNodeType = NodeTypeRegistry.getInstance().getNodeType(entry.getKey());
-                if(extendedNodeType.isNodeType("jmix:editorialContent")) {
+                if (extendedNodeType.isNodeType("jmix:editorialContent")) {
                     Map<String, ExtendedPropertyDefinition> definitions = extendedNodeType.getPropertyDefinitionsAsMap();
                     for (Map.Entry<String, ExtendedPropertyDefinition> definitionEntry : definitions.entrySet()) {
                         ExtendedPropertyDefinition value1 = definitionEntry.getValue();
@@ -159,7 +157,7 @@ public class GlobalLinkUtil {
 
     private static boolean allowType(ExtendedNodeType t, List<String> includeTypeList,
                                      List<String> excludeTypeList) {
-        if(t.getName().equals("jmix:publication")) {
+        if (t.getName().equals("jmix:publication")) {
             return false;
         }
         boolean include = true;
@@ -230,10 +228,14 @@ public class GlobalLinkUtil {
             }
         }
 
-        SortedMap<String, String> sortedComponents = new TreeMap<String, String>(
-                Ordering.from(String.CASE_INSENSITIVE_ORDER).onResultOf(Functions.forMap(finalComponents)));
-        sortedComponents.putAll(finalComponents);
-
-        return sortedComponents;
+        return finalComponents.entrySet()
+            .stream()
+            .sorted(Map.Entry.comparingByValue(String.CASE_INSENSITIVE_ORDER))
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                Map.Entry::getValue,
+                (e1, e2) -> e1,
+                LinkedHashMap::new
+            ));
     }
 }

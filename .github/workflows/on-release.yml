@@ -4,7 +4,7 @@ name: Trigger Release creation
 
 on:
   release:
-    types: [prereleased]
+    types: [ prereleased ]
 
 jobs:
   on-release:
@@ -23,7 +23,7 @@ jobs:
     steps:
       # Providing the SSH PRIVATE of a user part of an admin group
       # is necessary to bypass PR checks
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ssh-key: ${{ secrets.GH_SSH_PRIVATE_KEY_JAHIACI }}
 
@@ -49,13 +49,11 @@ jobs:
         with:
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-          nexus_enterprise_releases_url: ${{ secrets.NEXUS_ENTERPRISE_RELEASES_URL }}
           force_signature: true
 
       - uses: jahia/jahia-modules-action/release-publication@v2
         name: Publish Module
         with:
-          module_id: jahia-translation-globallink
           release_version: ${{ github.event.release.tag_name }}
           nexus_username: ${{ secrets.NEXUS_USERNAME }}
           nexus_password: ${{ secrets.NEXUS_PASSWORD }}
@@ -67,13 +65,13 @@ jobs:
         if: ${{ failure() }}
         uses: mxschmitt/action-tmate@v3
         timeout-minutes: 15
-        
+
   sbom:
     name: SBOM processing
     needs: on-release
     runs-on: ubuntu-latest
     container:
-      image: cyclonedx/cyclonedx-cli:0.24.2   
+      image: cyclonedx/cyclonedx-cli:0.24.2
     steps:
       - uses: jahia/jahia-modules-action/sbom-processing@v2
         with:

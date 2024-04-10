@@ -3,6 +3,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const {CleanWebpackPlugin} = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
+const moonstone = require("@jahia/moonstone/dist/rulesconfig-wp");
 const getModuleFederationConfig = require('@jahia/webpack-config/getModuleFederationConfig');
 const packageJson = require('./package.json');
 
@@ -18,10 +19,9 @@ const cycloneDxWebpackPluginOptions = {
 module.exports = (env, argv) => {
     let config = {
         entry: {
-            main: {import: [path.resolve(__dirname, 'src/javascript/publicPath'), path.resolve(__dirname, 'src/javascript/init.js')]}
+            main: path.resolve(__dirname, 'src/javascript/index')
         },
         output: {
-            chunkLoadingGlobal: 'translationsGolballinkJsonp',
             path: path.resolve(__dirname, 'src/main/resources/javascript/apps/'),
             filename: 'translations-globallink.bundle.js',
             chunkFilename: '[name].translations-globallink.[chunkhash:6].js'
@@ -48,6 +48,7 @@ module.exports = (env, argv) => {
         },
         module: {
             rules: [
+                ...moonstone,
                 {
                     test: /\.jsx?$/,
                     include: [path.join(__dirname, 'src')],
