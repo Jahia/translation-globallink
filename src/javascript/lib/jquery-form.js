@@ -1,6 +1,7 @@
 /*!
  * jQuery Form Plugin
- * version: 4.3.0
+ * version: 4.3.0-jahia.1 (25-MARCH-2024)
+ * includes security fix: https://github.com/jquery-form/form/pull/586 
  * Requires jQuery v1.7.2 or later
  * Project repository: https://github.com/jquery-form/form
 
