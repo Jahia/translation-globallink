@@ -49,7 +49,7 @@
             osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
             org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
         </require-capability>
-        <jahia-module-signature>MCwCFGbm0V1OjPLiFYc0MgS9FfsaWzzjAhQ0wsvMD4GSs100Y7rnDhBn+vteqw==</jahia-module-signature>
+        <jahia-module-signature>MCwCFFv4Fnwlkyp6CKAkye2Tuv1B36HPAhQut1M68Hifi//LxWBRwYTXgV74Pw==</jahia-module-signature>
         <sonar.sources>src/javascript</sonar.sources>
     </properties>
     <scm>
