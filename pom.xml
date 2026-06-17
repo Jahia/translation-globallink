@@ -46,8 +46,7 @@
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <jahia-key>org.jahia.translationGlobalLink</jahia-key>
         <require-capability>
-            osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
-            org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
+            osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"
         </require-capability>
         <sonar.sources>src/javascript</sonar.sources>
     </properties>
