@@ -33,23 +33,21 @@
         <artifactId>jahia-modules</artifactId>
         <version>8.2.0.0</version>
     </parent>
+    <groupId>org.jahia.community</groupId>
     <artifactId>jahia-translation-globallink</artifactId>
     <version>4.1.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>Jahia GlobalLink Translation Connector</name>
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
-        <jahia.nexus.staging.repository.id>6476c85c299551</jahia.nexus.staging.repository.id>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jahia-depends>siteSettings,default,jcontent=3</jahia-depends>
         <yarn.arguments>build --mode production</yarn.arguments>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <jahia-key>org.jahia.translationGlobalLink</jahia-key>
         <require-capability>
-            osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)",
-            org.jahia.license;filter:="(key=org.jahia.translationGlobalLink)"
+            osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"
         </require-capability>
-        <jahia-module-signature>MCwCFFv4Fnwlkyp6CKAkye2Tuv1B36HPAhQut1M68Hifi//LxWBRwYTXgV74Pw==</jahia-module-signature>
         <sonar.sources>src/javascript</sonar.sources>
     </properties>
     <scm>
@@ -58,16 +56,6 @@
         <url>scm:git:git@github.com:Jahia/translation-globallink.git</url>
         <tag>HEAD</tag>
     </scm>
-    <distributionManagement>
-        <repository>
-            <id>jahia-enterprise-releases</id>
-            <url>https://devtools.jahia.com/nexus/content/repositories/jahia-enterprise-releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>jahia-enterprise-snapshots</id>
-            <url>https://devtools.jahia.com/nexus/content/repositories/jahia-enterprise-snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
     <dependencies>
         <dependency>
             <groupId>com.translations.globallink</groupId>
