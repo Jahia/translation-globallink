@@ -53,7 +53,8 @@ public class GlobalLinkRefreshLanguagesAction extends GlobalLinkConfigAction {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalLinkRefreshLanguagesAction.class);
 
     public GlobalLinkRefreshLanguagesAction() {
-        this.setRequiredMethods("GET");
+        // POST: it calls GlobalLink and rewrites the site's language directions
+        this.setRequiredMethods("POST");
         this.setRequireAuthenticatedUser(true);
         this.setRequiredPermission("adminGlobalLinkTranslation");
     }
@@ -62,7 +63,7 @@ public class GlobalLinkRefreshLanguagesAction extends GlobalLinkConfigAction {
     public ActionResult doExecute(HttpServletRequest request, RenderContext renderContext, Resource resource, JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
         ActionResult actionResult = new ActionResult(SC_OK, request.getRequestURL().toString(), new JSONObject());
         try {
-            JCRSiteNode siteNode = renderContext.getSite();
+            JCRSiteNode siteNode = resource.getNode().getResolveSite();
             this.getLanguageMapping(siteNode);
             jcrSessionWrapper.save();
             actionResult.getJson().put("message", "gbl.settings.success");

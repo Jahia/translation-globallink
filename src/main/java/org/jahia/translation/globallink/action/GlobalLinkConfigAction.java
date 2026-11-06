@@ -85,7 +85,7 @@ public class GlobalLinkConfigAction extends Action {
             JCRSessionWrapper jcrSessionWrapper, Map<String, List<String>> map, URLResolver urlResolver) throws Exception {
         ActionResult actionResult = new ActionResult(SC_OK, request.getRequestURL().toString(), new JSONObject());
         try {
-            this.saveGlobalLinkConfigs(request, renderContext, jcrSessionWrapper);
+            this.saveGlobalLinkConfigs(request, resource.getNode().getResolveSite(), jcrSessionWrapper);
             actionResult.getJson().put("message", "gbl.settings.success");
         } catch (Exception ex) {
             LOGGER.error("Exception while saving GlobalLink settings!!", ex);
@@ -97,15 +97,17 @@ public class GlobalLinkConfigAction extends Action {
     /**
      * Save global link settings for a site.
      *
+     * The site is the one of the node the action is called on, never {@code renderContext.getSite()}, which is
+     * the site resolved from the server name. A blank password keeps the stored one: the settings screen never
+     * receives the password back.
+     *
      * @param request
-     * @param renderContext
+     * @param siteNode
      * @param sessionWrapper
      * @throws RepositoryException
      */
-    private void saveGlobalLinkConfigs(HttpServletRequest request, RenderContext renderContext, JCRSessionWrapper sessionWrapper)
+    private void saveGlobalLinkConfigs(HttpServletRequest request, JCRSiteNode siteNode, JCRSessionWrapper sessionWrapper)
             throws RepositoryException {
-        JCRSiteNode siteNode = renderContext.getSite();
-
         initGBLNode(siteNode, sessionWrapper);
 
         LOGGER.info("Saving configuration for Site: {}", siteNode.getTitle());
@@ -124,7 +126,10 @@ public class GlobalLinkConfigAction extends Action {
                 break;
         }
         siteNode.setProperty(GBL_PROPERTY_USERNAME, getRequestParameter(request, GBL_PROPERTY_USERNAME));
-        siteNode.setProperty(GBL_PROPERTY_PASSWORD, getRequestParameter(request, GBL_PROPERTY_PASSWORD));
+        String password = getRequestParameter(request, GBL_PROPERTY_PASSWORD);
+        if (!password.isEmpty() || !siteNode.hasProperty(GBL_PROPERTY_PASSWORD)) {
+            siteNode.setProperty(GBL_PROPERTY_PASSWORD, password);
+        }
         siteNode.setProperty(GBL_PROPERTY_URL, getRequestParameter(request, GBL_PROPERTY_URL));
         siteNode.setProperty(GBL_PROPERTY_AGENT, getRequestParameter(request, GBL_PROPERTY_AGENT));
         siteNode.setProperty(GBL_PROPERTY_CONNECTOR_NAME, getRequestParameter(request, GBL_PROPERTY_CONNECTOR_NAME));
@@ -218,7 +223,7 @@ public class GlobalLinkConfigAction extends Action {
         }
     }
 
-    private static Map<String, Set<String>> getAvailableLanguageMapping(ConnectorsConfigResponseData connectorsConfigResponseData) {
+    static Map<String, Set<String>> getAvailableLanguageMapping(ConnectorsConfigResponseData connectorsConfigResponseData) {
         List<LanguageDirection> languageMappingList = connectorsConfigResponseData.getLanguageDirections();
         if (languageMappingList.isEmpty()) {
             Optional<LocaleConfig> sourceLocaleConfigOptional = connectorsConfigResponseData.getSupportedLocales().stream()

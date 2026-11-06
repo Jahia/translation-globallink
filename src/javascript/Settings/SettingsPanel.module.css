@@ -1,0 +1,108 @@
+/* Panel root in jContent's flex column: fill it so LayoutContent's own box scrolls, keep wide content inside */
+.root {
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    contain: inline-size;
+    isolation: isolate;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large, 24px);
+    min-width: 0;
+    contain: inline-size;
+}
+
+.content > * {
+    flex-shrink: 0;
+}
+
+/* Content card, as jContent draws it */
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium, 16px);
+    padding: var(--spacing-large, 24px);
+    border-radius: 4px;
+    background: var(--color-white, #fff);
+    box-shadow: 0 4px 8px 0 rgba(19, 28, 33, 0.2);
+    min-width: 0;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-big, 32px);
+}
+
+.switchRow {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-small, 8px);
+}
+
+.switchLabel {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-nano, 4px);
+    cursor: pointer;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr));
+    gap: var(--spacing-medium, 16px) var(--spacing-large, 24px);
+}
+
+/* Field indents its content: the grid gives the spacing */
+.grid :global(.moonstone-field) {
+    margin: 0;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-small, 8px);
+    margin-top: var(--spacing-small, 8px);
+}
+
+.tableBox {
+    overflow-x: auto;
+}
+
+.mappingTable {
+    min-width: 520px;
+}
+
+.dropdown {
+    width: 100%;
+    max-width: 420px;
+}
+
+.scope.scope {
+    /* Doubled: Moonstone's flexCol class on the RadioGroup root has the same weight */
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--spacing-large, 24px);
+}
+
+/* Moonstone puts a margin-top on every radio item after the first: in a row it drops below the line */
+.scope.scope > label + label {
+    margin-top: 0;
+}
+
+.listSelector {
+    display: flex;
+    height: 420px;
+    min-width: 0;
+}
+
+.listSelector > * {
+    flex: 1 1 auto;
+    min-width: 0;
+}

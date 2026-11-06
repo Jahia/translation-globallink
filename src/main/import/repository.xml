@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <content xmlns:j="http://www.jahia.org/jahia/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0">
     <modules jcr:primaryType="jnt:modules">
-        <jahia-translation-globallink j:dependencies="default siteSettings"
+        <jahia-translation-globallink j:dependencies="default"
                                j:modulePriority="0"
                                j:moduleType="module"
                                j:title="Global Link Translation"
@@ -38,62 +38,6 @@
                 <templates j:rootTemplatePath="/base" jcr:primaryType="jnt:templatesFolder">
                     <files jcr:primaryType="jnt:folder"/>
                     <contents jcr:primaryType="jnt:contentFolder"/>
-                    <site-settings-base j:hiddenTemplate="false"
-                                        j:view="translation-siteSettings"
-                                        jcr:mixinTypes="jmix:useUILocale"
-                                jcr:primaryType="jnt:template">
-                        <j:translation_en jcr:language="en"
-                                 jcr:mixinTypes="mix:title"
-                                 jcr:primaryType="jnt:translation"
-                                 jcr:title="site-settings-base"/>
-                        <global-link-translation j:hiddenTemplate="false"
-                                                   j:icon="/modules/jahia-translation-globallink/files/icon/globalLink.png"
-                                                   jcr:mixinTypes="jmix:useUILocale"
-                                                   jcr:primaryType="jnt:template">
-                        <j:translation_en jcr:language="en"
-                                          jcr:mixinTypes="mix:title"
-                                          jcr:primaryType="jnt:translation"
-                                          jcr:title="Global Link Translation"/>
-                        <globallink-translation-requests j:applyOn="jnt:virtualsite"
-                                   j:defaultTemplate="false"
-                                   j:hiddenTemplate="false"
-                                                j:icon="/modules/jahia-translation-globallink/files/icon/globalLink.png"
-                                    j:priority="100"
-                                   jcr:primaryType="jnt:contentTemplate">
-                            <j:translation_en jcr:language="en"
-                                    jcr:mixinTypes="mix:title"
-                                    jcr:primaryType="jnt:translation"
-                                    jcr:title="GlobalLink Project Requests"/>
-                            <pagecontent jcr:primaryType="jnt:contentList">
-                                <globallink-requests jcr:primaryType="gblnt:globalLinkRequestStatus">
-                                    <j:translation_en jcr:language="en"
-                                          jcr:mixinTypes="mix:title"
-                                          jcr:primaryType="jnt:translation"
-                                          jcr:title="GlobalLink Project Requests"/>
-                                </globallink-requests>
-                            </pagecontent>
-                        </globallink-translation-requests>         
-                        <globallink-translation-settings j:applyOn="jnt:virtualsite"
-                                    j:icon="/modules/jahia-translation-globallink/files/icon/globalLink.png"
-                                    j:defaultTemplate="false"
-                                    j:hiddenTemplate="false"
-                                    j:priority="100"
-                                    jcr:primaryType="jnt:contentTemplate">
-                            <j:translation_en jcr:language="en"
-                                    jcr:mixinTypes="mix:title"
-                                    jcr:primaryType="jnt:translation"
-                                    jcr:title="GlobalLink Translation Settings"/>
-                            <pagecontent jcr:primaryType="jnt:contentList">
-                                <globallink-settings jcr:primaryType="gblnt:globalLinkSettings">
-                                    <j:translation_en jcr:language="en"
-                                          jcr:mixinTypes="mix:title"
-                                          jcr:primaryType="jnt:translation"
-                                          jcr:title="GlobalLink Translation Settings"/>
-                                </globallink-settings>
-                            </pagecontent>
-                        </globallink-translation-settings>
-                        </global-link-translation>
-                    </site-settings-base>
                 </templates>
                 
             </jahia-translation-globallink>

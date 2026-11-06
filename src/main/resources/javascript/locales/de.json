@@ -1,7 +1,158 @@
 {
-  "label" : {
-    "settings": "GlobalLink - Einstellungen",
-    "requests": "GlobalLink - Anfragen",
-    "requestATranslation": "Eine Übersetzung anfordern"
+  "label": {
+    "settings": "GlobalLink-Übersetzung",
+    "requests": "GlobalLink-Anfragen",
+    "requestATranslation": "Übersetzung anfordern"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "retry": "Erneut versuchen",
+    "reload": "Neu laden",
+    "exportCsv": "CSV exportieren",
+    "exportJson": "JSON exportieren",
+    "itemsPerPage": "Zeilen pro Seite",
+    "of": "von"
+  },
+  "settings": {
+    "title": "GlobalLink-Übersetzung",
+    "notEnabled": "Die GlobalLink-Übersetzung ist auf dieser Website nicht aktiviert, oder Ihnen fehlt hier die Berechtigung „adminGlobalLinkTranslation“. Aktivieren Sie das Modul für die Website unter Website-Einstellungen > Module, oder wenden Sie sich an einen Website-Administrator.",
+    "loadError": {
+      "title": "Die Einstellungen konnten nicht geladen werden",
+      "message": "Prüfen Sie, ob Sie noch angemeldet sind, und versuchen Sie es erneut."
+    },
+    "state": {
+      "disabled": "Deaktiviert",
+      "connected": "Verbunden",
+      "notConfigured": "Nicht konfiguriert",
+      "error": "Verbindungsfehler"
+    },
+    "saved": "GlobalLink-Einstellungen gespeichert",
+    "savedWithError": "Einstellungen gespeichert, aber von GlobalLink abgelehnt: siehe Meldung auf der Seite",
+    "saveFailed": "Die Einstellungen konnten nicht gespeichert werden",
+    "refreshLanguages": "GlobalLink-Sprachen neu laden",
+    "languagesRefreshed": "GlobalLink-Sprachrichtungen neu geladen",
+    "refreshFailed": "Die GlobalLink-Sprachen konnten nicht neu geladen werden",
+    "banner": {
+      "connectorTitle": "Connector nicht gefunden",
+      "connector": "GlobalLink hat keinen Connector namens „{{connector}}“. Verfügbar: {{available}}. Übersetzungsanfragen bleiben deaktiviert, bis der Name korrigiert und gespeichert ist.",
+      "connectionTitle": "GlobalLink hat die Verbindung abgelehnt",
+      "connection": "Prüfen Sie Benutzername, Passwort, API-URL und Connector-Namen."
+    },
+    "connection": {
+      "title": "Verbindung"
+    },
+    "fields": {
+      "activated": {
+        "label": "Übersetzungsanfragen an GlobalLink senden",
+        "helper": "Wenn deaktiviert, können Redakteure auf dieser Website keine Übersetzungen anfordern und nichts wird an GlobalLink gesendet."
+      },
+      "username": {
+        "label": "Benutzername",
+        "helper": "Ein technischer GlobalLink-Benutzer: translations.com zeigt ihn als Absender jeder Anfrage."
+      },
+      "password": {
+        "label": "Passwort",
+        "helper": "Passwort dieses GlobalLink-Benutzers.",
+        "helperStored": "Ein Passwort ist gespeichert. Leer lassen, um es zu behalten, oder ein neues eingeben."
+      },
+      "url": {
+        "label": "GlobalLink-API-URL",
+        "helper": "Von translations.com bereitgestellt, zum Beispiel https://connect.translations.com/api/v2/"
+      },
+      "connectorName": {
+        "label": "Connector-Name",
+        "helper": "Von translations.com bereitgestellt."
+      },
+      "submissionPrefix": {
+        "label": "Präfix für Anfragenamen",
+        "helper": "Eine Anfrage ohne Namen heißt „<Präfix> - <Seitenname>“."
+      },
+      "fileFormat": {
+        "label": "Dateiformat",
+        "helper": "Dateiformat des Connectors, von translations.com bereitgestellt (meist Jahia_XML)."
+      },
+      "fileLocation": {
+        "label": "Speicherort der Dokumente",
+        "helper": "Serverordner für die an GlobalLink gesendeten und empfangenen Dateien. Leer lassen für den Standard, <temporärer Serverordner>/gbl."
+      },
+      "interval": {
+        "label": "Prüfintervall (Minuten)",
+        "helper": "Wie oft Jahia neue Anfragen sendet und Übersetzungen abruft."
+      }
+    },
+    "errors": {
+      "required": "Pflichtfeld",
+      "interval": "Eine ganze Zahl von Minuten, mindestens 1",
+      "components": "Wählen Sie mindestens einen Inhaltstyp",
+      "summary": "Einige Einstellungen fehlen oder sind ungültig: siehe die rot markierten Felder"
+    },
+    "languages": {
+      "title": "Sprachen",
+      "directions": "Sprachrichtungen des Connectors",
+      "noDirection": "Der Connector deklariert keine Sprachrichtung.",
+      "mappingHelp": "Wählen Sie für jede Website-Sprache das GlobalLink-Gebietsschema. Eine Sprache ohne Gebietsschema wird nicht zur Übersetzung angeboten.",
+      "siteLanguage": "Website-Sprache",
+      "globalLinkLocale": "GlobalLink-Gebietsschema",
+      "unavailable": "Speichern Sie gültige Verbindungseinstellungen mit aktivierten Anfragen: Die GlobalLink-Sprachen des Connectors erscheinen dann hier."
+    },
+    "mapping": {
+      "none": "Nicht zugeordnet"
+    },
+    "components": {
+      "title": "Zu übersetzende Inhaltstypen",
+      "help": "Nur diese Inhaltstypen werden an GlobalLink gesendet. Die Listen zeigen Typen mit mindestens einer übersetzbaren Texteigenschaft.",
+      "editorial": "Redaktionelle Inhaltstypen",
+      "all": "Alle Inhaltstypen",
+      "available": "Verfügbar",
+      "selected": "Übersetzt",
+      "addAll": "Alle hinzufügen",
+      "removeAll": "Alle entfernen",
+      "count": "{{value}} ausgewählt"
+    }
+  },
+  "requests": {
+    "title": "Übersetzungsanfragen",
+    "search": "Anfragen durchsuchen",
+    "loadError": "Die Anfragen konnten nicht geladen werden",
+    "count": "Anfragen: {{total}}",
+    "countFiltered": "Anfragen: {{shown}} von {{total}}",
+    "missingPage": "Gelöschter Inhalt",
+    "words": "{{value}} Wörter",
+    "contents": "Inhalte: {{value}}",
+    "view": "Anfrage {{name}} öffnen",
+    "empty": {
+      "title": "Noch keine Übersetzungsanfrage",
+      "message": "Redakteure fordern eine Übersetzung über das Menü einer Seite in jContent an."
+    },
+    "columns": {
+      "name": "Anfrage",
+      "page": "Inhalt",
+      "languages": "Sprachen",
+      "created": "Angefordert",
+      "dueDate": "Fällig",
+      "volume": "Umfang",
+      "status": "Status"
+    },
+    "status": {
+      "created": "Erstellt",
+      "submitted": "Übermittelt",
+      "retrieved": "Abgerufen",
+      "translated": "Übersetzt",
+      "cancelled": "Storniert",
+      "deleted": "Gelöscht",
+      "noDocument": "Nichts zu übersetzen",
+      "error": "Fehler"
+    },
+    "clean": {
+      "label": "Anfragen löschen, die erstellt wurden vor mehr als",
+      "days": "Tagen",
+      "button": "Löschen…",
+      "confirmTitle": "Alte Anfragen löschen?",
+      "confirmMessage": "{{value}} Anfrage(n), die vor mehr als {{days}} Tagen erstellt wurden, werden unabhängig von ihrem Status aus Jahia gelöscht. Bereits übernommene Übersetzungen bleiben erhalten. Dies kann nicht rückgängig gemacht werden.",
+      "confirmButton": "Anfragen löschen",
+      "done": "Gelöschte Anfragen: {{value}}",
+      "failed": "Die Anfragen konnten nicht gelöscht werden"
+    }
   }
 }

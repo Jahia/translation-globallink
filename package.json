@@ -7,9 +7,8 @@
     }
   },
   "scripts": {
-    "test": "env-cmd --no-override jest",
-    "testcli": "jest",
-    "build": "yarn lint:fix && yarn webpack --config webpack.config.js && yarn webpack --config webpack.assets.config.js",
+    "test": "vitest run",
+    "build": "yarn lint:fix && yarn webpack --config webpack.config.js",
     "build:nolint": "yarn webpack",
     "dev": "yarn webpack --watch",
     "webpack": "node --max_old_space_size=2048 ./node_modules/webpack/bin/webpack.js",
@@ -28,24 +27,21 @@
     "@jahia/jahia-ui-root": "0.0.1"
   },
   "jahia": {
-    "apps": {
-      "jahia": "configs/translation-globallink.jsp"
-    },
     "remotes": {
       "jahia": "javascript/apps/remoteEntry.js"
     }
   },
   "dependencies": {
+    "@apollo/client": "^3.7.17",
     "@jahia/data-helper": "^1.1.12",
-    "@jahia/moonstone": "^2.7.0",
+    "@jahia/moonstone": "^2.20.3",
+    "@jahia/react-material": "^3.0.5",
     "@jahia/ui-extender": "^1.1.0",
     "i18next": "^23.11.0",
-    "jquery": "^3.7.1",
-    "jquery.quicksearch": "^2.4.0",
-    "multiselect": "^0.9.12",
     "prop-types": "^15.7.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-i18next": "^11.7.2",
     "react-redux": "^9.1.0"
   },
   "devDependencies": {
@@ -75,6 +71,8 @@
     "sass-loader": "^13.0.0",
     "style-loader": "^3.3.3",
     "sync-pom-version-to-package": "^1.6.1",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
     "webpack": "^5.88.2",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-cli": "^5.1.4"

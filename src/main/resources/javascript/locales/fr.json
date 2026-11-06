@@ -1,7 +1,158 @@
 {
-  "label" : {
-    "settings": "Configuration GlobalLink",
-    "requests": "Requêtes GlobalLink",
+  "label": {
+    "settings": "Traduction GlobalLink",
+    "requests": "Demandes GlobalLink",
     "requestATranslation": "Demander une traduction"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "retry": "Réessayer",
+    "reload": "Recharger",
+    "exportCsv": "Exporter en CSV",
+    "exportJson": "Exporter en JSON",
+    "itemsPerPage": "Lignes par page",
+    "of": "sur"
+  },
+  "settings": {
+    "title": "Traduction GlobalLink",
+    "notEnabled": "La traduction GlobalLink n'est pas activée sur ce site, ou vous n'avez pas la permission « adminGlobalLinkTranslation » ici. Activez le module sur le site dans Paramètres du site > Modules, ou adressez-vous à un administrateur du site.",
+    "loadError": {
+      "title": "Les paramètres n'ont pas pu être chargés",
+      "message": "Vérifiez que vous êtes toujours connecté, puis réessayez."
+    },
+    "state": {
+      "disabled": "Désactivé",
+      "connected": "Connecté",
+      "notConfigured": "Non configuré",
+      "error": "Erreur de connexion"
+    },
+    "saved": "Paramètres GlobalLink enregistrés",
+    "savedWithError": "Paramètres enregistrés, mais GlobalLink les a refusés : voir le message sur la page",
+    "saveFailed": "Les paramètres n'ont pas pu être enregistrés",
+    "refreshLanguages": "Recharger les langues GlobalLink",
+    "languagesRefreshed": "Directions de langues GlobalLink rechargées",
+    "refreshFailed": "Les langues GlobalLink n'ont pas pu être rechargées",
+    "banner": {
+      "connectorTitle": "Connecteur introuvable",
+      "connector": "GlobalLink n'a pas de connecteur nommé « {{connector}} ». Disponibles : {{available}}. Les demandes de traduction restent désactivées jusqu'à ce que le nom soit corrigé et enregistré.",
+      "connectionTitle": "GlobalLink a refusé la connexion",
+      "connection": "Vérifiez le nom d'utilisateur, le mot de passe, l'URL de l'API et le nom du connecteur."
+    },
+    "connection": {
+      "title": "Connexion"
+    },
+    "fields": {
+      "activated": {
+        "label": "Envoyer les demandes de traduction à GlobalLink",
+        "helper": "Désactivé, les rédacteurs ne peuvent pas demander de traduction sur ce site et rien n'est envoyé à GlobalLink."
+      },
+      "username": {
+        "label": "Nom d'utilisateur",
+        "helper": "Un utilisateur GlobalLink technique : translations.com l'affiche comme auteur de chaque demande."
+      },
+      "password": {
+        "label": "Mot de passe",
+        "helper": "Mot de passe de cet utilisateur GlobalLink.",
+        "helperStored": "Un mot de passe est enregistré. Laissez vide pour le conserver, ou saisissez-en un nouveau."
+      },
+      "url": {
+        "label": "URL de l'API GlobalLink",
+        "helper": "Fournie par translations.com, par exemple https://connect.translations.com/api/v2/"
+      },
+      "connectorName": {
+        "label": "Nom du connecteur",
+        "helper": "Fourni par translations.com."
+      },
+      "submissionPrefix": {
+        "label": "Préfixe du nom des demandes",
+        "helper": "Une demande sans nom s'appelle « <préfixe> - <nom de la page> »."
+      },
+      "fileFormat": {
+        "label": "Format de fichier",
+        "helper": "Format de fichier du connecteur, fourni par translations.com (en général Jahia_XML)."
+      },
+      "fileLocation": {
+        "label": "Emplacement des documents",
+        "helper": "Dossier du serveur pour les fichiers envoyés à GlobalLink et reçus. Laissez vide pour la valeur par défaut, <dossier temporaire du serveur>/gbl."
+      },
+      "interval": {
+        "label": "Intervalle de vérification (minutes)",
+        "helper": "Fréquence à laquelle Jahia envoie les nouvelles demandes et récupère les traductions."
+      }
+    },
+    "errors": {
+      "required": "Obligatoire",
+      "interval": "Un nombre entier de minutes, 1 ou plus",
+      "components": "Sélectionnez au moins un type de contenu",
+      "summary": "Des paramètres manquent ou sont invalides : voir les champs en rouge"
+    },
+    "languages": {
+      "title": "Langues",
+      "directions": "Directions de langues du connecteur",
+      "noDirection": "Le connecteur ne déclare aucune direction de langue.",
+      "mappingHelp": "Choisissez la locale GlobalLink de chaque langue du site. Une langue sans locale n'est pas proposée à la traduction.",
+      "siteLanguage": "Langue du site",
+      "globalLinkLocale": "Locale GlobalLink",
+      "unavailable": "Enregistrez des paramètres de connexion valides avec les demandes activées : les langues GlobalLink du connecteur s'affichent alors ici."
+    },
+    "mapping": {
+      "none": "Non associée"
+    },
+    "components": {
+      "title": "Types de contenu à traduire",
+      "help": "Seuls ces types de contenu sont envoyés à GlobalLink. Les listes montrent les types ayant au moins une propriété texte traduisible.",
+      "editorial": "Types de contenu éditorial",
+      "all": "Tous les types de contenu",
+      "available": "Disponibles",
+      "selected": "Traduits",
+      "addAll": "Tout ajouter",
+      "removeAll": "Tout retirer",
+      "count": "{{value}} sélectionné(s)"
+    }
+  },
+  "requests": {
+    "title": "Demandes de traduction",
+    "search": "Rechercher des demandes",
+    "loadError": "Les demandes n'ont pas pu être chargées",
+    "count": "Demandes : {{total}}",
+    "countFiltered": "Demandes : {{shown}} sur {{total}}",
+    "missingPage": "Contenu supprimé",
+    "words": "{{value}} mots",
+    "contents": "Contenus : {{value}}",
+    "view": "Ouvrir la demande {{name}}",
+    "empty": {
+      "title": "Aucune demande de traduction",
+      "message": "Les rédacteurs demandent une traduction depuis le menu d'une page dans jContent."
+    },
+    "columns": {
+      "name": "Demande",
+      "page": "Contenu",
+      "languages": "Langues",
+      "created": "Demandée le",
+      "dueDate": "Échéance",
+      "volume": "Volume",
+      "status": "Statut"
+    },
+    "status": {
+      "created": "Créée",
+      "submitted": "Envoyée",
+      "retrieved": "Récupérée",
+      "translated": "Traduite",
+      "cancelled": "Annulée",
+      "deleted": "Supprimée",
+      "noDocument": "Rien à traduire",
+      "error": "Erreur"
+    },
+    "clean": {
+      "label": "Supprimer les demandes créées il y a plus de",
+      "days": "jours",
+      "button": "Supprimer…",
+      "confirmTitle": "Supprimer les anciennes demandes ?",
+      "confirmMessage": "{{value}} demande(s) créée(s) il y a plus de {{days}} jours seront supprimées de Jahia, quel que soit leur statut. Les traductions déjà appliquées au contenu restent. Cette action est définitive.",
+      "confirmButton": "Supprimer les demandes",
+      "done": "Demandes supprimées : {{value}}",
+      "failed": "Les demandes n'ont pas pu être supprimées"
+    }
   }
 }

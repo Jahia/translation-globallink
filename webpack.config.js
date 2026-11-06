@@ -55,7 +55,7 @@ module.exports = (env, argv) => {
                     loader: 'babel-loader',
                     options: {
                         presets: [
-                            ['@babel/preset-env', {modules: false, targets: {safari: '7', ie: '10'}}],
+                            ['@babel/preset-env', {modules: false, targets: {chrome: '100', firefox: '100', safari: '15'}}],
                             '@babel/preset-react'
                         ],
                         plugins: [
@@ -64,8 +64,13 @@ module.exports = (env, argv) => {
                     }
                 },
                 {
+                    test: /\.module\.css$/i,
+                    use: ['style-loader', {loader: 'css-loader', options: {modules: {namedExport: false, exportLocalsConvention: 'asIs', localIdentName: 'gbl_[local]_[hash:base64:5]'}}}]
+                },
+                {
                     test: /\.css$/i,
-                    use: ["style-loader", "css-loader"],
+                    exclude: /\.module\.css$/i,
+                    use: ['style-loader', 'css-loader']
                 }
             ]
         },

@@ -1,7 +1,158 @@
 {
-  "label" : {
-    "settings": "GlobalLink - Settings",
-    "requests": "GlobalLink - Requests",
+  "label": {
+    "settings": "GlobalLink translation",
+    "requests": "GlobalLink requests",
     "requestATranslation": "Request a translation"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "reload": "Reload",
+    "exportCsv": "Export CSV",
+    "exportJson": "Export JSON",
+    "itemsPerPage": "Rows per page",
+    "of": "of"
+  },
+  "settings": {
+    "title": "GlobalLink translation",
+    "notEnabled": "GlobalLink translation is not enabled on this site, or you do not hold the \"adminGlobalLinkTranslation\" permission here. Enable the module on the site in Site settings > Modules, or ask a site administrator.",
+    "loadError": {
+      "title": "The settings could not be loaded",
+      "message": "Check that you are still signed in, then retry."
+    },
+    "state": {
+      "disabled": "Disabled",
+      "connected": "Connected",
+      "notConfigured": "Not configured",
+      "error": "Connection error"
+    },
+    "saved": "GlobalLink settings saved",
+    "savedWithError": "Settings saved, but GlobalLink refused them: see the message on the page",
+    "saveFailed": "The settings could not be saved",
+    "refreshLanguages": "Reload GlobalLink languages",
+    "languagesRefreshed": "GlobalLink language directions reloaded",
+    "refreshFailed": "GlobalLink languages could not be reloaded",
+    "banner": {
+      "connectorTitle": "Connector not found",
+      "connector": "GlobalLink has no connector named \"{{connector}}\". Available: {{available}}. Translation requests stay switched off until the name is fixed and saved.",
+      "connectionTitle": "GlobalLink refused the connection",
+      "connection": "Check the username, password, API URL and connector name."
+    },
+    "connection": {
+      "title": "Connection"
+    },
+    "fields": {
+      "activated": {
+        "label": "Send translation requests to GlobalLink",
+        "helper": "When off, editors cannot request translations on this site and nothing is sent to GlobalLink."
+      },
+      "username": {
+        "label": "Username",
+        "helper": "A technical GlobalLink user: translations.com shows it as the submitter of every request."
+      },
+      "password": {
+        "label": "Password",
+        "helper": "Password of that GlobalLink user.",
+        "helperStored": "A password is stored. Leave empty to keep it, or type a new one."
+      },
+      "url": {
+        "label": "GlobalLink API URL",
+        "helper": "Given by translations.com, for example https://connect.translations.com/api/v2/"
+      },
+      "connectorName": {
+        "label": "Connector name",
+        "helper": "Given by translations.com."
+      },
+      "submissionPrefix": {
+        "label": "Request name prefix",
+        "helper": "A request without a name is called \"<prefix> - <page name>\"."
+      },
+      "fileFormat": {
+        "label": "File format",
+        "helper": "File format of the connector, given by translations.com (usually Jahia_XML)."
+      },
+      "fileLocation": {
+        "label": "Documents location",
+        "helper": "Server folder for the files sent to and received from GlobalLink. Leave empty for the default, <server temp folder>/gbl."
+      },
+      "interval": {
+        "label": "Check interval (minutes)",
+        "helper": "How often Jahia sends new requests and retrieves translations."
+      }
+    },
+    "errors": {
+      "required": "Required",
+      "interval": "A whole number of minutes, 1 or more",
+      "components": "Select at least one content type",
+      "summary": "Some settings are missing or invalid: see the fields marked in red"
+    },
+    "languages": {
+      "title": "Languages",
+      "directions": "Language directions of the connector",
+      "noDirection": "The connector declares no language direction.",
+      "mappingHelp": "Choose the GlobalLink locale of each site language. A language left without a locale is not offered for translation.",
+      "siteLanguage": "Site language",
+      "globalLinkLocale": "GlobalLink locale",
+      "unavailable": "Save valid connection settings with requests switched on: the GlobalLink languages of the connector then show here."
+    },
+    "mapping": {
+      "none": "Not mapped"
+    },
+    "components": {
+      "title": "Content types to translate",
+      "help": "Only these content types are sent to GlobalLink. The lists show types with at least one translatable text property.",
+      "editorial": "Editorial content types",
+      "all": "All content types",
+      "available": "Available",
+      "selected": "Translated",
+      "addAll": "Add all",
+      "removeAll": "Remove all",
+      "count": "{{value}} selected"
+    }
+  },
+  "requests": {
+    "title": "Translation requests",
+    "search": "Search requests",
+    "loadError": "The requests could not be loaded",
+    "count": "Requests: {{total}}",
+    "countFiltered": "Requests: {{shown}} of {{total}}",
+    "missingPage": "Deleted content",
+    "words": "{{value}} words",
+    "contents": "Contents: {{value}}",
+    "view": "Open request {{name}}",
+    "empty": {
+      "title": "No translation request yet",
+      "message": "Editors request a translation from the menu of a page in jContent."
+    },
+    "columns": {
+      "name": "Request",
+      "page": "Content",
+      "languages": "Languages",
+      "created": "Requested",
+      "dueDate": "Due",
+      "volume": "Volume",
+      "status": "Status"
+    },
+    "status": {
+      "created": "Created",
+      "submitted": "Submitted",
+      "retrieved": "Retrieved",
+      "translated": "Translated",
+      "cancelled": "Cancelled",
+      "deleted": "Deleted",
+      "noDocument": "Nothing to translate",
+      "error": "Error"
+    },
+    "clean": {
+      "label": "Delete requests created more than",
+      "days": "days ago",
+      "button": "Delete…",
+      "confirmTitle": "Delete old requests?",
+      "confirmMessage": "Requests to delete: {{value}}, created more than {{days}} days ago. They are deleted from Jahia, whatever their status. Translations already applied to the content stay. This cannot be undone.",
+      "confirmButton": "Delete requests",
+      "done": "Requests deleted: {{value}}",
+      "failed": "The requests could not be deleted"
+    }
   }
 }
