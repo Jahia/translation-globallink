@@ -41,7 +41,7 @@
     <description>This is the custom module (Global Link Translation) for running on a dX server.</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jahia-depends>siteSettings,default,jcontent=3</jahia-depends>
+        <jahia-depends>default,jcontent=[3.7,4)</jahia-depends>
         <yarn.arguments>build --mode production</yarn.arguments>
         <require-capability>osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"</require-capability>
         <jahia-key>org.jahia.translationGlobalLink</jahia-key>
@@ -49,6 +49,7 @@
             osgi.extender;filter:="(osgi.extender=org.jahia.bundles.blueprint.extender.config)"
         </require-capability>
         <sonar.sources>src/javascript</sonar.sources>
+        <skipTests>false</skipTests>
     </properties>
     <scm>
         <connection>scm:git:git@github.com:Jahia/translation-globallink.git</connection>
@@ -159,7 +160,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.6</version>
+                <version>1.15.1</version>
                 <!-- executions go here -->
                 <executions>
                     <execution>
@@ -169,8 +170,8 @@
                             <goal>install-node-and-yarn</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v18.16.0</nodeVersion>
-                            <yarnVersion>v1.22.19</yarnVersion>
+                            <nodeVersion>v22.21.0</nodeVersion>
+                            <yarnVersion>v1.22.22</yarnVersion>
                         </configuration>
                     </execution>
                     <execution>
@@ -188,6 +189,17 @@
                         </goals>
                         <configuration>
                             <arguments>${yarn.arguments}</arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>yarn test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>yarn</goal>
+                        </goals>
+                        <configuration>
+                            <arguments>test</arguments>
+                            <skip>${skipTests}</skip>
                         </configuration>
                     </execution>
                     <execution>

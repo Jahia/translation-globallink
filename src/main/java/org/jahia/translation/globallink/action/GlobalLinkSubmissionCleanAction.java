@@ -35,6 +35,7 @@ import org.jahia.services.render.RenderContext;
 import org.jahia.services.render.Resource;
 import org.jahia.services.render.URLResolver;
 import org.joda.time.DateTime;
+import org.json.JSONObject;
 import org.joda.time.MutableDateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.osgi.service.component.annotations.Component;
@@ -50,6 +51,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 /**
@@ -66,31 +68,47 @@ public class GlobalLinkSubmissionCleanAction extends Action {
 
     public GlobalLinkSubmissionCleanAction() {
         this.setRequiredMethods("POST");
+        this.setRequireAuthenticatedUser(true);
+        this.setRequiredPermission("adminGlobalLinkTranslation");
     }
 
+    /**
+     * Deletes the translation requests of the site created more than {@code daysOld} days ago.
+     * Answers {@code {"deleted": <count>}}, or 400 when {@code daysOld} is not a positive number.
+     */
     @Override
     public ActionResult doExecute(HttpServletRequest req, final RenderContext renderContext, Resource resource, JCRSessionWrapper session, Map<String, List<String>> parameters, URLResolver urlResolver) throws Exception {
         final List<String> daysOld = parameters.get("daysOld");
-        if (daysOld != null && !daysOld.isEmpty()) {
-            jcrTemplate.doExecuteWithSystemSessionAsUser(getCurrentUser(), Constants.EDIT_WORKSPACE, Locale.ENGLISH, new JCRCallback<Object>() {
-                @Override
-                public Object doInJCR(JCRSessionWrapper session) throws RepositoryException {
-                    Integer days = new Integer(daysOld.get(0));
-                    String statement = "SELECT * FROM [gblnt:globalLinkProject] AS formResult WHERE isdescendantnode([''{0}'']) AND [jcr:created] <= CAST(''{1}'' AS DATE)";
-                    MutableDateTime dateTime = new DateTime(Calendar.getInstance()).minusDays(days).toMutableDateTime();
-                    dateTime.setMillisOfDay(0);
-                    String toString = dateTime.toString(ISODateTimeFormat.dateTime());
-                    Query query = session.getWorkspace().getQueryManager().createQuery(MessageFormat.format(statement, renderContext.getSite().getPath(), toString), Query.JCR_SQL2);
-                    NodeIterator nodes = query.execute().getNodes();
-                    while (nodes.hasNext()) {
-                        JCRNodeWrapper node = (JCRNodeWrapper) nodes.nextNode();
-                        node.remove();
-                    }
-                    session.save();
-                    return null;
-                }
-            });
+        final int days;
+        try {
+            days = daysOld != null && !daysOld.isEmpty() ? Integer.parseInt(daysOld.get(0).trim()) : -1;
+        } catch (NumberFormatException e) {
+            return new ActionResult(SC_BAD_REQUEST, null, new JSONObject().put("error", "daysOld"));
         }
-        return new ActionResult(SC_OK, req.getRequestURL().toString());
+        if (days < 0) {
+            return new ActionResult(SC_BAD_REQUEST, null, new JSONObject().put("error", "daysOld"));
+        }
+        // The site of the node the action is called on: renderContext.getSite() follows the server name
+        final String sitePath = resource.getNode().getResolveSite().getPath();
+        Integer deleted = jcrTemplate.doExecuteWithSystemSessionAsUser(getCurrentUser(), Constants.EDIT_WORKSPACE, Locale.ENGLISH, new JCRCallback<Integer>() {
+            @Override
+            public Integer doInJCR(JCRSessionWrapper systemSession) throws RepositoryException {
+                String statement = "SELECT * FROM [gblnt:globalLinkProject] AS formResult WHERE isdescendantnode([''{0}'']) AND [jcr:created] <= CAST(''{1}'' AS DATE)";
+                MutableDateTime dateTime = new DateTime(Calendar.getInstance()).minusDays(days).toMutableDateTime();
+                dateTime.setMillisOfDay(0);
+                String toString = dateTime.toString(ISODateTimeFormat.dateTime());
+                Query query = systemSession.getWorkspace().getQueryManager().createQuery(MessageFormat.format(statement, sitePath, toString), Query.JCR_SQL2);
+                NodeIterator nodes = query.execute().getNodes();
+                int count = 0;
+                while (nodes.hasNext()) {
+                    JCRNodeWrapper node = (JCRNodeWrapper) nodes.nextNode();
+                    node.remove();
+                    count++;
+                }
+                systemSession.save();
+                return count;
+            }
+        });
+        return new ActionResult(SC_OK, null, new JSONObject().put("deleted", deleted));
     }
 }

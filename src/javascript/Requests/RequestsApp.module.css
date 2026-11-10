@@ -1,0 +1,126 @@
+/* Panel root in jContent's flex column: fill it so LayoutContent's own box scrolls, keep wide content inside */
+.root {
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    contain: inline-size;
+    /* The DataTable rows carry a z-index: without a stacking context they paint over the portaled Modal */
+    isolation: isolate;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-large, 24px);
+    min-width: 0;
+    contain: inline-size;
+}
+
+.content > * {
+    flex-shrink: 0;
+}
+
+/* Content card, as jContent draws it */
+.card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium, 16px);
+    padding: var(--spacing-large, 24px);
+    border-radius: 4px;
+    background: var(--color-white, #fff);
+    box-shadow: 0 4px 8px 0 rgba(19, 28, 33, 0.2);
+    min-width: 0;
+}
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-medium, 16px);
+}
+
+.searchGroup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-medium, 16px);
+    min-width: 0;
+}
+
+.search {
+    width: min(320px, 100%);
+}
+
+.clean {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-small, 8px);
+}
+
+.days {
+    width: 96px;
+}
+
+.loading {
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-big, 32px);
+}
+
+.tableBox {
+    overflow-x: auto;
+}
+
+.table {
+    min-width: 1100px;
+}
+
+/* Rows grow with their content: Moonstone rows are 48 px and cells cut what does not fit */
+.table tbody tr {
+    height: auto;
+    min-height: 48px;
+}
+
+.table tbody td {
+    height: auto;
+    padding-top: var(--spacing-small, 8px);
+    padding-bottom: var(--spacing-small, 8px);
+}
+
+/* Cells are nowrap flex rows: wrap on our own box inside the cell */
+.cellText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.languages {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-nano, 4px);
+    min-width: 0;
+    white-space: normal;
+}
+
+.link {
+    color: var(--color-accent, #00a0e3);
+    text-decoration: underline;
+}
+
+.link:hover,
+.link:focus-visible {
+    color: var(--color-accent_dark, #007cb0);
+}
+
+.errorText {
+    color: var(--color-danger, #e0182d);
+}

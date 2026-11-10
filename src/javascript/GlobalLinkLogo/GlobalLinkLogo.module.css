@@ -1,0 +1,23 @@
+.title {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-medium, 16px);
+    min-width: 0;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+/* 400 x 165 wordmark drawn at the height of the header title */
+.logo {
+    display: block;
+    width: auto;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+/* The title truncates, never the logo */
+.text {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

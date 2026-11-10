@@ -1,30 +1,42 @@
-import React from 'react';
+import React, {lazy, Suspense} from 'react';
+import PropTypes from 'prop-types';
 import {registry} from '@jahia/ui-extender';
-import {GlobalLink} from '@jahia/moonstone';
+import {GlobalLink, LayoutContent, Loader} from '@jahia/moonstone';
 import i18next from 'i18next';
-import {CreateNewTranslationRequest} from './components/CreateNewTranslationRequest';
-
 import {useCreateFormDefinition, useContentEditorConfigContext} from '@jahia/jcontent';
+import {MODULE_NAME, PERMISSION, PROJECT_TYPE} from './constants';
+import {RequestTranslationAction} from './RequestTranslation/RequestTranslationAction';
+import {useSiteContext} from './utils/useSiteContext';
 
-const MODULE_NAME = 'jahia-translation-globallink';
-export default function () {
-    registry.add('callback', 'translation-globallink', {
-        targets: ['jahiaApp-init:50'],
-        callback: async () => {
-            await i18next.loadNamespaces(MODULE_NAME);
-            register();
-            console.log('%c Jahia GlobalLink Translation Connector is activated', 'color: #3c8cba');
-        }
-    });
-}
+// Screens load on first display only: jContent's start stays light for every editor
+const SettingsPanel = lazy(() => import('./Settings/SettingsPanel'));
+const RequestsApp = lazy(() => import('./Requests/RequestsApp'));
+
+const Lazy = ({children}) => (
+    <Suspense fallback={<LayoutContent isLoading content={<Loader size="big"/>}/>}>{children}</Suspense>
+);
+
+Lazy.propTypes = {
+    children: PropTypes.node.isRequired
+};
+
+// Both screens remount with fresh state when the site changes
+const SiteSettings = () => {
+    const {siteKey} = useSiteContext();
+    return <Lazy><SettingsPanel key={siteKey}/></Lazy>;
+};
+
+const Requests = () => {
+    const {siteKey} = useSiteContext();
+    return <Lazy><RequestsApp key={siteKey}/></Lazy>;
+};
 
 const register = () => {
     registry.addOrReplace('action', 'createTranslation', {
         buttonIcon: <GlobalLink/>,
         buttonLabel: `${MODULE_NAME}:label.requestATranslation`,
-        showOnNodeTypes: ['jnt:page'],
-        targets: ['contentActions:3.10'],
-        component: CreateNewTranslationRequest
+        targets: ['accordionContentActions:12', 'contentItemActions:12', 'contentItemContextActions:12'],
+        component: RequestTranslationAction
     });
 
     registry.add('adminRoute', 'translation-globallink-settings', {
@@ -32,12 +44,22 @@ const register = () => {
         icon: <GlobalLink/>,
         label: `${MODULE_NAME}:label.settings`,
         isSelectable: true,
-        requiredPermission: 'adminGlobalLinkTranslation',
+        requiredPermission: PERMISSION,
         requireModuleInstalledOnSite: MODULE_NAME,
-        iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-settings.html'
+        render: () => <SiteSettings/>
     });
 
-    registry.add('content-editor-config', 'gblnt:globalLinkProject', {
+    registry.add('adminRoute', 'translation-globallink-requests', {
+        targets: ['jcontent:23'],
+        icon: <GlobalLink/>,
+        label: `${MODULE_NAME}:label.requests`,
+        isSelectable: true,
+        requiredPermission: PERMISSION,
+        requireModuleInstalledOnSite: MODULE_NAME,
+        render: () => <Requests/>
+    });
+
+    registry.add('content-editor-config', PROJECT_TYPE, {
         useFormDefinition: () => {
             const {data, refetch, loading, error} = useCreateFormDefinition();
             const contentEditorConfigContext = useContentEditorConfigContext();
@@ -54,20 +76,20 @@ const register = () => {
         // 'ContentPicker' is for content editor v3 compatibility.
         targets: ['Picker', 'ContentPicker'],
         onChange: (previousValue, currentValue, field, editorContext) => {
-            if (editorContext.nodeTypeName === 'gblnt:globalLinkProject' && currentValue === 'dummyTarget') {
+            if (editorContext.nodeTypeName === PROJECT_TYPE && currentValue === 'dummyTarget') {
                 const {setFieldValue} = editorContext.formik;
                 setFieldValue('gblnt:globalLinkProject_targetNode', editorContext.nodeData.uuid, false);
             }
         }
     });
-
-    registry.add('adminRoute', 'translation-globallink-requests', {
-        targets: ['jcontent:23'],
-        icon: <GlobalLink/>,
-        label: `${MODULE_NAME}:label.requests`,
-        isSelectable: true,
-        requiredPermission: 'adminGlobalLinkTranslation',
-        requireModuleInstalledOnSite: MODULE_NAME,
-        iframeUrl: window.contextJsParameters.contextPath + '/cms/editframe/default/$lang/sites/$site-key.globallink-translation-requests.html'
-    });
 };
+
+export default function () {
+    registry.add('callback', 'translation-globallink', {
+        targets: ['jahiaApp-init:50'],
+        callback: async () => {
+            await i18next.loadNamespaces(MODULE_NAME);
+            register();
+        }
+    });
+}
