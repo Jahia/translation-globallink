@@ -22,12 +22,12 @@ language, and the content types sent for translation. The password is never sent
 field empty to keep the stored one. *Reload GlobalLink languages* reads the connector's language directions
 again.
 
-![GlobalLink translation settings in Site settings](docs/images/settings.webp)
+![GlobalLink translation settings in Site settings](.github/images/settings.webp)
 
 **Requests.** Every request of the site with its page, languages, dates, volume and status; search, sorting,
 pages, CSV and JSON export, and deletion of requests older than a number of days.
 
-![GlobalLink translation requests in jContent](docs/images/requests.webp)
+![GlobalLink translation requests in jContent](.github/images/requests.webp)
 
 ## Build and deploy
 
